@@ -45,7 +45,7 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -89,7 +89,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Libraries\tiny_obj_loader;D:\Libraries\stb;D:\Libraries\glm\glm;D:\Libraries\glfw\include;D:\Libraries\Vulkan\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Libraries\glm\glm;D:\Libraries\glfw\x64\include;D:\Libraries\Vulkan\Include;D:\Libraries\tiny_obj_loader;D:\Libraries\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ShowIncludes>true</ShowIncludes>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>D:\Libraries\glfw\x64\lib-vc2015;D:\Libraries\Vulkan\Lib;D:\Libraries\Vulkan\Bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
