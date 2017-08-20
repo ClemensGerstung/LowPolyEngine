@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LowPolyEngine", "LowPolyEngine\LowPolyEngine.vcxproj", "{CADCF3B7-5FC7-4EEF-B291-4AF2734CE901}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LowPolyEngine.Test", "LowPolyEngine.Test\LowPolyEngine.Test.vcxproj", "{055A7C2F-CA55-4F71-B9BB-56731D0B1134}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{CADCF3B7-5FC7-4EEF-B291-4AF2734CE901}.Release|x64.Build.0 = Release|x64
 		{CADCF3B7-5FC7-4EEF-B291-4AF2734CE901}.Release|x86.ActiveCfg = Release|Win32
 		{CADCF3B7-5FC7-4EEF-B291-4AF2734CE901}.Release|x86.Build.0 = Release|Win32
+		{055A7C2F-CA55-4F71-B9BB-56731D0B1134}.Debug|x64.ActiveCfg = Debug|x64
+		{055A7C2F-CA55-4F71-B9BB-56731D0B1134}.Debug|x64.Build.0 = Debug|x64
+		{055A7C2F-CA55-4F71-B9BB-56731D0B1134}.Debug|x86.ActiveCfg = Debug|Win32
+		{055A7C2F-CA55-4F71-B9BB-56731D0B1134}.Debug|x86.Build.0 = Debug|Win32
+		{055A7C2F-CA55-4F71-B9BB-56731D0B1134}.Release|x64.ActiveCfg = Release|x64
+		{055A7C2F-CA55-4F71-B9BB-56731D0B1134}.Release|x64.Build.0 = Release|x64
+		{055A7C2F-CA55-4F71-B9BB-56731D0B1134}.Release|x86.ActiveCfg = Release|Win32
+		{055A7C2F-CA55-4F71-B9BB-56731D0B1134}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
