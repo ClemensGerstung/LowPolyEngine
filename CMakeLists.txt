@@ -9,7 +9,6 @@ include_directories("external/glm")
 include_directories("external/stb")
 include_directories("external/tinyobjloader")
 
-
 link_directories("$ENV{VULKAN_SDK}/Source/lib")
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -32,4 +31,8 @@ include_directories(LowPolyEngine.Test)
 add_executable(LowPolyEngine ${SOURCE_FILES})
 
 
-target_link_libraries(LowPolyEngine glfw vulkan-1)
+if (WIN32)
+    target_link_libraries(LowPolyEngine glfw vulkan-1)
+else()
+    target_link_libraries(LowPolyEngine glfw ${VULKAN_LIBRARY})
+endif()
