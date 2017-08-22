@@ -13,15 +13,12 @@ include_directories("external/glm")
 include_directories("external/stb")
 include_directories("external/tinyobjloader")
 
-# Only necessary under Windows
-link_directories("$ENV{VULKAN_SDK}/Source/lib")
-
 # Disable glfw Documentation, Tests and Examples
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-#GLFW Build through CMake
+#GLFW Build through CMake (Loads and links Vulkan as well)
 add_subdirectory("external/glfw" glfw_local)
 
 #Source Files Maybe use GLOB?
