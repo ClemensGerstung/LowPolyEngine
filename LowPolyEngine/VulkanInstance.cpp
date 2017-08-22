@@ -91,9 +91,9 @@ std::vector<const char*> lpe::Vulkan::GetRequiredExtensions()
 		extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	}
 
-#ifdef _WIN32 //Doesnt work on linux
-	delete[] glfwExtensions;
-#endif
+	//Not needed its a pointer to a struct that's not heap allocated memory
+	//delete[] glfwExtensions;
+
 
 	return extensions;
 }
