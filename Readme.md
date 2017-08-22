@@ -134,3 +134,14 @@ Also don't forget to link LowPolyEngine to LowPolyEngine.Test so you can use the
 **Congrats your done with the setup!**
 
 You may also check in **General** the options **Target Platform Version** and **Platform Toolset** if they're set correctly for your VisualStudio version.
+
+
+##Clion Setup
+
+###Under Windows
+
+1. Install MSys2 http://www.msys2.org/
+2. Install a toolchain: *pacman -S mingw-w64-x86_64-toolchain*
+3. Select the mingw installation in CLion:
+    * File | Settings | Build ,Execution... | Toolchains
+    * Set MinGW Home to {MSys2 installation dir}\mingw64
