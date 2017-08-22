@@ -16,7 +16,7 @@ namespace lpe
 	const bool EnableValidationLayer = true;
 
 	const std::vector<const char*> ValidationLayer = {
-#ifdef _WIN32 //Doesnt work on linux; here it's needed to provide a possibility for alternative names
+#ifdef _WIN32 //Doesnt work on linux; here it's needed to provide a possibility for alternative names (actually i think the name is based on the vulkan sdk version used)
 			"VK_LAYER_LUNARG_core_validation"
 #else
 			"VK_LAYER_LUNARG_standard_validation"
