@@ -2,14 +2,17 @@
 #define VULKAN_INSTANCE_H
 
 #include <vulkan/vulkan.hpp>
+#include <GLFW/glfw3.h>
+#include "VDeleter.h"
 
 namespace lpe {
 	class Vulkan
 	{
 	private:
 		vk::Instance instance;
-		std::shared_ptr<vk::AllocationCallbacks> allocator;
+		std::shared_ptr<vk::AllocationCallbacks> instanceAllocator;
 		std::shared_ptr<vk::DebugReportCallbackEXT> callback;
+		vk::SurfaceKHR surface;
 
 	public:
 		Vulkan() = delete;
@@ -22,6 +25,8 @@ namespace lpe {
 			   const uint32_t version, 
 			   const std::shared_ptr<vk::AllocationCallbacks> allocator = nullptr);
 		~Vulkan();
+
+		void CreateSurface(GLFWwindow* window);
 
 		static std::vector<const char*> GetRequiredExtensions();
 		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags, 

@@ -17,7 +17,6 @@ namespace lpe
 		GLFWwindow* window;	// using raw pointer because glfw is an c api and std::unique_ptr wouldn't work due to incomplete type...
 		std::unique_ptr<Vulkan> vulkan;
 
-
 		void InitWindow(const uint32_t width, const uint32_t height, const std::string& title, const bool resizeable = true);
 
 	public:

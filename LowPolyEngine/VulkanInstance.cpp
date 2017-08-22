@@ -5,7 +5,7 @@
 
 lpe::Vulkan::Vulkan(const std::string& applicationName, const uint32_t version, const std::shared_ptr<vk::AllocationCallbacks> allocator)
 {
-	this->allocator = allocator;
+	this->instanceAllocator = allocator;
 
 	if (EnableValidationLayer && !CheckValidationLayerSupport())
 	{
@@ -49,9 +49,20 @@ lpe::Vulkan::Vulkan(const std::string& applicationName, const uint32_t version, 
 
 lpe::Vulkan::~Vulkan()
 {
+	instance.destroySurfaceKHR(surface, nullptr);
 	DestroyDebugReportCallbackEXT(instance, *callback.get(), nullptr);
-	instance.destroy(allocator.get());
+	instance.destroy(instanceAllocator.get());
 }
+
+void lpe::Vulkan::CreateSurface(GLFWwindow* window)
+{
+	auto result = glfwCreateWindowSurface(static_cast<VkInstance>(instance), window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface));
+	if(result != (VkResult)vk::Result::eSuccess)
+	{
+		throw std::runtime_error("failed to create window surface! (" + vk::to_string((vk::Result)result) +")");
+	}
+}
+
 
 std::vector<const char*> lpe::Vulkan::GetRequiredExtensions()
 {

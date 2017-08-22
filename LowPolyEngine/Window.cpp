@@ -15,7 +15,6 @@ lpe::Window::Window(const uint32_t width, const uint32_t height, const std::stri
 lpe::Window::~Window()
 {
 	// TODO: device.waitIdle();
-
 	glfwDestroyWindow(window);
 }
 
@@ -30,6 +29,7 @@ void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const 
 	window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 
 	vulkan = std::make_unique<Vulkan>(title, APPLICATION_VERSION);
+	vulkan->CreateSurface(window);
 }
 
 bool lpe::Window::IsOpen() const
