@@ -32,7 +32,7 @@ lpe::Device::Device(const std::vector<vk::PhysicalDevice>& devices)
 		}
 	}
 
-	if (physicalDevice == VK_NULL_HANDLE)
+	if ((void*)physicalDevice == VK_NULL_HANDLE)
 	{
 		throw std::runtime_error("failed to find suitable GPU!");
 	}

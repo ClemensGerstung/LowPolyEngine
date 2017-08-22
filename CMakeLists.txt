@@ -2,10 +2,12 @@ cmake_minimum_required(VERSION 3.8)
 project(LowPolyEngine)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
-# Static Library Link  to make .exe copyable
+# Static Library Link to make .exe copyable under Windows
+if (WIN32)
 set(CMAKE_EXE_LINKER_FLAGS -static)
+endif()
 
 # Only necessary under Windows
 include_directories("$ENV{VULKAN_SDK}/Include")
@@ -26,6 +28,13 @@ set(SOURCE_FILES
         LowPolyEngine/Window.cpp
         LowPolyEngine/Window.h
         LowPolyEngine.Test/Main.cpp
+        LowPolyEngine/QueueFamilyIndices.h
+        LowPolyEngine/stdafx.h
+        LowPolyEngine/VDeleter.h
+        LowPolyEngine/VulkanDevice.cpp
+        LowPolyEngine/VulkanDevice.h
+        LowPolyEngine/VulkanInstance.cpp
+        LowPolyEngine/VulkanInstance.h
 )
 
 include_directories(.)
