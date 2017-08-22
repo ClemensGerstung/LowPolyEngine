@@ -4,6 +4,9 @@ project(LowPolyEngine)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_STANDARD 11)
 
+# Static Library Link  to make .exe copyable
+set(CMAKE_EXE_LINKER_FLAGS -static)
+
 # Only necessary under Windows
 include_directories("$ENV{VULKAN_SDK}/Include")
 include_directories("external/glm")
