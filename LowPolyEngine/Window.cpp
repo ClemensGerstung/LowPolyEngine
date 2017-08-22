@@ -1,5 +1,6 @@
 #include "Window.h"
 #include <string>
+#include "stdafx.h"
 
 lpe::Window::Window(const uint32_t width, const uint32_t height, std::string&& title, const bool resizeable)
 {
@@ -27,6 +28,8 @@ void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const 
 	glfwWindowHint(GLFW_RESIZABLE, resizeable ? GLFW_TRUE : GLFW_FALSE);
 
 	window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+
+	vulkan = std::make_unique<Vulkan>(title, APPLICATION_VERSION);
 }
 
 bool lpe::Window::IsOpen() const
