@@ -82,7 +82,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>E:\Projects\LowPolyEngine\LowPolyEngine;E:\ProgZeug\CLibs\glfw-3.2.1.bin.WIN64\include;E:\ProgZeug\CLibs\glm\glm;E:\ProgZeug\CLibs\Vulkan\1.0.57.0\Include;E:\ProgZeug\CLibs\tinyobjloader;E:\ProgZeug\CLibs\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Projects\LowPolyEngine\LowPolyEngine;E:\ProgZeug\CLibs\glfw-3.2.1.bin.WIN64\include;external\glm;$(VULKAN_SDK)\Include;external\tinyobjloader;external\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
