@@ -9,6 +9,16 @@ lpe::Vulkan::Vulkan(const std::string& applicationName, const uint32_t version, 
 
 	if (EnableValidationLayer && !CheckValidationLayerSupport())
 	{
+		std::cout << "Available Validation Layers are: " << std::endl;
+		auto availableLayers = vk::enumerateInstanceLayerProperties();
+
+		for (const auto& layerName : ValidationLayer)
+		{
+			for (const auto& layerProp : availableLayers)
+			{
+				std::cout << layerProp.layerName << std::endl;
+			}
+		}
 		throw std::runtime_error("validation layers requested, but not available");
 	}
 
@@ -81,7 +91,9 @@ std::vector<const char*> lpe::Vulkan::GetRequiredExtensions()
 		extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	}
 
+#ifdef _WIN32 //Doesnt work on linux
 	delete[] glfwExtensions;
+#endif
 
 	return extensions;
 }

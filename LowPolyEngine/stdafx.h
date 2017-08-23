@@ -16,7 +16,11 @@ namespace lpe
 	const bool EnableValidationLayer = true;
 
 	const std::vector<const char*> ValidationLayer = {
-		"VK_LAYER_LUNARG_core_validation"
+#ifdef _WIN32 //Doesnt work on linux; here it's needed to provide a possibility for alternative names
+			"VK_LAYER_LUNARG_core_validation"
+#else
+			"VK_LAYER_LUNARG_standard_validation"
+#endif
 	};
 
 	const std::vector<const char*> DeviceExtensions = {
