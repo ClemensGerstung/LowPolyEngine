@@ -123,8 +123,20 @@ void lpe::Device::CreateLogicalDevice()
 	presentQueue = device.getQueue(indices.presentFamily, 0);
 }
 
+void lpe::Device::ThrowIfDefaultInit() const
+{
+	if (!isDefaultCreated)
+		throw std::runtime_error("Device not initialized correctly");
+}
+
+lpe::Device::Device()
+{
+	isDefaultCreated = true;
+}
+
 lpe::Device::Device(const Device& device)
-	: physicalDevice(device.physicalDevice),
+	: isDefaultCreated(false),
+	  physicalDevice(device.physicalDevice),
 	  device(device.device),
 	  graphicsQueue(device.graphicsQueue),
 	  presentQueue(device.presentQueue)
@@ -138,6 +150,7 @@ lpe::Device lpe::Device::operator=(const Device& device) const
 }
 
 lpe::Device::Device(const vk::SurfaceKHR* surface, const std::vector<vk::PhysicalDevice>& devices)
+	: isDefaultCreated(false)
 {
 	if (devices.empty())
 		throw std::runtime_error("failed to find GPUs with Vulkan support!");
@@ -151,26 +164,37 @@ lpe::Device::Device(const vk::SurfaceKHR* surface, const std::vector<vk::Physica
 
 lpe::Device::~Device()
 {
-	device.destroy(nullptr);
+	if (!isDefaultCreated)
+	{
+		device.destroy(nullptr);
+	}
 }
 
 lpe::Device::operator vk::Device() const
 {
+	ThrowIfDefaultInit();
+
 	return device;
 }
 
 const vk::Device& lpe::Device::GetVulkanDevice() const
 {
+	ThrowIfDefaultInit();
+
 	return device;
 }
 
 const vk::Queue& lpe::Device::GetGraphicsQueue() const
 {
+	ThrowIfDefaultInit();
+
 	return graphicsQueue;
 }
 
 const vk::Queue& lpe::Device::GetPresentQueue() const
 {
+	ThrowIfDefaultInit();
+
 	return presentQueue;
 }
 

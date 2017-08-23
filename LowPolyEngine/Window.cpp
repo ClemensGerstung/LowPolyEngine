@@ -30,6 +30,7 @@ void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const 
 
 	vulkan = std::make_unique<Vulkan>(title, APPLICATION_VERSION);
 	vulkan->CreateSurface(window);
+	vulkan->CreateDevice();
 }
 
 bool lpe::Window::IsOpen() const

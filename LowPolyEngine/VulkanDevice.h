@@ -11,6 +11,8 @@ namespace lpe
 	class Device
 	{
 	private:
+		bool isDefaultCreated;
+
 		vk::PhysicalDevice physicalDevice;
 		vk::Device device;
 		vk::Queue graphicsQueue;
@@ -25,8 +27,10 @@ namespace lpe
 
 		void PickPhysicalDevice(const std::vector<vk::PhysicalDevice>& devices);
 		void CreateLogicalDevice();
+
+		void ThrowIfDefaultInit() const;
 	public:
-		Device() = delete;
+		Device();
 		Device(const Device&);
 		Device operator=(const Device&) const;
 
