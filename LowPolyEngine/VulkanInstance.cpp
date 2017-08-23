@@ -9,26 +9,16 @@ lpe::Vulkan::Vulkan(const std::string& applicationName, const uint32_t version, 
 
 	if (EnableValidationLayer && !CheckValidationLayerSupport())
 	{
-		std::cout << "Available Validation Layers are: " << std::endl;
-		auto availableLayers = vk::enumerateInstanceLayerProperties();
-
-		for (const auto& layerName : ValidationLayer)
-		{
-			for (const auto& layerProp : availableLayers)
-			{
-				std::cout << layerProp.layerName << std::endl;
-			}
-		}
 		throw std::runtime_error("validation layers requested, but not available");
 	}
 
 	auto extensions = this->GetRequiredExtensions();
 
 	vk::ApplicationInfo info = { applicationName.c_str(), version, ENGINE_NAME, ENGINE_VERSION, VK_API_VERSION_1_0 };
-	vk::InstanceCreateInfo createInfo = 
-	{ 
-		{}, 
-		&info, 
+	vk::InstanceCreateInfo createInfo =
+	{
+		{},
+		&info,
 		(uint32_t)(EnableValidationLayer ? ValidationLayer.size() : 0),
 		(EnableValidationLayer ? ValidationLayer.data() : nullptr),
 		(uint32_t)extensions.size(),
@@ -90,10 +80,8 @@ std::vector<const char*> lpe::Vulkan::GetRequiredExtensions()
 	{
 		extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	}
-
 	//Not needed its a pointer to a struct that's not heap allocated memory
 	//delete[] glfwExtensions;
-
 
 	return extensions;
 }
