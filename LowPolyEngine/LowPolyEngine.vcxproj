@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="QueueFamilyIndices.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="SwapChainSupportDetails.h" />
     <ClInclude Include="VDeleter.h" />
     <ClInclude Include="VulkanDevice.h" />
     <ClInclude Include="VulkanInstance.h" />

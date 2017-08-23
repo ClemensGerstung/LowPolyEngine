@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 #include "VDeleter.h"
+#include "VulkanDevice.h"
 
 namespace lpe {
 	class Vulkan
@@ -13,6 +14,7 @@ namespace lpe {
 		std::shared_ptr<vk::AllocationCallbacks> instanceAllocator;
 		std::shared_ptr<vk::DebugReportCallbackEXT> callback;
 		vk::SurfaceKHR surface;
+		Device device;
 
 	public:
 		Vulkan() = delete;
@@ -27,6 +29,7 @@ namespace lpe {
 		~Vulkan();
 
 		void CreateSurface(GLFWwindow* window);
+		const Device& CreateDevice() const;
 
 		static std::vector<const char*> GetRequiredExtensions();
 		static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags, 

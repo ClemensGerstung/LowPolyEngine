@@ -63,6 +63,13 @@ void lpe::Vulkan::CreateSurface(GLFWwindow* window)
 	}
 }
 
+const lpe::Device& lpe::Vulkan::CreateDevice() const
+{
+	device = { &surface, instance.enumeratePhysicalDevices() };
+	
+	return device;
+}
+
 
 std::vector<const char*> lpe::Vulkan::GetRequiredExtensions()
 {
@@ -80,8 +87,6 @@ std::vector<const char*> lpe::Vulkan::GetRequiredExtensions()
 	{
 		extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 	}
-
-	delete[] glfwExtensions;
 
 	return extensions;
 }

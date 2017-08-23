@@ -33,6 +33,9 @@
     <ClInclude Include="QueueFamilyIndices.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="SwapChainSupportDetails.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window.cpp">

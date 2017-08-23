@@ -3,8 +3,8 @@
 
 struct QueueFamilyIndices
 {
-	int graphicsFamily = -1;
-	int presentFamily = -1;
+	uint32_t graphicsFamily = -1;
+	uint32_t presentFamily = -1;
 
 	bool isComplete() const
 	{
