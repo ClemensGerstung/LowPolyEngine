@@ -19,6 +19,7 @@ Feel free to complete this list either
 2. Render in HDR10 (because fuck myself but it may be worth it)
 3. Global illumination (...)
 4. High contrast (my be included in HDR10, but not all monitors have this feature yet)
+5. Multi-Core CPU usage (because it's awesome)
 
 ## Setup project
 
