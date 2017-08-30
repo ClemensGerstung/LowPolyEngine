@@ -20,7 +20,7 @@ namespace lpe {
 		static vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& presentModes);
 		vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, const uint32_t width, const uint32_t height) const;
 
-		void CreateSwapChain(const uint32_t width, const uint32_t height);
+		void CreateSwapChain(const uint32_t physicalDeviceIndex, const vk::Instance& instance, const uint32_t width, const uint32_t height);
 	public:
 		SwapChain() = delete;
 		SwapChain(const SwapChain&);
@@ -28,7 +28,8 @@ namespace lpe {
 		SwapChain operator =(const SwapChain&) const;
 		SwapChain operator =(SwapChain&&) const noexcept;
 
-		SwapChain(const uint32_t width, const uint32_t height);
+		SwapChain(std::string appName, const uint32_t width, const uint32_t height);
+		SwapChain(const uint32_t physicalDeviceIndex, const vk::Instance& instance, const uint32_t width, const uint32_t height);
 
 		~SwapChain();
 

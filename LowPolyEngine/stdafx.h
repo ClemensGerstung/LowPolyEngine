@@ -13,7 +13,7 @@ namespace lpe
 // may be overridden by the client code
 #define APPLICATION_VERSION 1
 
-	const bool EnableValidationLayer = true;
+#define ENABLE_VALIDATION_LAYER true
 
 	const std::vector<const char*> ValidationLayer = {
 		"VK_LAYER_LUNARG_core_validation"
