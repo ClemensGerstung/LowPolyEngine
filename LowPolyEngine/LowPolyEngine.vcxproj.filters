@@ -18,16 +18,7 @@
     <ClInclude Include="Window.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
-    <ClInclude Include="VulkanInstance.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="VDeleter.h">
-      <Filter>Headerdateien</Filter>
-    </ClInclude>
-    <ClInclude Include="VulkanDevice.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="QueueFamilyIndices.h">
@@ -36,15 +27,18 @@
     <ClInclude Include="SwapChainSupportDetails.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="SwapChain.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="lpe.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
-    <ClCompile Include="VulkanInstance.cpp">
-      <Filter>Quelldateien</Filter>
-    </ClCompile>
-    <ClCompile Include="VulkanDevice.cpp">
+    <ClCompile Include="SwapChain.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>
