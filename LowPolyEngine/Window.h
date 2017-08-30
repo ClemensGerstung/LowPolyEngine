@@ -3,37 +3,50 @@
 
 #define GLFW_INCLUDE_VULKAN
 
-#include <string>
-
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
 
+#include "SwapChain.h"
+
 namespace lpe
 {
-	class Window
-	{
-	private:
-		GLFWwindow* window;	// using raw pointer because glfw is an c api and std::unique_ptr wouldn't work due to incomplete type...
+class Window
+{
+	friend class SwapChain;
 
-		void InitWindow(const uint32_t width, const uint32_t height, const std::string& title, const bool resizeable = true);
+	GLFWwindow* window; // using raw pointer because glfw is an c api and std::unique_ptr wouldn't work due to incomplete type...
+	uint32_t width;
+	uint32_t height;
+	SwapChain swapChain;
 
-	public:
-		Window() = delete;
+	void InitWindow(const uint32_t width, const uint32_t height, const std::string& title, const bool resizeable = true);
 
-		Window(const uint32_t width, const uint32_t height, std::string&& title, const bool resizeable = true);
-		Window(const uint32_t width, const uint32_t height, const std::string& title, const bool resizeable = true);
+public:
+	Window() = delete;
 
-		Window(const Window& window) = delete;
-		Window(Window&& window) = delete;
+	Window(const uint32_t width,
+	       const uint32_t height,
+	       std::string&& title,
+	       const bool resizeable = true);
+	Window(const uint32_t width,
+	       const uint32_t height,
+	       const std::string& title,
+	       const bool resizeable = true);
 
-		~Window();
+	Window(const Window& window) = delete;
+	Window(Window&& window) = delete;
 
-		Window operator=(const Window& window) const = delete;
-		Window operator=(Window&& window) const = delete;
+	~Window();
 
-		bool IsOpen() const;
-		void Render();
-	};
+	Window operator=(const Window& window) const = delete;
+	Window operator=(Window&& window) const = delete;
+
+	bool IsOpen() const;
+	void Render();
+
+	uint32_t GetHeight() const;
+	uint32_t GetWidth() const;
+};
 }
 
 #endif

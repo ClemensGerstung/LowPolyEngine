@@ -1,6 +1,8 @@
 #include "Window.h"
 #include <string>
 #include "stdafx.h"
+#include "SwapChain.h"
+#include <future>
 
 lpe::Window::Window(const uint32_t width, const uint32_t height, std::string&& title, const bool resizeable)
 {
@@ -27,6 +29,11 @@ void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const 
 	glfwWindowHint(GLFW_RESIZABLE, resizeable ? GLFW_TRUE : GLFW_FALSE);
 
 	window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+	this->width = width;
+	this->height = height;
+
+	SwapChain swapChain = {title, this};
+	this->swapChain = swapChain;
 }
 
 bool lpe::Window::IsOpen() const
@@ -42,4 +49,14 @@ void lpe::Window::Render()
 	// TODO: DrawFrame();
 
 	// TODO: calculate FPS?
+}
+
+uint32_t lpe::Window::GetHeight() const
+{
+	return height;
+}
+
+uint32_t lpe::Window::GetWidth() const
+{
+	return width;
 }

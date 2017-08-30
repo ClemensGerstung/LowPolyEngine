@@ -4,6 +4,7 @@
 
 #include "stdafx.h"
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 namespace lpe
 {
@@ -38,10 +39,11 @@ inline uint32_t GetPhysicalDeviceCount()
 }
 
 inline vk::Instance CreateInstance(const std::string& applicationName,
-                                   const vk::AllocationCallbacks* allocator = nullptr)
+                                   const vk::AllocationCallbacks* allocator = nullptr,
+                                   vk::DebugReportCallbackEXT* callback = nullptr)
 {
 #ifdef ENABLE_VALIDATION_LAYER
-	if (!CheckValidationLayerSupport())
+	if (!helper::CheckValidationLayerSupport())
 	{
 		throw std::runtime_error("validation layers requested, but not available");
 	}
@@ -75,8 +77,8 @@ inline vk::Instance CreateInstance(const std::string& applicationName,
 		{},
 		&appInfo,
 #ifdef ENABLE_VALIDATION_LAYER
-		(uint32_t)ValidationLayer.size(),
-		ValidationLayer.data(),
+		(uint32_t)helper::ValidationLayer.size(),
+		helper::ValidationLayer.data(),
 #else
 		0,
 		nullptr,
@@ -92,6 +94,20 @@ inline vk::Instance CreateInstance(const std::string& applicationName,
 	{
 		throw std::runtime_error("Couldn't create Vulkan instance (Error: " + vk::to_string(result) + ")");
 	}
+
+#ifdef ENABLE_VALIDATION_LAYER
+	if (callback != nullptr) {
+		VkDebugReportCallbackCreateInfoEXT debugReportCreateInfo = {};
+		debugReportCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+		debugReportCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+		debugReportCreateInfo.pfnCallback = helper::debugCallback;
+
+		if (helper::CreateDebugReportCallbackEXT(instance, &debugReportCreateInfo, nullptr, callback))
+		{
+			throw std::runtime_error("Failed to set up debug callback");
+		}
+	}
+#endif
 
 	return instance;
 }
