@@ -3,10 +3,12 @@
 
 #include "SwapChainSupportDetails.h"
 #include "QueueFamilyIndices.h"
-#include "Window.h"
+
+#include "ImageView.h"
+
+#include <GLFW/glfw3.h>
 
 namespace lpe {
-	class  Window;
 
 	class SwapChain
 	{
@@ -16,7 +18,7 @@ namespace lpe {
 		vk::Device logicalDevice;
 		vk::SurfaceKHR surface;
 		vk::SwapchainKHR swapchain;
-		std::vector<vk::Image> swapchainImages;
+		std::vector<lpe::ImageView> swapchainImageViews;
 		vk::Format swapchainImageFormat;
 		vk::Extent2D swapchainExtent;
 		vk::Queue graphicsQueue;
@@ -38,6 +40,8 @@ namespace lpe {
 
 		void CreateSwapChain(const uint32_t physicalDeviceIndex, const vk::Instance& instance, const uint32_t width, const uint32_t height);
 
+		void CreateImageViews();
+
 	public:
 		SwapChain() = default;
 
@@ -48,11 +52,11 @@ namespace lpe {
 		void Init(std::string appName, GLFWwindow* window, const uint32_t width, const uint32_t height);
 		void Init(std::string appName, GLFWwindow* window, const uint32_t width, const uint32_t height, const uint32_t physicalDeviceIndex);
 
-		vk::CommandBuffer BeginSingleTimeCommands() const;
-		void EndSingleTimeCommands(vk::CommandBuffer commandBuffer);
+
 
 		vk::Device GetLogicalDevice() const;
 		vk::PhysicalDevice GetPhysicalDevice() const;
 	};
 }
+
 #endif

@@ -32,7 +32,7 @@ void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const 
 	this->width = width;
 	this->height = height;
 
-	this->swapChain.Init(title, window, width, height);	// will be overriden in another class with multi GPU support...
+	this->swapChain.Init(title, window, width, height);	// will be overridden in another class with multi GPU support...
 }
 
 bool lpe::Window::IsOpen() const

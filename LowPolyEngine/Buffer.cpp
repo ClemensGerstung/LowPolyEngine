@@ -4,59 +4,71 @@ void lpe::Buffer::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, 
 {
 	vk::BufferCreateInfo createInfo = {{}, size, usage, vk::SharingMode::eExclusive};
 
-	auto logicalDevice = swapChain.GetLogicalDevice();
-	auto result = logicalDevice.createBuffer(&createInfo, nullptr, &buffer);
+	auto result = device.createBuffer(&createInfo, nullptr, &buffer);
 	if (result != vk::Result::eSuccess)
 	{
 		throw std::runtime_error("failed to create buffer!" + vk::to_string(result) + "");
 	}
 
-	vk::MemoryRequirements requirements = logicalDevice.getBufferMemoryRequirements(buffer);
+	vk::MemoryRequirements requirements = device.getBufferMemoryRequirements(buffer);
 
 	vk::MemoryAllocateInfo allocInfo = { requirements.size, FindMemoryTypeIndex(requirements.memoryTypeBits, properties) };
 
-	result = logicalDevice.allocateMemory(&allocInfo, nullptr, &memory);
+	result = device.allocateMemory(&allocInfo, nullptr, &memory);
 	if (result != vk::Result::eSuccess)
 	{
 		throw std::runtime_error("failed to allocate buffer memory!" + vk::to_string(result) + "");
 	}
 
-	logicalDevice.bindBufferMemory(buffer, memory, 0);
+	device.bindBufferMemory(buffer, memory, 0);
 }
 
 void lpe::Buffer::CopyBuffer(vk::Buffer src, vk::Buffer dst, vk::DeviceSize size)
 {
-	vk::CommandBuffer commandBuffer = swapChain.BeginSingleTimeCommands();
+	vk::CommandBuffer commandBuffer = BeginSingleTimeCommands();
 
 	vk::BufferCopy copyRegion = {0, 0, size};
 
 	commandBuffer.copyBuffer(src, dst, 1, &copyRegion);
 
-	swapChain.EndSingleTimeCommands(commandBuffer);
+	EndSingleTimeCommands(commandBuffer);
 }
 
-uint32_t lpe::Buffer::FindMemoryTypeIndex(uint32_t typeFilter, vk::MemoryPropertyFlags props) const
+vk::CommandBuffer lpe::Buffer::BeginSingleTimeCommands() const
 {
-	auto properties = swapChain.GetPhysicalDevice().getMemoryProperties();
+	vk::CommandBufferAllocateInfo allocInfo = { commandPool, vk::CommandBufferLevel::ePrimary, 1 };
+	vk::CommandBuffer commandBuffer = device.allocateCommandBuffers(allocInfo)[0];
 
-	for(uint32_t i = 0; i < properties.memoryTypeCount; i++)
-	{
-		if((typeFilter & (1 << i)) && (properties.memoryTypes[i].propertyFlags & props) == props)
-		{
-			return i;
-		}
-	}
+	vk::CommandBufferBeginInfo beginInfo = { vk::CommandBufferUsageFlagBits::eOneTimeSubmit };
 
-	throw std::runtime_error("failed to find suitable memory type!");
+	commandBuffer.begin(beginInfo);
+
+	return commandBuffer;
 }
 
-lpe::Buffer::Buffer(const SwapChain& swapChain, const vk::CommandPool& commandPool, void* data, vk::DeviceSize size)
+void lpe::Buffer::EndSingleTimeCommands(vk::CommandBuffer commandBuffer)
 {
-	this->swapChain = swapChain;
+	commandBuffer.end();
 
+	vk::SubmitInfo submitInfo = { 0, nullptr, nullptr, 1, &commandBuffer };
+
+	graphicsQueue.submit(1, &submitInfo, nullptr);
+	graphicsQueue.waitIdle();
+
+	device.freeCommandBuffers(commandPool, 1, &commandBuffer);
+}
+
+lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice, const vk::Device& device, const vk::CommandPool& commandPool, const vk::Queue& graphicsQueue)
+	: Base(physicalDevice, device)
+{
+	this->commandPool = commandPool;
+	this->graphicsQueue = graphicsQueue;
+}
+
+void lpe::Buffer::Create(const vk::CommandPool& commandPool, void* data, vk::DeviceSize size)
+{
 	vk::Buffer stagingBuffer;
 	vk::DeviceMemory stagingMemory;
-	auto logicalDevice = swapChain.GetLogicalDevice();
 
 	CreateBuffer(size, 
 				 vk::BufferUsageFlagBits::eTransferSrc, 
@@ -66,9 +78,9 @@ lpe::Buffer::Buffer(const SwapChain& swapChain, const vk::CommandPool& commandPo
 
 	void* stagingData;
 	
-	logicalDevice.mapMemory(stagingMemory, 0, size, {}, &stagingData);
+	device.mapMemory(stagingMemory, 0, size, {}, &stagingData);
 	memcpy(stagingData, data, (size_t)size);
-	logicalDevice.unmapMemory(stagingMemory);
+	device.unmapMemory(stagingMemory);
 
 	CreateBuffer(size,
 				 vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
@@ -78,14 +90,12 @@ lpe::Buffer::Buffer(const SwapChain& swapChain, const vk::CommandPool& commandPo
 
 	CopyBuffer(stagingBuffer, buffer, size);
 
-	logicalDevice.destroyBuffer(stagingBuffer);
-	logicalDevice.freeMemory(stagingMemory);
+	device.destroyBuffer(stagingBuffer);
+	device.freeMemory(stagingMemory);
 }
 
 lpe::Buffer::~Buffer()
 {
-	auto logicalDevice = swapChain.GetLogicalDevice();
-
-	logicalDevice.destroyBuffer(buffer);
-	logicalDevice.freeMemory(memory);
+	device.destroyBuffer(buffer);
+	device.freeMemory(memory);
 }

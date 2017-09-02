@@ -36,6 +36,12 @@
     <ClInclude Include="Buffer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="ImageView.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Base.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window.cpp">
@@ -45,6 +51,12 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="Buffer.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageView.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Base.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

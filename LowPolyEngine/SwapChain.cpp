@@ -253,16 +253,27 @@ void lpe::SwapChain::CreateSwapChain(const uint32_t physicalDeviceIndex,
 	if(indices.graphicsFamily != indices.presentFamily)
 	{
 		createInfo.imageSharingMode = vk::SharingMode::eConcurrent;
-		createInfo.queueFamilyIndexCount = queueFamilyIndices.size();
+		createInfo.queueFamilyIndexCount = (uint32_t)queueFamilyIndices.size();
 		createInfo.pQueueFamilyIndices = queueFamilyIndices.data();
 	}
 
 	vk::SwapchainKHR newSwapchain = logicalDevice.createSwapchainKHR(createInfo, nullptr);
 	swapchain = newSwapchain;
 
-	swapchainImages = logicalDevice.getSwapchainImagesKHR(swapchain);
 	swapchainImageFormat = surfaceFormat.format;
 	swapchainExtent = extent;
+}
+
+void lpe::SwapChain::CreateImageViews()
+{
+	auto swapchainImages = logicalDevice.getSwapchainImagesKHR(swapchain);
+
+	swapchainImageViews.resize(swapchainImages.size(), ImageView {physicalDevice, logicalDevice});
+
+	for (int i = 0; i < swapchainImages.size(); i++)
+	{
+		swapchainImageViews[i].Create(swapchainImages[i], swapchainImageFormat, vk::ImageAspectFlagBits::eColor);
+	}
 }
 
 void lpe::SwapChain::Init(std::string appName, 
@@ -287,29 +298,6 @@ void lpe::SwapChain::Init(std::string appName,
 	}
 
 	CreateSwapChain(physicalDeviceIndex, instance, width, height);
+
+	CreateImageViews();
 }
-
-vk::CommandBuffer lpe::SwapChain::BeginSingleTimeCommands() const
-{
-	vk::CommandBufferAllocateInfo allocInfo = { commandPool, vk::CommandBufferLevel::ePrimary, 1 };
-	vk::CommandBuffer commandBuffer = logicalDevice.allocateCommandBuffers(allocInfo)[0];
-
-	vk::CommandBufferBeginInfo beginInfo = { vk::CommandBufferUsageFlagBits::eOneTimeSubmit };
-
-	commandBuffer.begin(beginInfo);
-
-	return commandBuffer;
-}
-
-void lpe::SwapChain::EndSingleTimeCommands(vk::CommandBuffer commandBuffer)
-{
-	commandBuffer.end();
-
-	vk::SubmitInfo submitInfo = { 0, nullptr, nullptr, 1, &commandBuffer };
-
-	graphicsQueue.submit(1, &submitInfo, nullptr);
-	graphicsQueue.waitIdle();
-
-	logicalDevice.freeCommandBuffers(commandPool, 1, &commandBuffer);
-}
-

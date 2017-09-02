@@ -259,3 +259,11 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+
+#internal x64 folder
+LowPolyEngine/x64/
+LowPolyEngine.Test/x64/
+
+#cmake
+cmake-build-debug/
+external/
