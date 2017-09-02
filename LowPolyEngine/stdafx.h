@@ -5,6 +5,7 @@
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan.hpp>
 #include <iostream>
+#include <fstream>
 
 namespace lpe
 {
@@ -89,6 +90,26 @@ inline VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags,
 	std::cerr << "validaion layer: " << msg << std::endl;
 
 	return VK_FALSE;
+}
+
+inline std::vector<char> ReadSPIRVFile(std::string fileName)
+{
+	std::ifstream file(fileName, std::ios::ate | std::ios::binary);
+
+	if (!file.is_open())
+	{
+		throw std::runtime_error("failed to open file!");
+	}
+
+	size_t fileSize = (size_t)file.tellg();
+	std::vector<char> buffer(fileSize);
+
+	file.seekg(0);
+	file.read(buffer.data(), fileSize);
+
+	file.close();
+
+	return buffer;
 }
 
 } // end namespace helper

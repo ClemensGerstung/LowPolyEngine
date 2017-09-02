@@ -21,17 +21,21 @@
   <ItemGroup>
     <ClInclude Include="Base.h" />
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="ImageView.h" />
     <ClInclude Include="lpe.h" />
     <ClInclude Include="QueueFamilyIndices.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="SwapChainSupportDetails.h" />
+    <ClInclude Include="UniformBufferObject.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Base.cpp" />
     <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="ImageView.cpp" />
     <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -101,7 +105,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Libraries\glm\glm;D:\Libraries\glfw\x64\include;D:\Libraries\Vulkan\Include;D:\Libraries\tiny_obj_loader;D:\Libraries\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Libraries\glm;D:\Libraries\glfw\x64\include;D:\Libraries\Vulkan\Include;D:\Libraries\tiny_obj_loader;D:\Libraries\stb;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShowIncludes>true</ShowIncludes>
     </ClCompile>
     <Link>

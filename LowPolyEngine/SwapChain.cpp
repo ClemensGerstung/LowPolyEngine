@@ -154,6 +154,16 @@ vk::PhysicalDevice lpe::SwapChain::GetPhysicalDevice() const
 	return physicalDevice;
 }
 
+vk::Format lpe::SwapChain::SwapchainImageFormat() const
+{
+	return swapchainImageFormat;
+}
+
+vk::Extent2D lpe::SwapChain::SwapchainExtent() const
+{
+	return swapchainExtent;
+}
+
 vk::SurfaceFormatKHR lpe::SwapChain::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const
 {
 	if (formats.size() == 1 && formats[0].format == vk::Format::eUndefined)

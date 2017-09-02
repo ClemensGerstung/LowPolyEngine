@@ -7,6 +7,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include "SwapChain.h"
+#include "GraphicsPipeline.h"
 
 namespace lpe
 {
@@ -17,6 +18,7 @@ namespace lpe
         uint32_t width;
         uint32_t height;
         SwapChain swapChain;
+		GraphicsPipeline pipeline;
 
     protected:
         virtual void
