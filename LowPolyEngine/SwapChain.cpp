@@ -144,6 +144,16 @@ void lpe::SwapChain::CreateLogicalDevice()
 	presentQueue = logicalDevice.getQueue(indices.presentFamily, 0);
 }
 
+vk::Device lpe::SwapChain::GetLogicalDevice() const
+{
+	return logicalDevice;
+}
+
+vk::PhysicalDevice lpe::SwapChain::GetPhysicalDevice() const
+{
+	return physicalDevice;
+}
+
 vk::SurfaceFormatKHR lpe::SwapChain::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const
 {
 	if (formats.size() == 1 && formats[0].format == vk::Format::eUndefined)
@@ -255,30 +265,51 @@ void lpe::SwapChain::CreateSwapChain(const uint32_t physicalDeviceIndex,
 	swapchainExtent = extent;
 }
 
-lpe::SwapChain::SwapChain(std::string appName, const lpe::Window* window)
+void lpe::SwapChain::Init(std::string appName, 
+						  GLFWwindow* window,
+						  const uint32_t width,
+						  const uint32_t height)
+{
+	this->Init(appName, window, width, height, -1);
+}
+
+void lpe::SwapChain::Init(std::string appName, 
+						  GLFWwindow* window, 
+						  const uint32_t width, 
+						  const uint32_t height, 
+						  const uint32_t physicalDeviceIndex)
 {
 	vk::Instance instance = lpe::CreateInstance(appName, nullptr, &callback);
 
-	if (glfwCreateWindowSurface(static_cast<VkInstance>(instance), window->window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS)
+	if (glfwCreateWindowSurface(static_cast<VkInstance>(instance), window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create window surface!");
 	}
 
-	CreateSwapChain(-1, instance, window->GetWidth(), window->GetHeight());
-}
-
-lpe::SwapChain::SwapChain(std::string appName,
-                          const uint32_t width,
-                          const uint32_t height)
-{
-	vk::Instance instance = lpe::CreateInstance(appName);
-	CreateSwapChain(-1, instance, width, height);
-}
-
-lpe::SwapChain::SwapChain(const uint32_t physicalDeviceIndex,
-                          const vk::Instance& instance,
-                          const uint32_t width,
-                          const uint32_t height)
-{
 	CreateSwapChain(physicalDeviceIndex, instance, width, height);
 }
+
+vk::CommandBuffer lpe::SwapChain::BeginSingleTimeCommands() const
+{
+	vk::CommandBufferAllocateInfo allocInfo = { commandPool, vk::CommandBufferLevel::ePrimary, 1 };
+	vk::CommandBuffer commandBuffer = logicalDevice.allocateCommandBuffers(allocInfo)[0];
+
+	vk::CommandBufferBeginInfo beginInfo = { vk::CommandBufferUsageFlagBits::eOneTimeSubmit };
+
+	commandBuffer.begin(beginInfo);
+
+	return commandBuffer;
+}
+
+void lpe::SwapChain::EndSingleTimeCommands(vk::CommandBuffer commandBuffer)
+{
+	commandBuffer.end();
+
+	vk::SubmitInfo submitInfo = { 0, nullptr, nullptr, 1, &commandBuffer };
+
+	graphicsQueue.submit(1, &submitInfo, nullptr);
+	graphicsQueue.waitIdle();
+
+	logicalDevice.freeCommandBuffers(commandPool, 1, &commandBuffer);
+}
+

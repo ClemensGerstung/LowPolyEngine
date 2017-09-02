@@ -3,6 +3,7 @@
 
 #include "SwapChainSupportDetails.h"
 #include "QueueFamilyIndices.h"
+#include "Window.h"
 
 namespace lpe {
 	class  Window;
@@ -21,6 +22,7 @@ namespace lpe {
 		vk::Queue graphicsQueue;
 		vk::Queue presentQueue;
 		vk::DebugReportCallbackEXT callback;
+		vk::CommandPool commandPool;
 
 		QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device) const;
 		bool CheckDeviceExtensionSupport(vk::PhysicalDevice device) const;
@@ -39,18 +41,18 @@ namespace lpe {
 	public:
 		SwapChain() = default;
 
-		//SwapChain(const SwapChain&);
-		//SwapChain(SwapChain&&) noexcept;
-		//SwapChain operator =(const SwapChain&) const;
-		//SwapChain operator =(SwapChain&&) const noexcept;
-
-		SwapChain(std::string appName, const lpe::Window* window);
-		SwapChain(std::string appName, const uint32_t width, const uint32_t height);
-		SwapChain(const uint32_t physicalDeviceIndex, const vk::Instance& instance, const uint32_t width, const uint32_t height);
-
 		//~SwapChain();
 
 		//void Recreate(const uint32_t width, const uint32_t height);
+
+		void Init(std::string appName, GLFWwindow* window, const uint32_t width, const uint32_t height);
+		void Init(std::string appName, GLFWwindow* window, const uint32_t width, const uint32_t height, const uint32_t physicalDeviceIndex);
+
+		vk::CommandBuffer BeginSingleTimeCommands() const;
+		void EndSingleTimeCommands(vk::CommandBuffer commandBuffer);
+
+		vk::Device GetLogicalDevice() const;
+		vk::PhysicalDevice GetPhysicalDevice() const;
 	};
 }
 #endif

@@ -6,12 +6,12 @@
 
 lpe::Window::Window(const uint32_t width, const uint32_t height, std::string&& title, const bool resizeable)
 {
-	InitWindow(width, height, title, resizeable);
+	Window::InitWindow(width, height, title, resizeable);
 }
 
 lpe::Window::Window(const uint32_t width, const uint32_t height, const std::string& title, const bool resizeable)
 {
-	InitWindow(width, height, title, resizeable);
+	Window::InitWindow(width, height, title, resizeable);
 }
 
 lpe::Window::~Window()
@@ -28,12 +28,11 @@ void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const 
 
 	glfwWindowHint(GLFW_RESIZABLE, resizeable ? GLFW_TRUE : GLFW_FALSE);
 
-	window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+	this->window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 	this->width = width;
 	this->height = height;
 
-	SwapChain swapChain = {title, this};
-	this->swapChain = swapChain;
+	this->swapChain.Init(title, window, width, height);	// will be overriden in another class with multi GPU support...
 }
 
 bool lpe::Window::IsOpen() const

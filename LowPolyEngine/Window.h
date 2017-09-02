@@ -12,14 +12,14 @@ namespace lpe
 {
 class Window
 {
-	friend class SwapChain;
 
 	GLFWwindow* window; // using raw pointer because glfw is an c api and std::unique_ptr wouldn't work due to incomplete type...
 	uint32_t width;
 	uint32_t height;
 	SwapChain swapChain;
 
-	void InitWindow(const uint32_t width, const uint32_t height, const std::string& title, const bool resizeable = true);
+protected:
+	virtual void InitWindow(const uint32_t width, const uint32_t height, const std::string& title, const bool resizeable = true);
 
 public:
 	Window() = delete;
@@ -36,7 +36,7 @@ public:
 	Window(const Window& window) = delete;
 	Window(Window&& window) = delete;
 
-	~Window();
+	virtual ~Window();
 
 	Window operator=(const Window& window) const = delete;
 	Window operator=(Window&& window) const = delete;
