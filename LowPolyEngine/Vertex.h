@@ -2,10 +2,10 @@
 #define VERTEX_H
 
 #include <vulkan/vulkan.hpp>
-
 #include <vector>
 #include <array>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtx/hash.hpp>
 
@@ -40,7 +40,7 @@ namespace lpe
 
 namespace std
 {
-	template<> 
+	template<>
 	struct hash<lpe::Vertex> {
 		size_t operator()(lpe::Vertex const& vertex) const {
 			return ((hash<glm::vec3>()(vertex.position) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
