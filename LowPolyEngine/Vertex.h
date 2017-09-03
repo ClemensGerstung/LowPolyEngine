@@ -3,6 +3,8 @@
 
 #include <vulkan/vulkan.hpp>
 #include <glm/glm.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
 #include <vector>
 #include <array>
 
@@ -35,7 +37,7 @@ namespace lpe
 	};
 }
 
-/* NO IDEA
+
 namespace std
 {
 	template<> struct hash<lpe::Vertex> {
@@ -43,6 +45,6 @@ namespace std
 			return ((hash<glm::vec3>()(vertex.position) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.texCoord) << 1);
 		}
 	};
-}*/
+}
 
 #endif
