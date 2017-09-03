@@ -8,17 +8,18 @@
 
 #include "SwapChain.h"
 #include "GraphicsPipeline.h"
+#include "Commands.h"
 
 namespace lpe
 {
     class Window
     {
-
         GLFWwindow *window; // using raw pointer because glfw is an c api and std::unique_ptr wouldn't work due to incomplete type...
         uint32_t width;
         uint32_t height;
         SwapChain swapChain;
 		GraphicsPipeline pipeline;
+		Commands commands;
 
     protected:
         virtual void

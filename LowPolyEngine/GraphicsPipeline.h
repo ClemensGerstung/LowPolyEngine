@@ -16,7 +16,6 @@ namespace lpe
 		vk::Pipeline graphicsPipeline;
 
 	protected:
-		vk::Format FindDepthFormat();
 		vk::ShaderModule CreateShaderModule(const std::vector<char>& code);
 
 		void CreateRenderPass(vk::Format swapChainImageFormat);
@@ -26,6 +25,8 @@ namespace lpe
 	public:
 		GraphicsPipeline() = default;
 		~GraphicsPipeline();
+
+		vk::Format FindDepthFormat();
 
 		void Create(vk::PhysicalDevice physicalDevice, const vk::Device& device, vk::Format swapChainImageFormat, vk::Extent2D swapChainExtent);
 	};

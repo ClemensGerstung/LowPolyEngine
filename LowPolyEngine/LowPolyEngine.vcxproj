@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="Base.h" />
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Commands.h" />
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="ImageView.h" />
     <ClInclude Include="lpe.h" />
@@ -35,6 +36,7 @@
   <ItemGroup>
     <ClCompile Include="Base.cpp" />
     <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="Commands.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="ImageView.cpp" />
     <ClCompile Include="SwapChain.cpp" />

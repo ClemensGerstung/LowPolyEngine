@@ -98,7 +98,7 @@ inline std::vector<char> ReadSPIRVFile(std::string fileName)
 
 	if (!file.is_open())
 	{
-		throw std::runtime_error("failed to open file: " + fileName);
+		throw std::runtime_error("failed to open file \"" + fileName + "\"!");
 	}
 
 	size_t fileSize = (size_t)file.tellg();

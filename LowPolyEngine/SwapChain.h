@@ -51,6 +51,8 @@ namespace lpe {
 		void Init(std::string appName, GLFWwindow* window, const uint32_t width, const uint32_t height);
 		void Init(std::string appName, GLFWwindow* window, const uint32_t width, const uint32_t height, const uint32_t physicalDeviceIndex);
 
+		QueueFamilyIndices FindQueueFamilies() const;
+
 		vk::Device GetLogicalDevice() const;
 		vk::PhysicalDevice GetPhysicalDevice() const;
 		vk::Format SwapchainImageFormat() const;
