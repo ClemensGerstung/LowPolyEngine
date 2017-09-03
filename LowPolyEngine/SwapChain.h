@@ -18,9 +18,10 @@ namespace lpe {
 		vk::Device logicalDevice;
 		vk::SurfaceKHR surface;
 		vk::SwapchainKHR swapchain;
-		std::vector<lpe::ImageView> swapchainImageViews;
-		vk::Format swapchainImageFormat;
-		vk::Extent2D swapchainExtent;
+		std::vector<lpe::ImageView> imageViews;
+		std::vector<vk::Framebuffer> framebuffers;
+		vk::Format imageFormat;
+		vk::Extent2D extent;
 		vk::Queue graphicsQueue;
 		vk::Queue presentQueue;
 		vk::DebugReportCallbackEXT callback;
@@ -51,12 +52,16 @@ namespace lpe {
 		void Init(std::string appName, GLFWwindow* window, const uint32_t width, const uint32_t height);
 		void Init(std::string appName, GLFWwindow* window, const uint32_t width, const uint32_t height, const uint32_t physicalDeviceIndex);
 
+		void CreateFrameBuffers(const lpe::ImageView& depthImage, const vk::RenderPass& renderPass);
+
 		QueueFamilyIndices FindQueueFamilies() const;
 
 		vk::Device GetLogicalDevice() const;
 		vk::PhysicalDevice GetPhysicalDevice() const;
-		vk::Format SwapchainImageFormat() const;
-		vk::Extent2D SwapchainExtent() const;
+		vk::Format GetSwapChainImageFormat() const;
+		vk::Extent2D GetSwapChainExtent() const;
+		vk::Queue GetGraphicsQueue() const;
+		vk::Queue GetPresentQueue() const;
 	};
 }
 

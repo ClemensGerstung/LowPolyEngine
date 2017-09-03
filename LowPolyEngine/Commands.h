@@ -15,6 +15,9 @@ namespace lpe
 		~Commands();
 
 		void CreateCommandPool(const vk::Device& device, uint32_t graphicsFamilyIndex);
+
+		vk::CommandBuffer BeginSingleTimeCommands() const;
+		void EndSingleTimeCommands(vk::CommandBuffer commandBuffer, const vk::Queue& queue);
 	};
 }
 

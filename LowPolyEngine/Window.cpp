@@ -34,9 +34,27 @@ void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const 
 
 	this->swapChain.Init(title, window, width, height);	// will be overridden in another class with multi GPU support...
 
-	this->pipeline.Create(swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice(), swapChain.SwapchainImageFormat(), swapChain.SwapchainExtent());
+	this->pipeline.Create(swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice(), swapChain.GetSwapChainImageFormat(), swapChain.GetSwapChainExtent());
 
 	this->commands.CreateCommandPool(swapChain.GetLogicalDevice(), swapChain.FindQueueFamilies().graphicsFamily);
+
+	auto depthFormat = pipeline.FindDepthFormat();
+
+	depthImageView = {swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice(), true};
+	depthImageView.Create(swapChain.GetSwapChainExtent().width,
+	                      swapChain.GetSwapChainExtent().height,
+	                      depthFormat,
+	                      vk::ImageTiling::eOptimal,
+	                      vk::ImageUsageFlagBits::eDepthStencilAttachment,
+	                      vk::MemoryPropertyFlagBits::eDeviceLocal,
+	                      vk::ImageAspectFlagBits::eDepth);
+	depthImageView.TransitionImageLayout(commands,
+	                                     swapChain.GetGraphicsQueue(),
+	                                     depthFormat,
+	                                     vk::ImageLayout::eUndefined,
+	                                     vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+	swapChain.CreateFrameBuffers(depthImageView, pipeline.GetRenderPass());
 }
 
 bool lpe::Window::IsOpen() const

@@ -33,7 +33,8 @@ void lpe::ImageView::Create(uint32_t width,
                             vk::ImageTiling tiling,
                             vk::ImageUsageFlags usage,
                             vk::MemoryPropertyFlags properties,
-							vk::ImageAspectFlags flags)
+                            vk::ImageAspectFlags flags,
+                            bool createVulkanImageView)
 {
 	vk::ImageCreateInfo createInfo = 
 	{
@@ -75,7 +76,10 @@ void lpe::ImageView::Create(uint32_t width,
 
 	device.bindImageMemory(image, imageMemory, 0);
 
-	Create(image, format, flags);
+	if (createVulkanImageView) 
+	{
+		Create(image, format, flags);
+	}
 }
 
 vk::ImageView lpe::ImageView::GetImageView() const
@@ -96,4 +100,64 @@ lpe::ImageView::operator vk::ImageView() const
 lpe::ImageView::operator vk::Image() const
 {
 	return image;
+}
+
+void lpe::ImageView::TransitionImageLayout(lpe::Commands& commands, const vk::Queue& graphicsQueue, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+{
+	auto commandBuffer = commands.BeginSingleTimeCommands();
+
+	vk::ImageSubresourceRange range = { {}, 0, 1, 0, 1 };
+	vk::AccessFlags srcAccessMask;
+	vk::AccessFlags dstAccessMask;
+	vk::PipelineStageFlags sourceStage;
+	vk::PipelineStageFlags destinationStage;
+
+	if(newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
+	{
+		range.aspectMask = vk::ImageAspectFlagBits::eDepth;
+		if(format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint)
+		{
+			range.aspectMask |= vk::ImageAspectFlagBits::eStencil;
+		}
+	}
+	else
+	{
+		range.aspectMask = vk::ImageAspectFlagBits::eColor;
+	}
+
+	if(oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eTransferDstOptimal)
+	{
+		srcAccessMask = {};
+		dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+
+		sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+		destinationStage = vk::PipelineStageFlagBits::eTransfer;
+	}
+	else if(oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+	{
+		srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+		dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+		sourceStage = vk::PipelineStageFlagBits::eTransfer;
+		destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
+	}
+	else if(oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
+	{
+		srcAccessMask = {};
+		dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+		sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+		destinationStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+	}
+	else
+	{
+		throw std::invalid_argument("unsupported layout transition!");
+	}
+
+
+	vk::ImageMemoryBarrier barrier = { srcAccessMask, dstAccessMask, oldLayout, newLayout, VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, image, range };
+
+	commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, 0, nullptr, 0, nullptr, 1, &barrier);
+
+	commands.EndSingleTimeCommands(commandBuffer, graphicsQueue);
 }

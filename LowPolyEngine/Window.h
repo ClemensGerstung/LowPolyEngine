@@ -20,6 +20,7 @@ namespace lpe
         SwapChain swapChain;
 		GraphicsPipeline pipeline;
 		Commands commands;
+		ImageView depthImageView;
 
     protected:
         virtual void

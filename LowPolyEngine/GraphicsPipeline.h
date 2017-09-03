@@ -26,9 +26,15 @@ namespace lpe
 		GraphicsPipeline() = default;
 		~GraphicsPipeline();
 
-		vk::Format FindDepthFormat();
+		vk::Format FindDepthFormat() const;
 
 		void Create(vk::PhysicalDevice physicalDevice, const vk::Device& device, vk::Format swapChainImageFormat, vk::Extent2D swapChainExtent);
+
+
+		vk::RenderPass GetRenderPass() const;
+		vk::DescriptorSetLayout GetDescriptorSetLayout() const;
+		vk::PipelineLayout GetPipelineLayout() const;
+		vk::Pipeline GetGraphicsPipeline() const;
 	};
 }
 

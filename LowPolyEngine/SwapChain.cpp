@@ -154,14 +154,24 @@ vk::PhysicalDevice lpe::SwapChain::GetPhysicalDevice() const
 	return physicalDevice;
 }
 
-vk::Format lpe::SwapChain::SwapchainImageFormat() const
+vk::Format lpe::SwapChain::GetSwapChainImageFormat() const
 {
-	return swapchainImageFormat;
+	return imageFormat;
 }
 
-vk::Extent2D lpe::SwapChain::SwapchainExtent() const
+vk::Extent2D lpe::SwapChain::GetSwapChainExtent() const
 {
-	return swapchainExtent;
+	return extent;
+}
+
+vk::Queue lpe::SwapChain::GetGraphicsQueue() const
+{
+	return graphicsQueue;
+}
+
+vk::Queue lpe::SwapChain::GetPresentQueue() const
+{
+	return presentQueue;
 }
 
 vk::SurfaceFormatKHR lpe::SwapChain::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const
@@ -270,19 +280,19 @@ void lpe::SwapChain::CreateSwapChain(const uint32_t physicalDeviceIndex,
 	vk::SwapchainKHR newSwapchain = logicalDevice.createSwapchainKHR(createInfo, nullptr);
 	swapchain = newSwapchain;
 
-	swapchainImageFormat = surfaceFormat.format;
-	swapchainExtent = extent;
+	imageFormat = surfaceFormat.format;
+	this->extent = extent;
 }
 
 void lpe::SwapChain::CreateImageViews()
 {
 	auto swapchainImages = logicalDevice.getSwapchainImagesKHR(swapchain);
 
-	swapchainImageViews.resize(swapchainImages.size(), ImageView {physicalDevice, logicalDevice});
+	imageViews.resize(swapchainImages.size(), ImageView {physicalDevice, logicalDevice});
 
 	for (int i = 0; i < swapchainImages.size(); i++)
 	{
-		swapchainImageViews[i].Create(swapchainImages[i], swapchainImageFormat, vk::ImageAspectFlagBits::eColor);
+		imageViews[i].Create(swapchainImages[i], imageFormat, vk::ImageAspectFlagBits::eColor);
 	}
 }
 
@@ -310,6 +320,25 @@ void lpe::SwapChain::Init(std::string appName,
 	CreateSwapChain(physicalDeviceIndex, instance, width, height);
 
 	CreateImageViews();
+}
+
+void lpe::SwapChain::CreateFrameBuffers(const lpe::ImageView& depthImage, const vk::RenderPass& renderPass)
+{
+	framebuffers.resize(imageViews.size());
+
+	for(size_t i = 0; i < imageViews.size(); i++)
+	{
+		std::array<vk::ImageView, 2> attachments = {imageViews[i].GetImageView(), depthImage.GetImageView()};
+
+		vk::FramebufferCreateInfo framebufferInfo = { {}, renderPass, (uint32_t)attachments.size(), attachments.data(), extent.width, extent.height, 1 };
+
+		auto result = logicalDevice.createFramebuffer(&framebufferInfo, nullptr, &framebuffers[i]);
+
+		if (result != vk::Result::eSuccess)
+		{
+			throw std::runtime_error("failed to create framebuffer! (" + vk::to_string(result) + ")");
+		}
+	}
 }
 
 QueueFamilyIndices lpe::SwapChain::FindQueueFamilies() const

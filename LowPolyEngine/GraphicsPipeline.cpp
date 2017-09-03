@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "Vertex.h"
 
-vk::Format lpe::GraphicsPipeline::FindDepthFormat()
+vk::Format lpe::GraphicsPipeline::FindDepthFormat() const
 {
 	vk::FormatFeatureFlags features = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
 
@@ -20,6 +20,8 @@ vk::Format lpe::GraphicsPipeline::FindDepthFormat()
 			return format;
 		}
 	}
+
+	throw std::runtime_error("failed to find supported format!");
 }
 
 vk::ShaderModule lpe::GraphicsPipeline::CreateShaderModule(const std::vector<char>& code)
@@ -211,4 +213,24 @@ void lpe::GraphicsPipeline::Create(vk::PhysicalDevice physicalDevice,
 	CreateDescriptorSetLayout();
 
 	CreateGraphicsPipeline(swapChainExtent);
+}
+
+vk::RenderPass lpe::GraphicsPipeline::GetRenderPass() const
+{
+	return renderPass;
+}
+
+vk::DescriptorSetLayout lpe::GraphicsPipeline::GetDescriptorSetLayout() const
+{
+	return descriptorSetLayout;
+}
+
+vk::PipelineLayout lpe::GraphicsPipeline::GetPipelineLayout() const
+{
+	return pipelineLayout;
+}
+
+vk::Pipeline lpe::GraphicsPipeline::GetGraphicsPipeline() const
+{
+	return graphicsPipeline;
 }

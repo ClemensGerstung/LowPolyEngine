@@ -1,18 +1,23 @@
 #include <iostream>
 #include "lpe.h"
 #include "Window.h"
-#include "SwapChain.h"
-
-using namespace std;
-
 
 int main()
 {
-	lpe::Window window = { 800, 600, "Hello Vulkan", false };
-	
-	while(window.IsOpen())
+	try
 	{
-		window.Render();
+		lpe::Window window = { 800, 600, "Hello Vulkan", false };
+	
+		while(window.IsOpen())
+		{
+			window.Render();
+		}
+	}
+	catch (std::runtime_error e)
+	{
+		std::cerr << e.what() << std::endl;
+
+		return EXIT_FAILURE;
 	}
 
 	return 0;

@@ -14,6 +14,7 @@ namespace lpe
 		uint32_t FindMemoryTypeIndex(uint32_t typeFilter, vk::MemoryPropertyFlags props) const;
 
 	public:
+		Base() = default;
 		Base(vk::PhysicalDevice physicalDevice, const vk::Device& device);
 
 		virtual ~Base() = default;

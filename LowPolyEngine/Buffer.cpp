@@ -1,4 +1,5 @@
 #include "Buffer.h"
+#include "Commands.h"
 
 void lpe::Buffer::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer& buffer, vk::DeviceMemory& memory)
 {
@@ -23,49 +24,24 @@ void lpe::Buffer::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, 
 	device.bindBufferMemory(buffer, memory, 0);
 }
 
-void lpe::Buffer::CopyBuffer(vk::Buffer src, vk::Buffer dst, vk::DeviceSize size)
+void lpe::Buffer::CopyBuffer(lpe::Commands& commands, vk::Buffer src, vk::Buffer dst, vk::DeviceSize size)
 {
-	vk::CommandBuffer commandBuffer = BeginSingleTimeCommands();
+	vk::CommandBuffer commandBuffer = commands.BeginSingleTimeCommands();
 
 	vk::BufferCopy copyRegion = {0, 0, size};
 
 	commandBuffer.copyBuffer(src, dst, 1, &copyRegion);
 
-	EndSingleTimeCommands(commandBuffer);
+	commands.EndSingleTimeCommands(commandBuffer, graphicsQueue);
 }
 
-vk::CommandBuffer lpe::Buffer::BeginSingleTimeCommands() const
-{
-	vk::CommandBufferAllocateInfo allocInfo = { commandPool, vk::CommandBufferLevel::ePrimary, 1 };
-	vk::CommandBuffer commandBuffer = device.allocateCommandBuffers(allocInfo)[0];
-
-	vk::CommandBufferBeginInfo beginInfo = { vk::CommandBufferUsageFlagBits::eOneTimeSubmit };
-
-	commandBuffer.begin(beginInfo);
-
-	return commandBuffer;
-}
-
-void lpe::Buffer::EndSingleTimeCommands(vk::CommandBuffer commandBuffer)
-{
-	commandBuffer.end();
-
-	vk::SubmitInfo submitInfo = { 0, nullptr, nullptr, 1, &commandBuffer };
-
-	graphicsQueue.submit(1, &submitInfo, nullptr);
-	graphicsQueue.waitIdle();
-
-	device.freeCommandBuffers(commandPool, 1, &commandBuffer);
-}
-
-lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice, const vk::Device& device, const vk::CommandPool& commandPool, const vk::Queue& graphicsQueue)
+lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice, const vk::Device& device, const vk::Queue& graphicsQueue)
 	: Base(physicalDevice, device)
 {
-	this->commandPool = commandPool;
 	this->graphicsQueue = graphicsQueue;
 }
 
-void lpe::Buffer::Create(const vk::CommandPool& commandPool, void* data, vk::DeviceSize size)
+void lpe::Buffer::Create(lpe::Commands& commands, void* data, vk::DeviceSize size)
 {
 	vk::Buffer stagingBuffer;
 	vk::DeviceMemory stagingMemory;
@@ -88,7 +64,7 @@ void lpe::Buffer::Create(const vk::CommandPool& commandPool, void* data, vk::Dev
 				 buffer,
 				 memory);
 
-	CopyBuffer(stagingBuffer, buffer, size);
+	CopyBuffer(commands, stagingBuffer, buffer, size);
 
 	device.destroyBuffer(stagingBuffer);
 	device.freeMemory(stagingMemory);
