@@ -311,3 +311,8 @@ void lpe::SwapChain::Init(std::string appName,
 
 	CreateImageViews();
 }
+
+QueueFamilyIndices lpe::SwapChain::FindQueueFamilies() const
+{
+	return FindQueueFamilies(physicalDevice);
+}
