@@ -11,9 +11,18 @@ endif()
 
 # Only necessary under Windows
 include_directories("$ENV{VULKAN_SDK}/Include")
-include_directories("external/glm")
-include_directories("external/stb")
-include_directories("external/tinyobjloader")
+
+# Header only librarys (Should be precompiled)
+add_library(glm INTERFACE)
+target_include_directories(glm INTERFACE "external/glm")
+
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE "external/stb")
+
+add_library(tinyobjloader INTERFACE)
+target_include_directories(tinyobjloader INTERFACE "external/tinyobjloader")
+
+
 
 # Disable glfw Documentation, Tests and Examples
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -35,5 +44,5 @@ include_directories(LowPolyEngine.Test)
 add_executable(LowPolyEngine ${SOURCE_FILES})
 
 # ${VULKAN_LIBRARY} gets definied by glfw
-target_link_libraries(LowPolyEngine glfw ${VULKAN_LIBRARY})
+target_link_libraries(LowPolyEngine glfw ${VULKAN_LIBRARY} glm stb tinyobjloader)
 
