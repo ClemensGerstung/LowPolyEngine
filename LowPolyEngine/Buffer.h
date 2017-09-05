@@ -10,20 +10,23 @@ namespace lpe
 
 	class Buffer : public Base
 	{
+		friend class Texture;
+
 		vk::Buffer buffer;
 		vk::DeviceMemory memory;
-		vk::Queue graphicsQueue;
 
 	protected:
 		void CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties, vk::Buffer& buffer, vk::DeviceMemory& memory);
-		void CopyBuffer(lpe::Commands& commands, vk::Buffer src, vk::Buffer dst, vk::DeviceSize size);
-
+		void CopyBuffer(lpe::Commands& commands, const vk::Queue& graphicsQueue, vk::Buffer src, vk::Buffer dst, vk::DeviceSize size);
 
 	public:
-		Buffer(vk::PhysicalDevice physicalDevice, const vk::Device& device, const vk::Queue& graphicsQueue);
+		Buffer() = default;
+		//Buffer(const Buffer& buffer);
+		//Buffer(Buffer&& buffer);
+		Buffer(vk::PhysicalDevice physicalDevice, const vk::Device& device);
 		~Buffer();
 
-		void Create(lpe::Commands& commands, void* data, vk::DeviceSize size);
+		void Create(lpe::Commands& commands, const vk::Queue& graphicsQueue, void* data, vk::DeviceSize size);
 	};
 }
 

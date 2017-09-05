@@ -54,6 +54,12 @@
     <ClInclude Include="Commands.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window.cpp">
@@ -75,6 +81,12 @@
       <Filter>Quelldateien</Filter>
     </ClCompile>
     <ClCompile Include="Commands.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
   </ItemGroup>

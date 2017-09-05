@@ -4,15 +4,19 @@ lpe::ImageView::ImageView(vk::PhysicalDevice physicalDevice, const vk::Device& d
 	: Base(physicalDevice, device)
 {
 	this->destroyImage = destroyImage;
+	this->created = false;
 }
 
 lpe::ImageView::~ImageView()
 {
-	device.destroyImageView(imageView);
-	if (destroyImage) 
+	if (created)
 	{
-		device.destroyImage(image);
-		device.freeMemory(imageMemory);
+		device.destroyImageView(imageView);
+		if (destroyImage)
+		{
+			device.destroyImage(image);
+			device.freeMemory(imageMemory);
+		}
 	}
 }
 
@@ -25,6 +29,8 @@ void lpe::ImageView::Create(vk::Image src, vk::Format format, vk::ImageAspectFla
 	{
 		throw std::runtime_error("failed to create texture image view! " + vk::to_string(result));
 	}
+
+	created = true;
 }
 
 void lpe::ImageView::Create(uint32_t width,
@@ -41,11 +47,7 @@ void lpe::ImageView::Create(uint32_t width,
 		{}, 
 		vk::ImageType::e2D, 
 		format, 
-		{
-			width, 
-			height, 
-			1
-		}, 
+		{ width, height, 1 }, 
 		1, 
 		1, 
 		vk::SampleCountFlagBits::e1, 
@@ -79,6 +81,10 @@ void lpe::ImageView::Create(uint32_t width,
 	if (createVulkanImageView) 
 	{
 		Create(image, format, flags);
+	}
+	else
+	{
+		created = true;
 	}
 }
 

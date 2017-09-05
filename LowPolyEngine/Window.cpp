@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "SwapChain.h"
 #include <future>
+#include "Texture.h"
 
 lpe::Window::Window(const uint32_t width, const uint32_t height, std::string&& title, const bool resizeable)
 {
@@ -55,6 +56,9 @@ void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const 
 	                                     vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
 	swapChain.CreateFrameBuffers(depthImageView, pipeline.GetRenderPass());
+
+	Texture t = { swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice() };
+	t.Create(commands, swapChain.GetGraphicsQueue(), "textures/chalet.jpg");
 }
 
 bool lpe::Window::IsOpen() const

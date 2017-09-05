@@ -24,7 +24,7 @@ void lpe::Buffer::CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, 
 	device.bindBufferMemory(buffer, memory, 0);
 }
 
-void lpe::Buffer::CopyBuffer(lpe::Commands& commands, vk::Buffer src, vk::Buffer dst, vk::DeviceSize size)
+void lpe::Buffer::CopyBuffer(lpe::Commands& commands, const vk::Queue& graphicsQueue, vk::Buffer src, vk::Buffer dst, vk::DeviceSize size)
 {
 	vk::CommandBuffer commandBuffer = commands.BeginSingleTimeCommands();
 
@@ -35,13 +35,12 @@ void lpe::Buffer::CopyBuffer(lpe::Commands& commands, vk::Buffer src, vk::Buffer
 	commands.EndSingleTimeCommands(commandBuffer, graphicsQueue);
 }
 
-lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice, const vk::Device& device, const vk::Queue& graphicsQueue)
+lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice, const vk::Device& device)
 	: Base(physicalDevice, device)
 {
-	this->graphicsQueue = graphicsQueue;
 }
 
-void lpe::Buffer::Create(lpe::Commands& commands, void* data, vk::DeviceSize size)
+void lpe::Buffer::Create(lpe::Commands& commands, const vk::Queue& graphicsQueue, void* data, vk::DeviceSize size)
 {
 	vk::Buffer stagingBuffer;
 	vk::DeviceMemory stagingMemory;
@@ -64,7 +63,7 @@ void lpe::Buffer::Create(lpe::Commands& commands, void* data, vk::DeviceSize siz
 				 buffer,
 				 memory);
 
-	CopyBuffer(commands, stagingBuffer, buffer, size);
+	CopyBuffer(commands, graphicsQueue, stagingBuffer, buffer, size);
 
 	device.destroyBuffer(stagingBuffer);
 	device.freeMemory(stagingMemory);

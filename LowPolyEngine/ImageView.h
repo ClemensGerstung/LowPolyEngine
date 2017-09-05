@@ -9,11 +9,14 @@ namespace lpe
 {
 	class ImageView : public Base
 	{
+		friend class Texture;
+
 		vk::Image image;
 		vk::DeviceMemory imageMemory;
 		vk::ImageView imageView;
 
 		bool destroyImage;
+		bool created;
 
 	public:
 		ImageView() = default;

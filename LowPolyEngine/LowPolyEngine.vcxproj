@@ -25,10 +25,12 @@
     <ClInclude Include="GraphicsPipeline.h" />
     <ClInclude Include="ImageView.h" />
     <ClInclude Include="lpe.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="QueueFamilyIndices.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="SwapChainSupportDetails.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="UniformBufferObject.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Window.h" />
@@ -39,7 +41,9 @@
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="GraphicsPipeline.cpp" />
     <ClCompile Include="ImageView.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="SwapChain.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
