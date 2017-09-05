@@ -1,6 +1,7 @@
 #include "GraphicsPipeline.h"
 #include "stdafx.h"
 #include "Vertex.h"
+#include "UniformBufferObject.h"
 
 vk::Format lpe::GraphicsPipeline::FindDepthFormat() const
 {
@@ -193,6 +194,47 @@ void lpe::GraphicsPipeline::CreateGraphicsPipeline(vk::Extent2D swapChainExtent)
 	device.destroyShaderModule(fragmentShaderModule);
 }
 
+void lpe::GraphicsPipeline::CreateDescriptorPool(const vk::Device& device)
+{
+	std::array<vk::DescriptorPoolSize, 2> poolSizes;
+	poolSizes[0] = { vk::DescriptorType::eUniformBuffer, 1 };
+	poolSizes[1] = { vk::DescriptorType::eCombinedImageSampler, 1 };
+
+	vk::DescriptorPoolCreateInfo poolInfo = { {}, 1, (uint32_t)poolSizes.size(), poolSizes.data() };
+
+	auto result = device.createDescriptorPool(&poolInfo, nullptr, &descriptorPool);
+
+	if (result != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("failed to create descriptor pool! (" + vk::to_string(result) + ")");
+	}
+}
+
+void lpe::GraphicsPipeline::CreateDescriptorSet(const vk::Device& device,
+                                                const vk::Buffer& uniformBuffer,
+                                                const lpe::Texture& texture)
+{
+	std::array<vk::DescriptorSetLayout, 1> layouts = { descriptorSetLayout };
+
+	vk::DescriptorSetAllocateInfo allocInfo = { descriptorPool, (uint32_t)layouts.size(), layouts.data() };
+
+	auto result = device.allocateDescriptorSets(&allocInfo, &descriptorSet);
+	if (result != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("failed to allocate descriptor set! (" + vk::to_string(result) + ")");
+	}
+
+	vk::DescriptorBufferInfo bufferInfo = { uniformBuffer, 0, sizeof(UniformBufferObject) };
+
+	vk::DescriptorImageInfo imageInfo = { texture.GetSampler(), texture.GetImageView() };
+
+	std::array<vk::WriteDescriptorSet, 2> descriptorWrites = {};
+	descriptorWrites[0] = { descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufferInfo };
+	descriptorWrites[1] = { descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &imageInfo };
+
+	device.updateDescriptorSets((uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+}
+
 lpe::GraphicsPipeline::~GraphicsPipeline()
 {
 	device.destroyPipeline(graphicsPipeline);
@@ -215,6 +257,13 @@ void lpe::GraphicsPipeline::Create(vk::PhysicalDevice physicalDevice,
 	CreateGraphicsPipeline(swapChainExtent);
 }
 
+void lpe::GraphicsPipeline::Finalize(const vk::Device& device, const vk::Buffer& uniformBuffer, const lpe::Texture& texture)
+{
+	CreateDescriptorPool(device);
+
+	CreateDescriptorSet(device, uniformBuffer, texture);
+}
+
 vk::RenderPass lpe::GraphicsPipeline::GetRenderPass() const
 {
 	return renderPass;
@@ -233,4 +282,9 @@ vk::PipelineLayout lpe::GraphicsPipeline::GetPipelineLayout() const
 vk::Pipeline lpe::GraphicsPipeline::GetGraphicsPipeline() const
 {
 	return graphicsPipeline;
+}
+
+vk::DescriptorSet lpe::GraphicsPipeline::GetDescriptorSet() const
+{
+	return descriptorSet;
 }

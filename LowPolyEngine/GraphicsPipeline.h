@@ -2,6 +2,7 @@
 #define GRAPHICS_PIPELINE_H
 
 #include <vulkan/vulkan.hpp>
+#include "Texture.h"
 
 namespace lpe
 {
@@ -14,6 +15,8 @@ namespace lpe
 		vk::DescriptorSetLayout descriptorSetLayout;
 		vk::PipelineLayout pipelineLayout;
 		vk::Pipeline graphicsPipeline;
+		vk::DescriptorPool descriptorPool;
+		vk::DescriptorSet descriptorSet;
 
 	protected:
 		vk::ShaderModule CreateShaderModule(const std::vector<char>& code);
@@ -21,6 +24,9 @@ namespace lpe
 		void CreateRenderPass(vk::Format swapChainImageFormat);
 		void CreateDescriptorSetLayout();
 		void CreateGraphicsPipeline(vk::Extent2D swapChainExtent);
+
+		void CreateDescriptorPool(const vk::Device& device);
+		void CreateDescriptorSet(const vk::Device& device, const vk::Buffer& uniformBuffer, const lpe::Texture& texture);
 
 	public:
 		GraphicsPipeline() = default;
@@ -30,11 +36,13 @@ namespace lpe
 
 		void Create(vk::PhysicalDevice physicalDevice, const vk::Device& device, vk::Format swapChainImageFormat, vk::Extent2D swapChainExtent);
 
+		void Finalize(const vk::Device& device, const vk::Buffer& uniformBuffer, const lpe::Texture& texture);
 
 		vk::RenderPass GetRenderPass() const;
 		vk::DescriptorSetLayout GetDescriptorSetLayout() const;
 		vk::PipelineLayout GetPipelineLayout() const;
 		vk::Pipeline GetGraphicsPipeline() const;
+		vk::DescriptorSet GetDescriptorSet() const;
 	};
 }
 

@@ -4,6 +4,8 @@
 #include "SwapChain.h"
 #include <future>
 #include "Texture.h"
+#include "Model.h"
+#include "ModelRenderer.h"
 
 lpe::Window::Window(const uint32_t width, const uint32_t height, std::string&& title, const bool resizeable)
 {
@@ -59,6 +61,18 @@ void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const 
 
 	Texture t = { swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice() };
 	t.Create(commands, swapChain.GetGraphicsQueue(), "textures/chalet.jpg");
+
+	Model model = {};
+	model.Load("models/chalet.obj");
+
+	ModelRenderer renderer = {};
+	renderer.Create(swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice(), commands, swapChain.GetGraphicsQueue(), model);
+
+	pipeline.Finalize(swapChain.GetLogicalDevice(), renderer.GetUniformBuffer(), t);
+
+	commands.CreateCommandBuffers(swapChain, pipeline, model, renderer);
+
+	swapChain.CreateSemaphores();
 }
 
 bool lpe::Window::IsOpen() const

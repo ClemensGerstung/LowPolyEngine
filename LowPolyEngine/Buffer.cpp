@@ -69,6 +69,11 @@ void lpe::Buffer::Create(lpe::Commands& commands, const vk::Queue& graphicsQueue
 	device.freeMemory(stagingMemory);
 }
 
+lpe::Buffer::operator vk::Buffer() const
+{
+	return buffer;
+}
+
 lpe::Buffer::~Buffer()
 {
 	device.destroyBuffer(buffer);

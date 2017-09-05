@@ -8,7 +8,6 @@
 
 namespace lpe
 {
-
 	class Texture : public Base
 	{
 		lpe::ImageView image;
@@ -19,6 +18,11 @@ namespace lpe
 		~Texture();
 
 		void Create(lpe::Commands& commands, const vk::Queue graphicsQueue, std::string textureFileName);
+
+
+		vk::Sampler GetSampler() const;
+		vk::Image GetImage() const;
+		vk::ImageView GetImageView() const;
 	};
 }
 

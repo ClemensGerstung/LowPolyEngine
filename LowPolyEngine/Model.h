@@ -17,9 +17,7 @@ namespace lpe
 
 		void Load(std::string fileName);
 
-
 		std::vector<lpe::Vertex> GetVertices() const;
-
 		std::vector<uint32_t> GetIndices() const;
 	};
 }

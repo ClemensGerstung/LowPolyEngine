@@ -11,6 +11,7 @@ namespace lpe
 	class Buffer : public Base
 	{
 		friend class Texture;
+		friend class ModelRenderer;
 
 		vk::Buffer buffer;
 		vk::DeviceMemory memory;
@@ -27,6 +28,8 @@ namespace lpe
 		~Buffer();
 
 		void Create(lpe::Commands& commands, const vk::Queue& graphicsQueue, void* data, vk::DeviceSize size);
+
+		operator vk::Buffer() const;
 	};
 }
 

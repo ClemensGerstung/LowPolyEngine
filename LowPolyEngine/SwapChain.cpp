@@ -174,6 +174,11 @@ vk::Queue lpe::SwapChain::GetPresentQueue() const
 	return presentQueue;
 }
 
+std::vector<vk::Framebuffer> lpe::SwapChain::GetFramebuffers() const
+{
+	return framebuffers;
+}
+
 vk::SurfaceFormatKHR lpe::SwapChain::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const
 {
 	if (formats.size() == 1 && formats[0].format == vk::Format::eUndefined)
@@ -338,6 +343,23 @@ void lpe::SwapChain::CreateFrameBuffers(const lpe::ImageView& depthImage, const 
 		{
 			throw std::runtime_error("failed to create framebuffer! (" + vk::to_string(result) + ")");
 		}
+	}
+}
+
+void lpe::SwapChain::CreateSemaphores()
+{
+	vk::SemaphoreCreateInfo semaphoreInfo = {};
+
+	auto result = logicalDevice.createSemaphore(&semaphoreInfo, nullptr, &imageAvailableSemaphore);
+	if (result != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("failed to create imageAvailableSemaphore! (" + vk::to_string(result) + ")");
+	}
+
+	result = logicalDevice.createSemaphore(&semaphoreInfo, nullptr, &renderAvailableSemaphore);
+	if (result != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("failed to create renderAvailableSemaphore! (" + vk::to_string(result) + ")");
 	}
 }
 

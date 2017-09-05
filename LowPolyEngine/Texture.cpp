@@ -76,3 +76,18 @@ void lpe::Texture::Create(lpe::Commands& commands, const vk::Queue graphicsQueue
 		throw std::runtime_error("failed to create texture sampler! (" + vk::to_string(result) + ")");
 	}
 }
+
+vk::Sampler lpe::Texture::GetSampler() const
+{
+	return sampler;
+}
+
+vk::Image lpe::Texture::GetImage() const
+{
+	return image.image;
+}
+
+vk::ImageView lpe::Texture::GetImageView() const
+{
+	return image.imageView;
+}

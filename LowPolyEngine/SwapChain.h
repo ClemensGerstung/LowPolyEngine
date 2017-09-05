@@ -26,6 +26,9 @@ namespace lpe {
 		vk::Queue presentQueue;
 		vk::DebugReportCallbackEXT callback;
 
+		vk::Semaphore imageAvailableSemaphore;
+		vk::Semaphore renderAvailableSemaphore;
+
 		QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device) const;
 		bool CheckDeviceExtensionSupport(vk::PhysicalDevice device) const;
 		SwapChainSupportDetails QuerySwapChainDetails(vk::PhysicalDevice device) const;
@@ -54,6 +57,8 @@ namespace lpe {
 
 		void CreateFrameBuffers(const lpe::ImageView& depthImage, const vk::RenderPass& renderPass);
 
+		void CreateSemaphores();
+
 		QueueFamilyIndices FindQueueFamilies() const;
 
 		vk::Device GetLogicalDevice() const;
@@ -62,6 +67,7 @@ namespace lpe {
 		vk::Extent2D GetSwapChainExtent() const;
 		vk::Queue GetGraphicsQueue() const;
 		vk::Queue GetPresentQueue() const;
+		std::vector<vk::Framebuffer> GetFramebuffers() const;
 	};
 }
 
