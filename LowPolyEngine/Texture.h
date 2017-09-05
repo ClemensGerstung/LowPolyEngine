@@ -12,6 +12,8 @@ namespace lpe
 	{
 		lpe::ImageView image;
 		vk::Sampler sampler;
+
+		bool created = false;
 	public:
 		Texture() = default;
 		Texture(vk::PhysicalDevice physicalDevice, const vk::Device& device);
@@ -23,6 +25,10 @@ namespace lpe
 		vk::Sampler GetSampler() const;
 		vk::Image GetImage() const;
 		vk::ImageView GetImageView() const;
+
+		vk::Sampler& GetSamplerRef();
+		vk::Image& GetImageRef();
+		vk::ImageView& GetImageViewRef();
 	};
 }
 

@@ -26,7 +26,7 @@ namespace lpe
 		void CreateGraphicsPipeline(vk::Extent2D swapChainExtent);
 
 		void CreateDescriptorPool(const vk::Device& device);
-		void CreateDescriptorSet(const vk::Device& device, const vk::Buffer& uniformBuffer, const lpe::Texture& texture);
+		void CreateDescriptorSet(const vk::Device& device, vk::Buffer* uniformBuffer, lpe::Texture* texture);
 
 	public:
 		GraphicsPipeline() = default;
@@ -36,7 +36,7 @@ namespace lpe
 
 		void Create(vk::PhysicalDevice physicalDevice, const vk::Device& device, vk::Format swapChainImageFormat, vk::Extent2D swapChainExtent);
 
-		void Finalize(const vk::Device& device, const vk::Buffer& uniformBuffer, const lpe::Texture& texture);
+		void Finalize(const vk::Device& device, vk::Buffer* uniformBuffer, lpe::Texture* texture);
 
 		vk::RenderPass GetRenderPass() const;
 		vk::DescriptorSetLayout GetDescriptorSetLayout() const;

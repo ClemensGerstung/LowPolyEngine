@@ -138,15 +138,60 @@ void lpe::SwapChain::CreateLogicalDevice()
 		{}
 	};
 
-	logicalDevice = physicalDevice.createDevice(createInfo, nullptr);
+	device = physicalDevice.createDevice(createInfo, nullptr);
 
-	graphicsQueue = logicalDevice.getQueue(indices.graphicsFamily, 0);
-	presentQueue = logicalDevice.getQueue(indices.presentFamily, 0);
+	graphicsQueue = device.getQueue(indices.graphicsFamily, 0);
+	presentQueue = device.getQueue(indices.presentFamily, 0);
+}
+
+void lpe::SwapChain::DrawFrame(const std::vector<vk::CommandBuffer>& commandBuffers)
+{
+	uint32_t imageIndex;
+	auto result = device.acquireNextImageKHR(swapchain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, {}, &imageIndex);
+
+	if(result == vk::Result::eErrorOutOfDateKHR)
+	{	
+		// TOOD: recreate swapchain
+		return;
+	}
+	else if (result != vk::Result::eSuccess || result != vk::Result::eSuboptimalKHR)
+	{
+		throw std::runtime_error("failed to acquire swap chain image! (" + vk::to_string(result) + ")");
+	}
+
+	vk::Semaphore waitSemaphores[] = { imageAvailableSemaphore };
+	vk::PipelineStageFlags waitFlags[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
+	vk::Semaphore signalSemaphores[] = { renderAvailableSemaphore };
+
+	vk::SubmitInfo submitInfo = { 1, waitSemaphores, waitFlags, 1, &commandBuffers[imageIndex], 1, signalSemaphores };
+
+	result = graphicsQueue.submit(1, &submitInfo, {});
+	if (result != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("failed to submit draw command buffer! (" + vk::to_string(result) + ")");
+	}
+
+	vk::SwapchainKHR swapChains[] = { swapchain };
+
+	vk::PresentInfoKHR presentInfo = { 1, signalSemaphores, 1, swapChains, &imageIndex };
+
+	result = presentQueue.presentKHR(&presentInfo);
+
+	if(result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+	{
+		// TODO: recreate swapchain
+	}
+	else if (result != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("failed to present swap chain image! (" + vk::to_string(result) + ")");
+	}
+
+	presentQueue.waitIdle();
 }
 
 vk::Device lpe::SwapChain::GetLogicalDevice() const
 {
-	return logicalDevice;
+	return device;
 }
 
 vk::PhysicalDevice lpe::SwapChain::GetPhysicalDevice() const
@@ -282,7 +327,7 @@ void lpe::SwapChain::CreateSwapChain(const uint32_t physicalDeviceIndex,
 		createInfo.pQueueFamilyIndices = queueFamilyIndices.data();
 	}
 
-	vk::SwapchainKHR newSwapchain = logicalDevice.createSwapchainKHR(createInfo, nullptr);
+	vk::SwapchainKHR newSwapchain = device.createSwapchainKHR(createInfo, nullptr);
 	swapchain = newSwapchain;
 
 	imageFormat = surfaceFormat.format;
@@ -291,14 +336,32 @@ void lpe::SwapChain::CreateSwapChain(const uint32_t physicalDeviceIndex,
 
 void lpe::SwapChain::CreateImageViews()
 {
-	auto swapchainImages = logicalDevice.getSwapchainImagesKHR(swapchain);
+	auto swapchainImages = device.getSwapchainImagesKHR(swapchain);
 
-	imageViews.resize(swapchainImages.size(), ImageView {physicalDevice, logicalDevice});
+	imageViews.resize(swapchainImages.size(), ImageView {physicalDevice, device});
 
 	for (int i = 0; i < swapchainImages.size(); i++)
 	{
 		imageViews[i].Create(swapchainImages[i], imageFormat, vk::ImageAspectFlagBits::eColor);
 	}
+}
+
+lpe::SwapChain::~SwapChain()
+{
+	for (size_t i = 0; i < framebuffers.size(); i++) {
+		device.destroyFramebuffer(framebuffers[i], nullptr);
+	}
+
+	device.destroySemaphore(imageAvailableSemaphore);
+	device.destroySemaphore(renderAvailableSemaphore);
+
+	device.destroySwapchainKHR(swapchain, nullptr);
+
+	device.destroy(nullptr);
+
+	instance.destroySurfaceKHR(surface, nullptr);
+	lpe::helper::DestroyDebugReportCallbackEXT(instance, callback, nullptr);
+	instance.destroy(nullptr);
 }
 
 void lpe::SwapChain::Init(std::string appName, 
@@ -337,7 +400,7 @@ void lpe::SwapChain::CreateFrameBuffers(const lpe::ImageView& depthImage, const 
 
 		vk::FramebufferCreateInfo framebufferInfo = { {}, renderPass, (uint32_t)attachments.size(), attachments.data(), extent.width, extent.height, 1 };
 
-		auto result = logicalDevice.createFramebuffer(&framebufferInfo, nullptr, &framebuffers[i]);
+		auto result = device.createFramebuffer(&framebufferInfo, nullptr, &framebuffers[i]);
 
 		if (result != vk::Result::eSuccess)
 		{
@@ -350,13 +413,13 @@ void lpe::SwapChain::CreateSemaphores()
 {
 	vk::SemaphoreCreateInfo semaphoreInfo = {};
 
-	auto result = logicalDevice.createSemaphore(&semaphoreInfo, nullptr, &imageAvailableSemaphore);
+	auto result = device.createSemaphore(&semaphoreInfo, nullptr, &imageAvailableSemaphore);
 	if (result != vk::Result::eSuccess)
 	{
 		throw std::runtime_error("failed to create imageAvailableSemaphore! (" + vk::to_string(result) + ")");
 	}
 
-	result = logicalDevice.createSemaphore(&semaphoreInfo, nullptr, &renderAvailableSemaphore);
+	result = device.createSemaphore(&semaphoreInfo, nullptr, &renderAvailableSemaphore);
 	if (result != vk::Result::eSuccess)
 	{
 		throw std::runtime_error("failed to create renderAvailableSemaphore! (" + vk::to_string(result) + ")");

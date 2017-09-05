@@ -59,18 +59,25 @@ void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const 
 
 	swapChain.CreateFrameBuffers(depthImageView, pipeline.GetRenderPass());
 
-	Texture t = { swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice() };
-	t.Create(commands, swapChain.GetGraphicsQueue(), "textures/chalet.jpg");
+	Texture texture = { swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice() };
+	texture.Create(commands, swapChain.GetGraphicsQueue(), "textures/chalet.jpg");
 
-	Model model = {};
+	this->texture = std::move(texture);
+
 	model.Load("models/chalet.obj");
 
-	ModelRenderer renderer = {};
 	renderer.Create(swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice(), commands, swapChain.GetGraphicsQueue(), model);
 
-	pipeline.Finalize(swapChain.GetLogicalDevice(), renderer.GetUniformBuffer(), t);
+	pipeline.Finalize(swapChain.GetLogicalDevice(), &renderer.GetUniformBufferRef(), &texture);
 
-	commands.CreateCommandBuffers(swapChain, pipeline, model, renderer);
+	commands.CreateCommandBuffers(swapChain.GetFramebuffers(),
+	                              swapChain.GetSwapChainExtent(),
+	                              pipeline.GetDescriptorSet(),
+	                              pipeline.GetRenderPass(),
+	                              pipeline.GetGraphicsPipeline(),
+	                              pipeline.GetPipelineLayout(),
+	                              model,
+	                              renderer);
 
 	swapChain.CreateSemaphores();
 }
@@ -84,8 +91,8 @@ void lpe::Window::Render()
 {
 	glfwPollEvents();
 
-	// TODO: UpdateUniformBuffers();
-	// TODO: DrawFrame();
+	renderer.UpdateUniformBuffer(swapChain.GetLogicalDevice(), swapChain.GetSwapChainExtent());
+	swapChain.DrawFrame(commands.GetCommandBuffers());
 
 	// TODO: calculate FPS?
 }

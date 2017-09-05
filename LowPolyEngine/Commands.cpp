@@ -18,17 +18,16 @@ void lpe::Commands::CreateCommandPool(const vk::Device& device, uint32_t graphic
 	}
 }
 
-void lpe::Commands::CreateCommandBuffers(const SwapChain& swapChain,
-                                         const GraphicsPipeline& pipeline,
-										 const Model& model,
+void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers,
+                                         vk::Extent2D extent,
+                                         const vk::DescriptorSet& descriptorSet,
+                                         const vk::RenderPass& renderPass,
+                                         const vk::Pipeline& graphicsPipeline,
+                                         const vk::PipelineLayout& pipelineLayout,
+                                         const Model& model,
                                          const ModelRenderer& renderer)
 {
-	commandBuffers.resize(swapChain.GetFramebuffers().size());
-
-	if(descriptorSet == nullptr)
-	{
-		descriptorSet.reset(&pipeline.GetDescriptorSet());
-	}
+	commandBuffers.resize(framebuffers.size());
 
 	vk::CommandBufferAllocateInfo allocInfo = { commandPool, vk::CommandBufferLevel::ePrimary, (uint32_t)commandBuffers.size() };
 
@@ -48,11 +47,11 @@ void lpe::Commands::CreateCommandBuffers(const SwapChain& swapChain,
 		clearValues[0].color = { std::array<float, 4>({ 0.0f, 0.0f, 0.0f, 1.0f }) };
 		clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
 
-		vk::RenderPassBeginInfo renderPassInfo = { pipeline.GetRenderPass(), swapChain.GetFramebuffers()[i], { {0, 0}, swapChain.GetSwapChainExtent() }, (uint32_t)clearValues.size(), clearValues.data() };
+		vk::RenderPassBeginInfo renderPassInfo = { renderPass, framebuffers[i], { {0, 0}, extent }, (uint32_t)clearValues.size(), clearValues.data() };
 
 		commandBuffers[i].beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
 
-		commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetGraphicsPipeline());
+		commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
 
 		vk::Buffer vertexBuffers[] = { renderer.GetVertexBuffer() };
 		vk::DeviceSize offsets[] = { 0 };
@@ -60,7 +59,7 @@ void lpe::Commands::CreateCommandBuffers(const SwapChain& swapChain,
 
 		commandBuffers[i].bindIndexBuffer(renderer.GetIndicesBuffer(), 0, vk::IndexType::eUint32);
 
-		commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineLayout(), 0, 1, descriptorSet.get(), 0, nullptr);
+		commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 
 		commandBuffers[i].drawIndexed((uint32_t)model.GetIndices().size(), 1, 0, 0, 0);
 
@@ -92,4 +91,9 @@ void lpe::Commands::EndSingleTimeCommands(vk::CommandBuffer commandBuffer, const
 	queue.waitIdle();
 
 	device.freeCommandBuffers(commandPool, 1, &commandBuffer);
+}
+
+std::vector<vk::CommandBuffer> lpe::Commands::GetCommandBuffers() const
+{
+	return commandBuffers;
 }

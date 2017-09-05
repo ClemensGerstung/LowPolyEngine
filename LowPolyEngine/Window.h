@@ -21,6 +21,9 @@ namespace lpe
 		GraphicsPipeline pipeline;
 		Commands commands;
 		ImageView depthImageView;
+		Texture texture;
+		Model model;
+		ModelRenderer renderer;
 
     protected:
         virtual void

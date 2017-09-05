@@ -16,7 +16,7 @@ namespace lpe
 		vk::ImageView imageView;
 
 		bool destroyImage;
-		bool created;
+		bool created = false;
 
 	public:
 		ImageView() = default;

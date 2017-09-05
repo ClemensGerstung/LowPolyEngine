@@ -18,10 +18,15 @@ namespace lpe
 
 		void Create(vk::PhysicalDevice physicalDevice, const vk::Device& device, lpe::Commands& commands, const vk::Queue graphicsQueue, const lpe::Model& model);
 
+		void UpdateUniformBuffer(const vk::Device& device, vk::Extent2D extent);
 
 		lpe::Buffer GetVertexBuffer() const;
 		lpe::Buffer GetIndicesBuffer() const;
 		lpe::Buffer GetUniformBuffer() const;
+
+		vk::Buffer& GetVertexBufferRef();
+		vk::Buffer& GetIndicesBufferRef();
+		vk::Buffer& GetUniformBufferRef();
 	};
 }
 

@@ -12,6 +12,9 @@ lpe::Texture::Texture(vk::PhysicalDevice physicalDevice, const vk::Device& devic
 
 lpe::Texture::~Texture()
 {
+	if(!created)
+		return;
+
 	device.destroySampler(sampler, nullptr);
 }
 
@@ -75,6 +78,8 @@ void lpe::Texture::Create(lpe::Commands& commands, const vk::Queue graphicsQueue
 	{
 		throw std::runtime_error("failed to create texture sampler! (" + vk::to_string(result) + ")");
 	}
+
+	created = true;
 }
 
 vk::Sampler lpe::Texture::GetSampler() const
@@ -88,6 +93,21 @@ vk::Image lpe::Texture::GetImage() const
 }
 
 vk::ImageView lpe::Texture::GetImageView() const
+{
+	return image.imageView;
+}
+
+vk::Sampler& lpe::Texture::GetSamplerRef()
+{
+	return sampler;
+}
+
+vk::Image& lpe::Texture::GetImageRef()
+{
+	return image.image;
+}
+
+vk::ImageView& lpe::Texture::GetImageViewRef()
 {
 	return image.imageView;
 }

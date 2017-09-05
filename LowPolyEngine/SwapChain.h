@@ -15,7 +15,7 @@ namespace lpe {
 	private:
 		vk::Instance instance;
 		vk::PhysicalDevice physicalDevice = nullptr;
-		vk::Device logicalDevice;
+		vk::Device device;
 		vk::SurfaceKHR surface;
 		vk::SwapchainKHR swapchain;
 		std::vector<lpe::ImageView> imageViews;
@@ -48,7 +48,7 @@ namespace lpe {
 	public:
 		SwapChain() = default;
 
-		//~SwapChain();
+		~SwapChain();
 
 		//void Recreate(const uint32_t width, const uint32_t height);
 
@@ -58,6 +58,8 @@ namespace lpe {
 		void CreateFrameBuffers(const lpe::ImageView& depthImage, const vk::RenderPass& renderPass);
 
 		void CreateSemaphores();
+
+		void DrawFrame(const std::vector<vk::CommandBuffer>& commandBuffers);
 
 		QueueFamilyIndices FindQueueFamilies() const;
 

@@ -2,8 +2,6 @@
 #define COMMANDS_H
 #include <vulkan/vulkan.hpp>
 #include "ModelRenderer.h"
-#include "GraphicsPipeline.h"
-#include "SwapChain.h"
 
 namespace lpe
 {
@@ -12,17 +10,26 @@ namespace lpe
 		vk::Device device;
 		vk::CommandPool commandPool;
 		std::vector<vk::CommandBuffer> commandBuffers;
-		std::unique_ptr<vk::DescriptorSet> descriptorSet;
 
 	public:
 		Commands() = default;
 		~Commands();
 
 		void CreateCommandPool(const vk::Device& device, uint32_t graphicsFamilyIndex);
-		void CreateCommandBuffers(const SwapChain& swapChain, const GraphicsPipeline& pipeline, const Model& model, const ModelRenderer& renderer);
+		void CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers,
+		                          vk::Extent2D extent,
+		                          const vk::DescriptorSet& descriptorSet,
+		                          const vk::RenderPass& renderPass,
+		                          const vk::Pipeline& graphicsPipeline,
+		                          const vk::PipelineLayout& pipelineLayout,
+		                          const Model& model,
+		                          const ModelRenderer& renderer);
 
 		vk::CommandBuffer BeginSingleTimeCommands() const;
 		void EndSingleTimeCommands(vk::CommandBuffer commandBuffer, const vk::Queue& queue);
+
+
+		std::vector<vk::CommandBuffer> GetCommandBuffers() const;
 	};
 }
 

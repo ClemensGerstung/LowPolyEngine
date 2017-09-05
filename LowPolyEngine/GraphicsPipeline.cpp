@@ -211,8 +211,8 @@ void lpe::GraphicsPipeline::CreateDescriptorPool(const vk::Device& device)
 }
 
 void lpe::GraphicsPipeline::CreateDescriptorSet(const vk::Device& device,
-                                                const vk::Buffer& uniformBuffer,
-                                                const lpe::Texture& texture)
+                                                vk::Buffer* uniformBuffer,
+                                                lpe::Texture* texture)
 {
 	std::array<vk::DescriptorSetLayout, 1> layouts = { descriptorSetLayout };
 
@@ -224,9 +224,9 @@ void lpe::GraphicsPipeline::CreateDescriptorSet(const vk::Device& device,
 		throw std::runtime_error("failed to allocate descriptor set! (" + vk::to_string(result) + ")");
 	}
 
-	vk::DescriptorBufferInfo bufferInfo = { uniformBuffer, 0, sizeof(UniformBufferObject) };
+	vk::DescriptorBufferInfo bufferInfo = { *uniformBuffer, 0, sizeof(UniformBufferObject) };
 
-	vk::DescriptorImageInfo imageInfo = { texture.GetSampler(), texture.GetImageView() };
+	vk::DescriptorImageInfo imageInfo = { texture->GetSamplerRef(), texture->GetImageViewRef() };
 
 	std::array<vk::WriteDescriptorSet, 2> descriptorWrites = {};
 	descriptorWrites[0] = { descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufferInfo };
@@ -257,7 +257,7 @@ void lpe::GraphicsPipeline::Create(vk::PhysicalDevice physicalDevice,
 	CreateGraphicsPipeline(swapChainExtent);
 }
 
-void lpe::GraphicsPipeline::Finalize(const vk::Device& device, const vk::Buffer& uniformBuffer, const lpe::Texture& texture)
+void lpe::GraphicsPipeline::Finalize(const vk::Device& device, vk::Buffer* uniformBuffer, lpe::Texture* texture)
 {
 	CreateDescriptorPool(device);
 
