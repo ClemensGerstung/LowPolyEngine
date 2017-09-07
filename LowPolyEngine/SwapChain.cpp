@@ -154,7 +154,7 @@ void lpe::SwapChain::DrawFrame(const std::vector<vk::CommandBuffer>& commandBuff
 		// TOOD: recreate swapchain
 		return;
 	}
-	else if (result != vk::Result::eSuccess || result != vk::Result::eSuboptimalKHR)
+	else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
 	{
 		throw std::runtime_error("failed to acquire swap chain image! (" + vk::to_string(result) + ")");
 	}
@@ -222,6 +222,11 @@ vk::Queue lpe::SwapChain::GetPresentQueue() const
 std::vector<vk::Framebuffer> lpe::SwapChain::GetFramebuffers() const
 {
 	return framebuffers;
+}
+
+vk::Device* lpe::SwapChain::GetLogicalDeviceRef()
+{
+	return &device;
 }
 
 vk::SurfaceFormatKHR lpe::SwapChain::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const

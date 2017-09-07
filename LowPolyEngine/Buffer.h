@@ -28,6 +28,7 @@ namespace lpe
 		~Buffer();
 
 		void Create(lpe::Commands& commands, const vk::Queue& graphicsQueue, void* data, vk::DeviceSize size);
+		void CreateUniform(vk::DeviceSize size);
 
 		operator vk::Buffer() const;
 	};

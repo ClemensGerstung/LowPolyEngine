@@ -13,13 +13,13 @@ void lpe::ModelRenderer::Create(vk::PhysicalDevice physicalDevice, const vk::Dev
 	vk::DeviceSize indicesBufferSize = sizeof(model.GetIndices()[0]) * model.GetIndices().size();
 	vk::DeviceSize uniformBufferSize = sizeof(UniformBufferObject);
 
-	vertexBuffer.Create(commands, graphicsQueue, model.GetVertices().data(), vertexBufferSize);
-	indicesBuffer.Create(commands, graphicsQueue, model.GetIndices().data(), indicesBufferSize);
-	uniformBuffer.CreateBuffer(uniformBufferSize, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, uniformBuffer.buffer, uniformBuffer.memory);
-
 	this->vertexBuffer = std::move(vertexBuffer);
 	this->indicesBuffer = std::move(indicesBuffer);
 	this->uniformBuffer = std::move(uniformBuffer);
+
+	this->vertexBuffer.Create(commands, graphicsQueue, model.GetVertices().data(), vertexBufferSize);
+	this->indicesBuffer.Create(commands, graphicsQueue, model.GetIndices().data(), indicesBufferSize);
+	this->uniformBuffer.CreateUniform(uniformBufferSize);
 }
 
 void lpe::ModelRenderer::UpdateUniformBuffer(const vk::Device& device, vk::Extent2D extent)
@@ -56,17 +56,17 @@ lpe::Buffer lpe::ModelRenderer::GetUniformBuffer() const
 	return uniformBuffer;
 }
 
-vk::Buffer& lpe::ModelRenderer::GetVertexBufferRef()
+vk::Buffer* lpe::ModelRenderer::GetVertexBufferRef()
 {
-	return vertexBuffer.buffer;
+	return &vertexBuffer.buffer;
 }
 
-vk::Buffer& lpe::ModelRenderer::GetIndicesBufferRef()
+vk::Buffer* lpe::ModelRenderer::GetIndicesBufferRef()
 {
-	return indicesBuffer.buffer;
+	return &indicesBuffer.buffer;
 }
 
-vk::Buffer& lpe::ModelRenderer::GetUniformBufferRef()
+vk::Buffer* lpe::ModelRenderer::GetUniformBufferRef()
 {
-	return uniformBuffer.buffer;
+	return &uniformBuffer.buffer;
 }

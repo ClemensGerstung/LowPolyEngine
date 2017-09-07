@@ -25,7 +25,7 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
                                          const vk::Pipeline& graphicsPipeline,
                                          const vk::PipelineLayout& pipelineLayout,
                                          const Model& model,
-                                         const ModelRenderer& renderer)
+                                         ModelRenderer& renderer)
 {
 	commandBuffers.resize(framebuffers.size());
 
@@ -43,8 +43,10 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
 
 		commandBuffers[i].begin(&beginInfo);
 
+        std::array<float, 4> color = { {0, 0, 0, 1} };
+
 		std::array<vk::ClearValue, 2> clearValues = {};
-		clearValues[0].color = { std::array<float, 4>({ 0.0f, 0.0f, 0.0f, 1.0f }) };
+		clearValues[0].color = color;
 		clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
 
 		vk::RenderPassBeginInfo renderPassInfo = { renderPass, framebuffers[i], { {0, 0}, extent }, (uint32_t)clearValues.size(), clearValues.data() };
@@ -53,11 +55,11 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
 
 		commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, graphicsPipeline);
 
-		vk::Buffer vertexBuffers[] = { renderer.GetVertexBuffer() };
+		vk::Buffer vertexBuffers[] = { *renderer.GetVertexBufferRef() };
 		vk::DeviceSize offsets[] = { 0 };
 		commandBuffers[i].bindVertexBuffers(0, 1, vertexBuffers, offsets);
 
-		commandBuffers[i].bindIndexBuffer(renderer.GetIndicesBuffer(), 0, vk::IndexType::eUint32);
+		commandBuffers[i].bindIndexBuffer(*renderer.GetIndicesBufferRef(), 0, vk::IndexType::eUint32);
 
 		commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 

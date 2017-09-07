@@ -23,7 +23,7 @@ namespace lpe
 		                          const vk::Pipeline& graphicsPipeline,
 		                          const vk::PipelineLayout& pipelineLayout,
 		                          const Model& model,
-		                          const ModelRenderer& renderer);
+		                          ModelRenderer& renderer);
 
 		vk::CommandBuffer BeginSingleTimeCommands() const;
 		void EndSingleTimeCommands(vk::CommandBuffer commandBuffer, const vk::Queue& queue);

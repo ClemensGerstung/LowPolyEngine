@@ -24,9 +24,9 @@ namespace lpe
 		lpe::Buffer GetIndicesBuffer() const;
 		lpe::Buffer GetUniformBuffer() const;
 
-		vk::Buffer& GetVertexBufferRef();
-		vk::Buffer& GetIndicesBufferRef();
-		vk::Buffer& GetUniformBufferRef();
+		vk::Buffer* GetVertexBufferRef();
+		vk::Buffer* GetIndicesBufferRef();
+		vk::Buffer* GetUniformBufferRef();
 	};
 }
 

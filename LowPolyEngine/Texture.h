@@ -26,9 +26,9 @@ namespace lpe
 		vk::Image GetImage() const;
 		vk::ImageView GetImageView() const;
 
-		vk::Sampler& GetSamplerRef();
-		vk::Image& GetImageRef();
-		vk::ImageView& GetImageViewRef();
+		vk::Sampler* GetSamplerRef();
+		vk::Image* GetImageRef();
+		vk::ImageView* GetImageViewRef();
 	};
 }
 

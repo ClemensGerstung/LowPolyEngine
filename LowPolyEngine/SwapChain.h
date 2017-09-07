@@ -70,6 +70,8 @@ namespace lpe {
 		vk::Queue GetGraphicsQueue() const;
 		vk::Queue GetPresentQueue() const;
 		std::vector<vk::Framebuffer> GetFramebuffers() const;
+
+		vk::Device* GetLogicalDeviceRef();
 	};
 }
 

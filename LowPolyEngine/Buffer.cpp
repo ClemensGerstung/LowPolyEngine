@@ -69,6 +69,15 @@ void lpe::Buffer::Create(lpe::Commands& commands, const vk::Queue& graphicsQueue
 	device.freeMemory(stagingMemory);
 }
 
+void lpe::Buffer::CreateUniform(vk::DeviceSize size)
+{
+	CreateBuffer(size,
+	             vk::BufferUsageFlagBits::eUniformBuffer,
+	             vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent,
+	             buffer,
+	             memory);
+}
+
 lpe::Buffer::operator vk::Buffer() const
 {
 	return buffer;

@@ -19,7 +19,7 @@ lpe::Window::Window(const uint32_t width, const uint32_t height, const std::stri
 
 lpe::Window::~Window()
 {
-	// TODO: device.waitIdle();
+	swapChain.GetLogicalDevice().waitIdle();
 	glfwDestroyWindow(window);
 }
 
@@ -60,15 +60,16 @@ void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const 
 	swapChain.CreateFrameBuffers(depthImageView, pipeline.GetRenderPass());
 
 	Texture texture = { swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice() };
-	texture.Create(commands, swapChain.GetGraphicsQueue(), "textures/chalet.jpg");
-
+	
 	this->texture = std::move(texture);
+	this->texture.Create(commands, swapChain.GetGraphicsQueue(), "textures/chalet.jpg");
 
-	model.Load("models/chalet.obj");
+
+	model.Load("models/chalet.model");
 
 	renderer.Create(swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice(), commands, swapChain.GetGraphicsQueue(), model);
 
-	pipeline.Finalize(swapChain.GetLogicalDevice(), &renderer.GetUniformBufferRef(), &texture);
+	pipeline.Finalize(swapChain.GetLogicalDeviceRef(), renderer.GetUniformBufferRef(), &this->texture);
 
 	commands.CreateCommandBuffers(swapChain.GetFramebuffers(),
 	                              swapChain.GetSwapChainExtent(),

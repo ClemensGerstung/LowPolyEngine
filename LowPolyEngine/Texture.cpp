@@ -3,7 +3,6 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-#include "ImageView.h"
 
 lpe::Texture::Texture(vk::PhysicalDevice physicalDevice, const vk::Device& device)
 	: Base(physicalDevice, device)
@@ -97,17 +96,17 @@ vk::ImageView lpe::Texture::GetImageView() const
 	return image.imageView;
 }
 
-vk::Sampler& lpe::Texture::GetSamplerRef()
+vk::Sampler* lpe::Texture::GetSamplerRef()
 {
-	return sampler;
+	return &sampler;
 }
 
-vk::Image& lpe::Texture::GetImageRef()
+vk::Image* lpe::Texture::GetImageRef()
 {
-	return image.image;
+	return &image.image;
 }
 
-vk::ImageView& lpe::Texture::GetImageViewRef()
+vk::ImageView* lpe::Texture::GetImageViewRef()
 {
-	return image.imageView;
+	return &image.imageView;
 }

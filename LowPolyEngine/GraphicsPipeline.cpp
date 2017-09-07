@@ -210,7 +210,7 @@ void lpe::GraphicsPipeline::CreateDescriptorPool(const vk::Device& device)
 	}
 }
 
-void lpe::GraphicsPipeline::CreateDescriptorSet(const vk::Device& device,
+void lpe::GraphicsPipeline::CreateDescriptorSet(vk::Device* device,
                                                 vk::Buffer* uniformBuffer,
                                                 lpe::Texture* texture)
 {
@@ -218,7 +218,7 @@ void lpe::GraphicsPipeline::CreateDescriptorSet(const vk::Device& device,
 
 	vk::DescriptorSetAllocateInfo allocInfo = { descriptorPool, (uint32_t)layouts.size(), layouts.data() };
 
-	auto result = device.allocateDescriptorSets(&allocInfo, &descriptorSet);
+	auto result = device->allocateDescriptorSets(&allocInfo, &descriptorSet);
 	if (result != vk::Result::eSuccess)
 	{
 		throw std::runtime_error("failed to allocate descriptor set! (" + vk::to_string(result) + ")");
@@ -226,13 +226,13 @@ void lpe::GraphicsPipeline::CreateDescriptorSet(const vk::Device& device,
 
 	vk::DescriptorBufferInfo bufferInfo = { *uniformBuffer, 0, sizeof(UniformBufferObject) };
 
-	vk::DescriptorImageInfo imageInfo = { texture->GetSamplerRef(), texture->GetImageViewRef() };
+	vk::DescriptorImageInfo imageInfo = { *texture->GetSamplerRef(), *texture->GetImageViewRef(), vk::ImageLayout::eShaderReadOnlyOptimal };
 
 	std::array<vk::WriteDescriptorSet, 2> descriptorWrites = {};
-	descriptorWrites[0] = { descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufferInfo };
-	descriptorWrites[1] = { descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &imageInfo };
+	descriptorWrites[0] = vk::WriteDescriptorSet(descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &bufferInfo);
+	descriptorWrites[1] = vk::WriteDescriptorSet(descriptorSet, 1, 0, 1, vk::DescriptorType::eCombinedImageSampler, &imageInfo);
 
-	device.updateDescriptorSets((uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+	device->updateDescriptorSets((uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
 lpe::GraphicsPipeline::~GraphicsPipeline()
@@ -257,9 +257,9 @@ void lpe::GraphicsPipeline::Create(vk::PhysicalDevice physicalDevice,
 	CreateGraphicsPipeline(swapChainExtent);
 }
 
-void lpe::GraphicsPipeline::Finalize(const vk::Device& device, vk::Buffer* uniformBuffer, lpe::Texture* texture)
+void lpe::GraphicsPipeline::Finalize(vk::Device* device, vk::Buffer* uniformBuffer, lpe::Texture* texture)
 {
-	CreateDescriptorPool(device);
+	CreateDescriptorPool(*device);
 
 	CreateDescriptorSet(device, uniformBuffer, texture);
 }
