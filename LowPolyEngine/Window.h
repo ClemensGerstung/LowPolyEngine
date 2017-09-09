@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "Instance.h"
+#include "Commands.h"
 
 BEGIN_LPE
 
@@ -17,6 +18,7 @@ private:
   lpe::Instance instance;
   lpe::Device device;
   lpe::SwapChain swapChain;
+  lpe::Commands commands;
 
 protected:
 	virtual void Create();

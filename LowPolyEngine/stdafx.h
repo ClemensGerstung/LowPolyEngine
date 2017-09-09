@@ -41,6 +41,19 @@ BEGIN_LPE
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
 
+    VULKAN_HPP_INLINE LPE uint32_t FindMemoryTypeIndex(uint32_t typeFilter, vk::MemoryPropertyFlags property, const vk::PhysicalDeviceMemoryProperties& properties)
+    {
+      for (uint32_t i = 0; i < properties.memoryTypeCount; i++)
+      {
+        if ((typeFilter & (1 << i)) && (properties.memoryTypes[i].propertyFlags & property) == property)
+        {
+          return i;
+        }
+      }
+
+      throw std::runtime_error("failed to find suitable memory type!");
+    }
+
 		VULKAN_HPP_INLINE LPE bool CheckValidationLayerSupport()
 		{
 			auto availableLayers = vk::enumerateInstanceLayerProperties();

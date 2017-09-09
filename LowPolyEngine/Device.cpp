@@ -99,6 +99,11 @@ lpe::SwapChain lpe::Device::CreateSwapChain(uint32_t width, uint32_t height)
   return {physicalDevice, &device, surface, indices, width, height};
 }
 
+lpe::Commands lpe::Device::CreateCommands()
+{
+  return {physicalDevice, &device, &graphicsQueue, indices.graphicsFamily};
+}
+
 lpe::Device::operator bool() const
 {
   return static_cast<bool>(device) && static_cast<bool>(surface);

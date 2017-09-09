@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "UniformBufferObject.h"
 
 void lpe::Window::Create()
 {
@@ -13,6 +14,8 @@ void lpe::Window::Create()
   instance.Create(title);
   device = instance.CreateDevice(window);
   swapChain = device.CreateSwapChain(width, height);
+  commands = device.CreateCommands();
+
 }
 
 lpe::Window::Window(uint32_t width, uint32_t height, std::string title, bool resizeable)

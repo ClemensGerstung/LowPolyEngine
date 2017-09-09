@@ -100,6 +100,18 @@ void lpe::SwapChain::CreateSwapChain(vk::PhysicalDevice physicalDevice, const vk
   this->extent = extent;
 }
 
+void lpe::SwapChain::CreateImageViews()
+{
+  auto swapchainImages = device->getSwapchainImagesKHR(swapchain);
+
+  imageViews.resize(swapchainImages.size());
+
+  for (int i = 0; i < swapchainImages.size(); i++)
+  {
+    imageViews[i] = {device.get(), swapchainImages[i], imageFormat, vk::ImageAspectFlagBits::eColor};
+  }
+}
+
 lpe::SwapChain::SwapChain(const SwapChain& other)
 {
   this->device.reset(other.device.get());
@@ -108,6 +120,7 @@ lpe::SwapChain::SwapChain(const SwapChain& other)
   this->swapchain = other.swapchain;
   this->extent = other.extent;
   this->imageFormat = other.imageFormat;
+  this->imageViews = { other.imageViews };
 }
 
 lpe::SwapChain::SwapChain(SwapChain&& other)
@@ -118,6 +131,7 @@ lpe::SwapChain::SwapChain(SwapChain&& other)
   this->swapchain = other.swapchain;
   this->extent = other.extent;
   this->imageFormat = other.imageFormat;
+  this->imageViews = std::move(other.imageViews);
 }
 
 lpe::SwapChain& lpe::SwapChain::operator=(const SwapChain& other)
@@ -128,6 +142,7 @@ lpe::SwapChain& lpe::SwapChain::operator=(const SwapChain& other)
   this->swapchain = other.swapchain;
   this->extent = other.extent;
   this->imageFormat = other.imageFormat;
+  this->imageViews = { other.imageViews };
 
   return *this;
 }
@@ -140,6 +155,7 @@ lpe::SwapChain& lpe::SwapChain::operator=(SwapChain&& other)
   this->swapchain = other.swapchain;
   this->extent = other.extent;
   this->imageFormat = other.imageFormat;
+  this->imageViews = std::move(other.imageViews);
 
   return *this;
 }
@@ -155,13 +171,15 @@ lpe::SwapChain::SwapChain(vk::PhysicalDevice physicalDevice,
   this->device.reset(device);
 
   CreateSwapChain(physicalDevice, surface, indices, width, height);
+
+  CreateImageViews();
 }
 
 lpe::SwapChain::~SwapChain()
 {
   if(device)
   {
-    
+    // this->imageViews will be automatically destroyed by the std::vector
 
     if(swapchain)
     {

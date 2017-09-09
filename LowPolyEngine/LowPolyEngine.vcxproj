@@ -19,7 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Commands.h" />
     <ClInclude Include="Device.h" />
+    <ClInclude Include="ImageView.h" />
     <ClInclude Include="Instance.h" />
     <ClInclude Include="lpe.h" />
     <ClInclude Include="QueueFamilyIndices.h" />
@@ -31,7 +34,10 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="Commands.cpp" />
     <ClCompile Include="Device.cpp" />
+    <ClCompile Include="ImageView.cpp" />
     <ClCompile Include="Instance.cpp" />
     <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="Window.cpp" />

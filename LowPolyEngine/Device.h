@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "QueueFamilyIndices.h"
 #include "SwapChain.h"
+#include "Commands.h"
 
 BEGIN_LPE
 
@@ -30,6 +31,7 @@ public:
   ~Device();
 
   SwapChain CreateSwapChain(uint32_t width, uint32_t height);
+  Commands CreateCommands();
 
   explicit operator bool() const;
   bool operator!() const;

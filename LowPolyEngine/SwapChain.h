@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "QueueFamilyIndices.h"
+#include "ImageView.h"
 
 BEGIN_LPE
 
@@ -16,11 +17,14 @@ private:
   vk::Extent2D extent;
   vk::Format imageFormat;
   
+  std::vector<lpe::ImageView> imageViews;
+
   vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const;
   vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& presentModes) const;
   vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, const uint32_t width, const uint32_t height) const;
 
   void CreateSwapChain(vk::PhysicalDevice physicalDevice, const vk::SurfaceKHR& surface, lpe::QueueFamilyIndices indices, uint32_t width, uint32_t height);
+  void CreateImageViews();
 
 public:
   SwapChain() = default;
