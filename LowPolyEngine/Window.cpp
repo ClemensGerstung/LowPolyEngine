@@ -1,29 +1,6 @@
 #include "Window.h"
-#include <string>
-#include "stdafx.h"
-#include "SwapChain.h"
-#include <future>
-#include "Texture.h"
-#include "Model.h"
-#include "ModelRenderer.h"
 
-lpe::Window::Window(const uint32_t width, const uint32_t height, std::string&& title, const bool resizeable)
-{
-	Window::InitWindow(width, height, title, resizeable);
-}
-
-lpe::Window::Window(const uint32_t width, const uint32_t height, const std::string& title, const bool resizeable)
-{
-	Window::InitWindow(width, height, title, resizeable);
-}
-
-lpe::Window::~Window()
-{
-	swapChain.GetLogicalDevice().waitIdle();
-	glfwDestroyWindow(window);
-}
-
-void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const std::string& title, const bool resizeable)
+void lpe::Window::Create()
 {
 	glfwInit();
 
@@ -31,79 +8,56 @@ void lpe::Window::InitWindow(const uint32_t width, const uint32_t height, const 
 
 	glfwWindowHint(GLFW_RESIZABLE, resizeable ? GLFW_TRUE : GLFW_FALSE);
 
-	this->window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
-	this->width = width;
-	this->height = height;
+	window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 
-	this->swapChain.Init(title, window, width, height);	// will be overridden in another class with multi GPU support...
+  instance.Create(title);
+  device = instance.CreateDevice(window);
+  swapChain = device.CreateSwapChain(width, height);
+}
 
-	this->pipeline.Create(swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice(), swapChain.GetSwapChainImageFormat(), swapChain.GetSwapChainExtent());
+lpe::Window::Window(uint32_t width, uint32_t height, std::string title, bool resizeable)
+	: width(width),
+	  height(height),
+	  title(title),
+	  resizeable(resizeable)
+{
+	Create();
+}
 
-	this->commands.CreateCommandPool(swapChain.GetLogicalDevice(), swapChain.FindQueueFamilies().graphicsFamily);
+lpe::Window::~Window()
+{
+	if(window)
+	{
+		glfwDestroyWindow(window);
+	}
+}
 
-	auto depthFormat = pipeline.FindDepthFormat();
+void lpe::Window::Create(uint32_t width, uint32_t height, std::string title, bool resizeable)
+{
+  if(window)
+    throw std::runtime_error("Window was already created. Consider using the default constructor if you want to use this function!");
 
-	depthImageView = {swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice(), true};
-	depthImageView.Create(swapChain.GetSwapChainExtent().width,
-	                      swapChain.GetSwapChainExtent().height,
-	                      depthFormat,
-	                      vk::ImageTiling::eOptimal,
-	                      vk::ImageUsageFlagBits::eDepthStencilAttachment,
-	                      vk::MemoryPropertyFlagBits::eDeviceLocal,
-	                      vk::ImageAspectFlagBits::eDepth);
-	depthImageView.TransitionImageLayout(commands,
-	                                     swapChain.GetGraphicsQueue(),
-	                                     depthFormat,
-	                                     vk::ImageLayout::eUndefined,
-	                                     vk::ImageLayout::eDepthStencilAttachmentOptimal);
-
-	swapChain.CreateFrameBuffers(depthImageView, pipeline.GetRenderPass());
-
-	Texture texture = { swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice() };
-	
-	this->texture = std::move(texture);
-	this->texture.Create(commands, swapChain.GetGraphicsQueue(), "textures/chalet.jpg");
-
-
-	model.Load("models/chalet.model");
-
-	renderer.Create(swapChain.GetPhysicalDevice(), swapChain.GetLogicalDevice(), commands, swapChain.GetGraphicsQueue(), model);
-
-	pipeline.Finalize(swapChain.GetLogicalDeviceRef(), renderer.GetUniformBufferRef(), &this->texture);
-
-	commands.CreateCommandBuffers(swapChain.GetFramebuffers(),
-	                              swapChain.GetSwapChainExtent(),
-	                              pipeline.GetDescriptorSet(),
-	                              pipeline.GetRenderPass(),
-	                              pipeline.GetGraphicsPipeline(),
-	                              pipeline.GetPipelineLayout(),
-	                              model,
-	                              renderer);
-
-	swapChain.CreateSemaphores();
+  this->width = width;
+  this->height = height;
+  this->title = title;
+  this->resizeable = resizeable;
+  Create();
 }
 
 bool lpe::Window::IsOpen() const
 {
+  if (!window)
+    throw std::runtime_error("Tried to get window state of not existing window");
+
 	return !glfwWindowShouldClose(window);
 }
 
 void lpe::Window::Render()
 {
+  if (!window)
+    throw std::runtime_error("Cannot render on a window if there is no window!");
+
 	glfwPollEvents();
 
-	renderer.UpdateUniformBuffer(swapChain.GetLogicalDevice(), swapChain.GetSwapChainExtent());
-	swapChain.DrawFrame(commands.GetCommandBuffers());
 
-	// TODO: calculate FPS?
-}
-
-uint32_t lpe::Window::GetHeight() const
-{
-	return height;
-}
-
-uint32_t lpe::Window::GetWidth() const
-{
-	return width;
 }

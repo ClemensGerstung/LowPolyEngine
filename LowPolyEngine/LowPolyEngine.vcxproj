@@ -19,33 +19,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Base.h" />
-    <ClInclude Include="Buffer.h" />
-    <ClInclude Include="Commands.h" />
-    <ClInclude Include="GraphicsPipeline.h" />
-    <ClInclude Include="ImageView.h" />
+    <ClInclude Include="Device.h" />
+    <ClInclude Include="Instance.h" />
     <ClInclude Include="lpe.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="ModelRenderer.h" />
     <ClInclude Include="QueueFamilyIndices.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="SwapChainSupportDetails.h" />
-    <ClInclude Include="Texture.h" />
     <ClInclude Include="UniformBufferObject.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Base.cpp" />
-    <ClCompile Include="Buffer.cpp" />
-    <ClCompile Include="Commands.cpp" />
-    <ClCompile Include="GraphicsPipeline.cpp" />
-    <ClCompile Include="ImageView.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="ModelRenderer.cpp" />
+    <ClCompile Include="Device.cpp" />
+    <ClCompile Include="Instance.cpp" />
     <ClCompile Include="SwapChain.cpp" />
-    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

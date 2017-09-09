@@ -1,437 +1,173 @@
 #include "SwapChain.h"
-#include "lpe.h"
-#include "Window.h"
-#include <set>
-
-QueueFamilyIndices lpe::SwapChain::FindQueueFamilies(vk::PhysicalDevice device) const
-{
-	QueueFamilyIndices indices;
-	auto queueFamilies = device.getQueueFamilyProperties();
-
-	int index = 0;
-
-	for (const auto& queueFamily : queueFamilies)
-	{
-		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
-		{
-			indices.graphicsFamily = index;
-		}
-
-		vk::Bool32 presentSupport = device.getSurfaceSupportKHR(index, surface);
-
-
-		if (queueFamily.queueCount > 0 && presentSupport)
-		{
-			indices.presentFamily = index;
-		}
-
-		if (indices.IsComplete())
-		{
-			break;
-		}
-
-		index++;
-	}
-
-	return indices;
-}
-
-bool lpe::SwapChain::CheckDeviceExtensionSupport(vk::PhysicalDevice device) const
-{
-	auto extensions = device.enumerateDeviceExtensionProperties();
-
-	std::set<std::string> requiredExtensions(helper::DeviceExtensions.begin(), helper::DeviceExtensions.end());
-
-	for (const auto& extension : extensions)
-	{
-		requiredExtensions.erase(extension.extensionName);
-	}
-
-	return requiredExtensions.empty();
-}
-
-SwapChainSupportDetails lpe::SwapChain::QuerySwapChainDetails(vk::PhysicalDevice device) const
-{
-	SwapChainSupportDetails details;
-
-	details.capabilities = device.getSurfaceCapabilitiesKHR(surface);
-	details.formats = device.getSurfaceFormatsKHR(surface);
-	details.presentModes = device.getSurfacePresentModesKHR(surface);
-
-	return details;
-}
-
-bool lpe::SwapChain::IsDeviceSuitable(vk::PhysicalDevice device) const
-{
-	auto indices = FindQueueFamilies(device);
-
-	bool supportsExtensions = CheckDeviceExtensionSupport(device);
-
-	bool isSwapChainAdequate = false;
-	if (supportsExtensions)
-	{
-		auto swapChainDetails = QuerySwapChainDetails(device);
-		isSwapChainAdequate = !swapChainDetails.formats.empty() && !swapChainDetails.presentModes.empty();
-	}
-
-	return indices.IsComplete() && supportsExtensions && isSwapChainAdequate;
-}
-
-void lpe::SwapChain::PickPhysicalDevice(const uint32_t physicalDeviceIndex)
-{
-	auto physicalDevices = instance.enumeratePhysicalDevices();
-	bool hasDevice = false;
-
-	if (physicalDeviceIndex == -1)
-	{
-		for (const auto& device : physicalDevices)
-		{
-			if (IsDeviceSuitable(device))
-			{
-				physicalDevice = device;
-				hasDevice = true;
-				break;
-			}
-		}
-	}
-	else
-	{
-		if (IsDeviceSuitable(physicalDevices[physicalDeviceIndex]))
-		{
-			physicalDevice = physicalDevices[physicalDeviceIndex];
-			hasDevice = true;
-		}
-	}
-
-	if (!hasDevice)
-	{
-		throw std::runtime_error("failed to find suitable GPU!");
-	}
-}
-
-void lpe::SwapChain::CreateLogicalDevice()
-{
-	auto indices = FindQueueFamilies(physicalDevice);
-	float queuePriority = 1.0f;
-
-	std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
-
-	for (auto queueFamily : {indices.graphicsFamily, indices.presentFamily})
-	{
-		queueCreateInfos.push_back({{}, queueFamily, 1, &queuePriority});
-	}
-
-	vk::DeviceCreateInfo createInfo =
-	{
-		{},
-		(uint32_t)queueCreateInfos.size(),
-		queueCreateInfos.data(),
-#ifdef ENABLE_VALIDATION_LAYER
-		(uint32_t)helper::ValidationLayer.size(),
-		helper::ValidationLayer.data(),
-#else
-		0,
-		nullptr,
-#endif
-		(uint32_t)helper::DeviceExtensions.size(),
-		helper::DeviceExtensions.data(),
-		{}
-	};
-
-	device = physicalDevice.createDevice(createInfo, nullptr);
-
-	graphicsQueue = device.getQueue(indices.graphicsFamily, 0);
-	presentQueue = device.getQueue(indices.presentFamily, 0);
-}
-
-void lpe::SwapChain::DrawFrame(const std::vector<vk::CommandBuffer>& commandBuffers)
-{
-	uint32_t imageIndex;
-	auto result = device.acquireNextImageKHR(swapchain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, {}, &imageIndex);
-
-	if(result == vk::Result::eErrorOutOfDateKHR)
-	{	
-		// TOOD: recreate swapchain
-		return;
-	}
-	else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
-	{
-		throw std::runtime_error("failed to acquire swap chain image! (" + vk::to_string(result) + ")");
-	}
-
-	vk::Semaphore waitSemaphores[] = { imageAvailableSemaphore };
-	vk::PipelineStageFlags waitFlags[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
-	vk::Semaphore signalSemaphores[] = { renderAvailableSemaphore };
-
-	vk::SubmitInfo submitInfo = { 1, waitSemaphores, waitFlags, 1, &commandBuffers[imageIndex], 1, signalSemaphores };
-
-	result = graphicsQueue.submit(1, &submitInfo, {});
-	if (result != vk::Result::eSuccess)
-	{
-		throw std::runtime_error("failed to submit draw command buffer! (" + vk::to_string(result) + ")");
-	}
-
-	vk::SwapchainKHR swapChains[] = { swapchain };
-
-	vk::PresentInfoKHR presentInfo = { 1, signalSemaphores, 1, swapChains, &imageIndex };
-
-	result = presentQueue.presentKHR(&presentInfo);
-
-	if(result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
-	{
-		// TODO: recreate swapchain
-	}
-	else if (result != vk::Result::eSuccess)
-	{
-		throw std::runtime_error("failed to present swap chain image! (" + vk::to_string(result) + ")");
-	}
-
-	presentQueue.waitIdle();
-}
-
-vk::Device lpe::SwapChain::GetLogicalDevice() const
-{
-	return device;
-}
-
-vk::PhysicalDevice lpe::SwapChain::GetPhysicalDevice() const
-{
-	return physicalDevice;
-}
-
-vk::Format lpe::SwapChain::GetSwapChainImageFormat() const
-{
-	return imageFormat;
-}
-
-vk::Extent2D lpe::SwapChain::GetSwapChainExtent() const
-{
-	return extent;
-}
-
-vk::Queue lpe::SwapChain::GetGraphicsQueue() const
-{
-	return graphicsQueue;
-}
-
-vk::Queue lpe::SwapChain::GetPresentQueue() const
-{
-	return presentQueue;
-}
-
-std::vector<vk::Framebuffer> lpe::SwapChain::GetFramebuffers() const
-{
-	return framebuffers;
-}
-
-vk::Device* lpe::SwapChain::GetLogicalDeviceRef()
-{
-	return &device;
-}
+#include "Instance.h"
 
 vk::SurfaceFormatKHR lpe::SwapChain::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const
 {
-	if (formats.size() == 1 && formats[0].format == vk::Format::eUndefined)
-	{
-		return{ vk::Format::eB8G8R8A8Unorm, vk::ColorSpaceKHR::eSrgbNonlinear };
-	}
+  if (formats.size() == 1 && formats[0].format == vk::Format::eUndefined)
+  {
+    return{ vk::Format::eB8G8R8A8Unorm, vk::ColorSpaceKHR::eSrgbNonlinear };
+  }
 
-	for (const auto& availableFormat : formats)
-	{
-		if (availableFormat.format == vk::Format::eB8G8R8A8Unorm && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
-		{
-			return availableFormat;
-		}
-	}
+  for (const auto& availableFormat : formats)
+  {
+    if (availableFormat.format == vk::Format::eB8G8R8A8Unorm && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+    {
+      return availableFormat;
+    }
+  }
 
-	return formats[0];
+  return formats[0];
 }
 
 vk::PresentModeKHR lpe::SwapChain::ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& presentModes) const
 {
-	for (const auto& presentMode : presentModes)
-	{
-		if (presentMode == vk::PresentModeKHR::eMailbox)
-		{
-			return presentMode;
-		}
-	}
+  for (const auto& presentMode : presentModes)
+  {
+    if (presentMode == vk::PresentModeKHR::eMailbox)
+    {
+      return presentMode;
+    }
+  }
 
-	return vk::PresentModeKHR::eImmediate;
+  return vk::PresentModeKHR::eImmediate;
 }
 
-vk::Extent2D lpe::SwapChain::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, const uint32_t width, const uint32_t height) const
+vk::Extent2D lpe::SwapChain::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities,
+                                              const uint32_t width,
+                                              const uint32_t height) const
 {
-	if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-	{
-		return capabilities.currentExtent;
-	}
-	else
-	{
-		vk::Extent2D actualExtent = { width, height };
+  if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+  {
+    return capabilities.currentExtent;
+  }
 
-		actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
-		actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+  vk::Extent2D actualExtent = { width, height };
 
-		return actualExtent;
+  actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+  actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
 
-	}
+  return actualExtent;
 }
 
-void lpe::SwapChain::CreateSwapChain(const uint32_t physicalDeviceIndex,
-                                     const vk::Instance& instance,
-                                     const uint32_t width,
-                                     const uint32_t height)
+void lpe::SwapChain::CreateSwapChain(vk::PhysicalDevice physicalDevice, const vk::SurfaceKHR& surface, lpe::QueueFamilyIndices indices, uint32_t width, uint32_t height)
 {
-	this->instance = instance;
+  auto details = Instance::QuerySwapChainDetails(physicalDevice, surface);
 
-	PickPhysicalDevice(physicalDeviceIndex);
+  vk::SurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(details.formats);
+  vk::PresentModeKHR presentMode = ChooseSwapPresentMode(details.presentModes);
+  vk::Extent2D extent = ChooseSwapExtent(details.capabilities, width, height);
 
-	CreateLogicalDevice();
+  uint32_t imageCount = details.capabilities.minImageCount + 1;
+  if (details.capabilities.maxImageCount > 0 && imageCount > details.capabilities.maxImageCount)
+  {
+    imageCount = details.capabilities.maxImageCount;
+  }
 
-	SwapChainSupportDetails details = QuerySwapChainDetails(physicalDevice);
+  vk::SwapchainKHR oldSwapChain = swapchain;
+  vk::SwapchainCreateInfoKHR createInfo =
+  {
+    {},
+    surface,
+    imageCount,
+    surfaceFormat.format,
+    surfaceFormat.colorSpace,
+    extent,
+    1,
+    vk::ImageUsageFlagBits::eColorAttachment,
+    vk::SharingMode::eExclusive,
+    0,
+    nullptr,
+    details.capabilities.currentTransform,
+    vk::CompositeAlphaFlagBitsKHR::eOpaque,
+    presentMode,
+    VK_TRUE,
+    oldSwapChain
+  };
 
-	vk::SurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(details.formats);
-	vk::PresentModeKHR presentMode = ChooseSwapPresentMode(details.presentModes);
-	vk::Extent2D extent = ChooseSwapExtent(details.capabilities, width, height);
+  auto queueFamilyIndices = indices.GetAsArray();
 
-	uint32_t imageCount = details.capabilities.minImageCount + 1;
-	if (details.capabilities.maxImageCount > 0 && imageCount > details.capabilities.maxImageCount)
-	{
-		imageCount = details.capabilities.maxImageCount;
-	}
+  if (indices.graphicsFamily != indices.presentFamily)
+  {
+    createInfo.imageSharingMode = vk::SharingMode::eConcurrent;
+    createInfo.queueFamilyIndexCount = (uint32_t)queueFamilyIndices.size();
+    createInfo.pQueueFamilyIndices = queueFamilyIndices.data();
+  }
 
-	vk::SwapchainKHR oldSwapChain = swapchain;
-	vk::SwapchainCreateInfoKHR createInfo =
-	{
-		{},
-		surface,
-		imageCount,
-		surfaceFormat.format,
-		surfaceFormat.colorSpace,
-		extent,
-		1,
-		vk::ImageUsageFlagBits::eColorAttachment,
-		vk::SharingMode::eExclusive,
-		0,
-		nullptr,
-		details.capabilities.currentTransform,
-		vk::CompositeAlphaFlagBitsKHR::eOpaque,
-		presentMode,
-		VK_TRUE,
-		oldSwapChain
-	};
+  vk::SwapchainKHR newSwapchain = device->createSwapchainKHR(createInfo, nullptr);
+  swapchain = newSwapchain;
 
-	auto indices = FindQueueFamilies(physicalDevice);
-	auto queueFamilyIndices = indices.GetAsArray();
-
-	if(indices.graphicsFamily != indices.presentFamily)
-	{
-		createInfo.imageSharingMode = vk::SharingMode::eConcurrent;
-		createInfo.queueFamilyIndexCount = (uint32_t)queueFamilyIndices.size();
-		createInfo.pQueueFamilyIndices = queueFamilyIndices.data();
-	}
-
-	vk::SwapchainKHR newSwapchain = device.createSwapchainKHR(createInfo, nullptr);
-	swapchain = newSwapchain;
-
-	imageFormat = surfaceFormat.format;
-	this->extent = extent;
+  imageFormat = surfaceFormat.format;
+  this->extent = extent;
 }
 
-void lpe::SwapChain::CreateImageViews()
+lpe::SwapChain::SwapChain(const SwapChain& other)
 {
-	auto swapchainImages = device.getSwapchainImagesKHR(swapchain);
+  this->device.reset(other.device.get());
+  
+  this->physicalDevice = other.physicalDevice;
+  this->swapchain = other.swapchain;
+  this->extent = other.extent;
+  this->imageFormat = other.imageFormat;
+}
 
-	imageViews.resize(swapchainImages.size(), ImageView {physicalDevice, device});
+lpe::SwapChain::SwapChain(SwapChain&& other)
+{
+  this->device.reset(other.device.get());
+  other.device.release();
+  this->physicalDevice = other.physicalDevice;
+  this->swapchain = other.swapchain;
+  this->extent = other.extent;
+  this->imageFormat = other.imageFormat;
+}
 
-	for (int i = 0; i < swapchainImages.size(); i++)
-	{
-		imageViews[i].Create(swapchainImages[i], imageFormat, vk::ImageAspectFlagBits::eColor);
-	}
+lpe::SwapChain& lpe::SwapChain::operator=(const SwapChain& other)
+{
+  this->device.reset(other.device.get());
+
+  this->physicalDevice = other.physicalDevice;
+  this->swapchain = other.swapchain;
+  this->extent = other.extent;
+  this->imageFormat = other.imageFormat;
+
+  return *this;
+}
+
+lpe::SwapChain& lpe::SwapChain::operator=(SwapChain&& other)
+{
+  this->device.reset(other.device.get());
+  other.device.release();
+  this->physicalDevice = other.physicalDevice;
+  this->swapchain = other.swapchain;
+  this->extent = other.extent;
+  this->imageFormat = other.imageFormat;
+
+  return *this;
+}
+
+lpe::SwapChain::SwapChain(vk::PhysicalDevice physicalDevice,
+                          vk::Device* device,
+                          const vk::SurfaceKHR& surface,
+                          QueueFamilyIndices indices,
+                          uint32_t width,
+                          uint32_t height)
+  : physicalDevice(physicalDevice)
+{
+  this->device.reset(device);
+
+  CreateSwapChain(physicalDevice, surface, indices, width, height);
 }
 
 lpe::SwapChain::~SwapChain()
 {
-	for (size_t i = 0; i < framebuffers.size(); i++) {
-		device.destroyFramebuffer(framebuffers[i], nullptr);
-	}
+  if(device)
+  {
+    
 
-	device.destroySemaphore(imageAvailableSemaphore);
-	device.destroySemaphore(renderAvailableSemaphore);
+    if(swapchain)
+    {
+      device->destroySwapchainKHR(swapchain, nullptr);
+    }
 
-	device.destroySwapchainKHR(swapchain, nullptr);
-
-	device.destroy(nullptr);
-
-	instance.destroySurfaceKHR(surface, nullptr);
-	lpe::helper::DestroyDebugReportCallbackEXT(instance, callback, nullptr);
-	instance.destroy(nullptr);
-}
-
-void lpe::SwapChain::Init(std::string appName, 
-						  GLFWwindow* window,
-						  const uint32_t width,
-						  const uint32_t height)
-{
-	this->Init(appName, window, width, height, -1);
-}
-
-void lpe::SwapChain::Init(std::string appName, 
-						  GLFWwindow* window, 
-						  const uint32_t width, 
-						  const uint32_t height, 
-						  const uint32_t physicalDeviceIndex)
-{
-	vk::Instance instance = lpe::CreateInstance(appName, nullptr, &callback);
-
-	if (glfwCreateWindowSurface(static_cast<VkInstance>(instance), window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to create window surface!");
-	}
-
-	CreateSwapChain(physicalDeviceIndex, instance, width, height);
-
-	CreateImageViews();
-}
-
-void lpe::SwapChain::CreateFrameBuffers(const lpe::ImageView& depthImage, const vk::RenderPass& renderPass)
-{
-	framebuffers.resize(imageViews.size());
-
-	for(size_t i = 0; i < imageViews.size(); i++)
-	{
-		std::array<vk::ImageView, 2> attachments = {imageViews[i].GetImageView(), depthImage.GetImageView()};
-
-		vk::FramebufferCreateInfo framebufferInfo = { {}, renderPass, (uint32_t)attachments.size(), attachments.data(), extent.width, extent.height, 1 };
-
-		auto result = device.createFramebuffer(&framebufferInfo, nullptr, &framebuffers[i]);
-
-		if (result != vk::Result::eSuccess)
-		{
-			throw std::runtime_error("failed to create framebuffer! (" + vk::to_string(result) + ")");
-		}
-	}
-}
-
-void lpe::SwapChain::CreateSemaphores()
-{
-	vk::SemaphoreCreateInfo semaphoreInfo = {};
-
-	auto result = device.createSemaphore(&semaphoreInfo, nullptr, &imageAvailableSemaphore);
-	if (result != vk::Result::eSuccess)
-	{
-		throw std::runtime_error("failed to create imageAvailableSemaphore! (" + vk::to_string(result) + ")");
-	}
-
-	result = device.createSemaphore(&semaphoreInfo, nullptr, &renderAvailableSemaphore);
-	if (result != vk::Result::eSuccess)
-	{
-		throw std::runtime_error("failed to create renderAvailableSemaphore! (" + vk::to_string(result) + ")");
-	}
-}
-
-QueueFamilyIndices lpe::SwapChain::FindQueueFamilies() const
-{
-	return FindQueueFamilies(physicalDevice);
+    device.release();
+  }
 }

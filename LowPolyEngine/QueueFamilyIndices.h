@@ -2,6 +2,10 @@
 #define QUEUE_FAMILY_INDICES_H
 
 #include <array>
+#include "lpe.h"
+#include "stdafx.h"
+
+BEGIN_LPE
 
 struct QueueFamilyIndices
 {
@@ -18,5 +22,7 @@ struct QueueFamilyIndices
 		return { graphicsFamily, presentFamily };
 	}
 };
+
+END_LPE
 
 #endif

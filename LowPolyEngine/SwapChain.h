@@ -1,78 +1,39 @@
-#ifndef SWAP_CHAIN_H
-#define SWAP_CHAIN_H
+#ifndef SWAPCHAIN_H
+#define SWAPCHAIN_H
 
-#include "SwapChainSupportDetails.h"
+#include "stdafx.h"
 #include "QueueFamilyIndices.h"
 
-#include "ImageView.h"
+BEGIN_LPE
 
-#include <GLFW/glfw3.h>
+class SwapChain
+{
+private:
+  vk::PhysicalDevice physicalDevice;
+  std::unique_ptr<vk::Device> device;
 
-namespace lpe {
+  vk::SwapchainKHR swapchain;
+  vk::Extent2D extent;
+  vk::Format imageFormat;
+  
+  vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const;
+  vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& presentModes) const;
+  vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, const uint32_t width, const uint32_t height) const;
 
-	class SwapChain
-	{
-	private:
-		vk::Instance instance;
-		vk::PhysicalDevice physicalDevice = nullptr;
-		vk::Device device;
-		vk::SurfaceKHR surface;
-		vk::SwapchainKHR swapchain;
-		std::vector<lpe::ImageView> imageViews;
-		std::vector<vk::Framebuffer> framebuffers;
-		vk::Format imageFormat;
-		vk::Extent2D extent;
-		vk::Queue graphicsQueue;
-		vk::Queue presentQueue;
-		vk::DebugReportCallbackEXT callback;
+  void CreateSwapChain(vk::PhysicalDevice physicalDevice, const vk::SurfaceKHR& surface, lpe::QueueFamilyIndices indices, uint32_t width, uint32_t height);
 
-		vk::Semaphore imageAvailableSemaphore;
-		vk::Semaphore renderAvailableSemaphore;
+public:
+  SwapChain() = default;
+  SwapChain(const SwapChain& other);
+  SwapChain(SwapChain&& other);
+  SwapChain& operator=(const SwapChain& other);
+  SwapChain& operator=(SwapChain&& other);
 
-		QueueFamilyIndices FindQueueFamilies(vk::PhysicalDevice device) const;
-		bool CheckDeviceExtensionSupport(vk::PhysicalDevice device) const;
-		SwapChainSupportDetails QuerySwapChainDetails(vk::PhysicalDevice device) const;
-		bool IsDeviceSuitable(vk::PhysicalDevice device) const;
+  SwapChain(vk::PhysicalDevice physicalDevice, vk::Device* device, const vk::SurfaceKHR& surface, QueueFamilyIndices indices, uint32_t width, uint32_t height);
 
-		void PickPhysicalDevice(const uint32_t physicalDeviceIndex);
-		void CreateLogicalDevice();
+  ~SwapChain();
+};
 
-		vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const;
-		vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& presentModes) const;
-		vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, const uint32_t width, const uint32_t height) const;
-
-		void CreateSwapChain(const uint32_t physicalDeviceIndex, const vk::Instance& instance, const uint32_t width, const uint32_t height);
-
-		void CreateImageViews();
-
-	public:
-		SwapChain() = default;
-
-		~SwapChain();
-
-		//void Recreate(const uint32_t width, const uint32_t height);
-
-		void Init(std::string appName, GLFWwindow* window, const uint32_t width, const uint32_t height);
-		void Init(std::string appName, GLFWwindow* window, const uint32_t width, const uint32_t height, const uint32_t physicalDeviceIndex);
-
-		void CreateFrameBuffers(const lpe::ImageView& depthImage, const vk::RenderPass& renderPass);
-
-		void CreateSemaphores();
-
-		void DrawFrame(const std::vector<vk::CommandBuffer>& commandBuffers);
-
-		QueueFamilyIndices FindQueueFamilies() const;
-
-		vk::Device GetLogicalDevice() const;
-		vk::PhysicalDevice GetPhysicalDevice() const;
-		vk::Format GetSwapChainImageFormat() const;
-		vk::Extent2D GetSwapChainExtent() const;
-		vk::Queue GetGraphicsQueue() const;
-		vk::Queue GetPresentQueue() const;
-		std::vector<vk::Framebuffer> GetFramebuffers() const;
-
-		vk::Device* GetLogicalDeviceRef();
-	};
-}
+END_LPE
 
 #endif
