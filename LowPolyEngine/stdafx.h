@@ -140,7 +140,7 @@ BEGIN_LPE
 			return buffer;
 		}
 
-	  VULKAN_HPP_INLINE LPE void* alignedAlloc(size_t size, size_t alignment)
+	  VULKAN_HPP_INLINE LPE void* AlignedAlloc(size_t size, size_t alignment)
 	  {
 	    void* data = nullptr;
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -153,7 +153,7 @@ BEGIN_LPE
 	    return data;
 	  }
 
-	  VULKAN_HPP_INLINE LPE void alignedFree(void* data)
+	  VULKAN_HPP_INLINE LPE void AlignedFree(void* data)
 	  {
 #if	defined(_MSC_VER) || defined(__MINGW32__)
 	    _aligned_free(data);

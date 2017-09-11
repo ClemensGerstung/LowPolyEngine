@@ -33,9 +33,11 @@ public:
 
   UniformBuffer(vk::PhysicalDevice physicalDevice, vk::Device* device, const std::vector<Model>& models, const Camera& camera);
 
-  ~UniformBuffer() = default;   // everything will be destroyed by the wrapper classes
+  ~UniformBuffer();
 
   void Update(const Camera& camera, const std::vector<Model>& models, bool force = false);
+
+  std::vector<std::shared_ptr<vk::DescriptorBufferInfo>> GetDescriptors();
 };
 
 END_LPE

@@ -13,6 +13,7 @@ private:
   vk::Buffer buffer;
   vk::DeviceMemory memory;
   vk::DeviceSize size;
+  vk::DescriptorBufferInfo descriptor;
   void* mapped;
 
 protected:
@@ -46,6 +47,7 @@ public:
 
   std::unique_ptr<vk::Buffer> GetBuffer();
   std::unique_ptr<vk::DeviceMemory> GetMemory();
+  std::unique_ptr<vk::DescriptorBufferInfo> GetDescriptor();
   vk::DeviceSize GetSize();
 };
 

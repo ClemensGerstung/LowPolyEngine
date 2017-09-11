@@ -17,6 +17,7 @@ private:
   vk::SurfaceKHR surface;
   vk::Queue presentQueue;
   vk::Queue graphicsQueue;
+  vk::PipelineCache pipelineCache;
 
   QueueFamilyIndices indices;
 

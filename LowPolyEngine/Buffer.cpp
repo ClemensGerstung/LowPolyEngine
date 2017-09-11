@@ -32,6 +32,7 @@ lpe::Buffer::Buffer(const Buffer& other)
   this->size = other.size;
   this->buffer = other.buffer;
   this->memory = other.memory;
+  this->descriptor = other.descriptor;
 }
 
 lpe::Buffer::Buffer(Buffer&& other)
@@ -43,6 +44,7 @@ lpe::Buffer::Buffer(Buffer&& other)
   this->size = other.size;
   this->buffer = other.buffer;
   this->memory = other.memory;
+  this->descriptor = other.descriptor;
 }
 
 lpe::Buffer& lpe::Buffer::operator=(const Buffer& other)
@@ -52,6 +54,7 @@ lpe::Buffer& lpe::Buffer::operator=(const Buffer& other)
   this->size = other.size;
   this->buffer = other.buffer;
   this->memory = other.memory;
+  this->descriptor = other.descriptor;
 
   return *this;
 }
@@ -65,6 +68,7 @@ lpe::Buffer& lpe::Buffer::operator=(Buffer&& other)
   this->size = other.size;
   this->buffer = other.buffer;
   this->memory = other.memory;
+  this->descriptor = other.descriptor;
 
   return *this;
 }
@@ -83,6 +87,9 @@ lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
 
   this->device->mapMemory(memory, 0, size, {}, &mapped);
   memcpy(mapped, data, (size_t)size);
+  this->device->unmapMemory(memory);
+
+  descriptor = { buffer, 0, VK_WHOLE_SIZE };
 }
 
 lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
@@ -96,19 +103,13 @@ lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
 
   CreateBuffer(size, usage, properties);
 
-  this->device->mapMemory(memory, 0, size, {}, &mapped);
+  descriptor = {buffer, 0, VK_WHOLE_SIZE};
 }
 
 lpe::Buffer::~Buffer()
 {
   if(device)
   {
-    if(mapped)
-    {
-      device->unmapMemory(memory);
-      mapped = nullptr;
-    }
-
     if(buffer)
     {
       device->destroyBuffer(buffer);
@@ -137,12 +138,14 @@ void lpe::Buffer::Copy(const Buffer& src, vk::CommandBuffer commandBuffer)
 
 void lpe::Buffer::CopyToBufferMemory(void* data, size_t size)
 {
+  device->mapMemory(memory, 0, size, {}, &mapped);
   memcpy(mapped, data, size);
+  device->unmapMemory(memory);
 }
 
 void lpe::Buffer::CopyToBufferMemory(void* data)
 {
-  memcpy(mapped, data, size);
+  CopyToBufferMemory(data, size);
 }
 
 std::unique_ptr<vk::Buffer> lpe::Buffer::GetBuffer()
@@ -153,6 +156,11 @@ std::unique_ptr<vk::Buffer> lpe::Buffer::GetBuffer()
 std::unique_ptr<vk::DeviceMemory> lpe::Buffer::GetMemory()
 {
   return std::unique_ptr<vk::DeviceMemory>(&memory);
+}
+
+std::unique_ptr<vk::DescriptorBufferInfo> lpe::Buffer::GetDescriptor()
+{
+  return std::unique_ptr<vk::DescriptorBufferInfo>(&descriptor);
 }
 
 vk::DeviceSize lpe::Buffer::GetSize()

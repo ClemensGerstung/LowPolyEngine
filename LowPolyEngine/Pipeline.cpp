@@ -1,4 +1,5 @@
 #include "Pipeline.h"
+#include "Vertex.h"
 
 void lpe::Pipeline::CreateRenderPass(vk::Format swapChainImageFormat)
 {
@@ -106,7 +107,6 @@ void lpe::Pipeline::CreateDescriptorSetLayout()
   vk::DescriptorSetLayoutBinding uboLayoutBinding = { 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex };
   vk::DescriptorSetLayoutBinding samplerLayoutBinding = { 1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment };
 
-
   vk::DescriptorSetLayoutCreateInfo layoutInfo = { {}, (uint32_t)bindings.size(), bindings.data() };
 
   auto result = device->createDescriptorSetLayout(&layoutInfo, nullptr, &descriptorSetLayout);
@@ -123,20 +123,6 @@ vk::ShaderModule lpe::Pipeline::CreateShaderModule(const std::vector<char>& code
   helper::ThrowIfNotSuccess(result, "failed to create shader module!");
 
   return shaderModule;
-}
-
-
-lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
-                        vk::Device* device,
-                        vk::Format swapChainImageFormat,
-                        vk::Extent2D swapChainExtent)
-  : physicalDevice(physicalDevice)
-{
-  this->device.reset(device);
-
-  CreateRenderPass(swapChainImageFormat);
-
-  CreateDescriptorPool();
 }
 
 vk::Format lpe::Pipeline::FindDepthFormat() const
@@ -159,4 +145,96 @@ vk::Format lpe::Pipeline::FindDepthFormat() const
   }
 
   throw std::runtime_error("failed to find supported format!");
+}
+
+void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
+{
+  auto vertexShaderCode = lpe::helper::ReadSPIRVFile("shaders/vertex.spv");
+  auto fragmentShaderCode = lpe::helper::ReadSPIRVFile("shaders/fragment.spv");
+
+  auto vertexShaderModule = CreateShaderModule(vertexShaderCode);
+  auto fragmentShaderModule = CreateShaderModule(fragmentShaderCode);
+
+  vk::PipelineShaderStageCreateInfo vertexShaderStageInfo = { {}, vk::ShaderStageFlagBits::eVertex, vertexShaderModule, "main" };
+  vk::PipelineShaderStageCreateInfo fragmentShaderStageInfo = { {}, vk::ShaderStageFlagBits::eFragment, fragmentShaderModule, "main" };
+
+  auto bindingDescription = Vertex::getBindingDescription();
+  auto attributeDescriptions = Vertex::getAttributeDescriptions();
+
+  std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStages = { vertexShaderStageInfo, fragmentShaderStageInfo };
+
+  vk::PipelineVertexInputStateCreateInfo vertexInputInfo = { {}, 1, &bindingDescription, (uint32_t)attributeDescriptions.size(), attributeDescriptions.data() };
+
+  vk::PipelineInputAssemblyStateCreateInfo inputAssembly = { {}, vk::PrimitiveTopology::eTriangleList, VK_FALSE };
+
+  vk::Viewport viewport = { 0.f, 0.f, (float)swapChainExtent.width, (float)swapChainExtent.height, 0.0f, 1.0f };
+
+  vk::Rect2D scissor = { { 0, 0 }, swapChainExtent };
+
+  vk::PipelineViewportStateCreateInfo viewportState = { {}, 1, &viewport, 1, &scissor };
+
+  vk::PipelineRasterizationStateCreateInfo rasterizer = { {}, VK_FALSE, VK_FALSE, vk::PolygonMode::eFill, vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, VK_FALSE, 0, 0, 0, 1 };
+
+  vk::PipelineMultisampleStateCreateInfo multisampling = { {}, vk::SampleCountFlagBits::e1, VK_FALSE };
+
+  vk::PipelineDepthStencilStateCreateInfo depthStencil = { {}, VK_TRUE, VK_TRUE, vk::CompareOp::eLess, VK_FALSE, VK_FALSE };
+
+  vk::PipelineColorBlendAttachmentState colorBlendAttachment = { VK_FALSE };
+  colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+
+  vk::PipelineColorBlendStateCreateInfo colorBlending = { {}, VK_FALSE, vk::LogicOp::eCopy, 1, &colorBlendAttachment };
+
+  vk::PipelineLayoutCreateInfo pipelineLayoutInfo = { {}, 1, &descriptorSetLayout };
+
+  auto result = device->createPipelineLayout(&pipelineLayoutInfo, nullptr, &pipelineLayout);
+  helper::ThrowIfNotSuccess(result, "failed to create pipeline layout!");
+
+  vk::GraphicsPipelineCreateInfo pipelineInfo = { {}, (uint32_t)shaderStages.size(), shaderStages.data(), &vertexInputInfo, &inputAssembly, nullptr, &viewportState, &rasterizer, &multisampling, &depthStencil, &colorBlending, nullptr, pipelineLayout, renderPass };
+
+  graphicsPipeline = device->createGraphicsPipeline(*cache, pipelineInfo);
+
+  device->destroyShaderModule(vertexShaderModule);
+  device->destroyShaderModule(fragmentShaderModule);
+}
+
+void lpe::Pipeline::CreateDescriptorSet()
+{
+  std::array<vk::DescriptorSetLayout, 1> layouts = { descriptorSetLayout };
+
+  vk::DescriptorSetAllocateInfo allocInfo = { descriptorPool, (uint32_t)layouts.size(), layouts.data() };
+
+  auto result = device->allocateDescriptorSets(&allocInfo, &descriptorSet);
+  helper::ThrowIfNotSuccess(result, "failed to allocate descriptor set!");
+  auto descriptors = ubo->GetDescriptors();
+
+  std::vector<vk::WriteDescriptorSet> descriptorWrites =
+  {
+    { descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, descriptors[0].get() },
+    { descriptorSet, 1, 0, 1, vk::DescriptorType::eUniformBufferDynamic, nullptr, descriptors[1].get() }
+  };
+
+  device->updateDescriptorSets((uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+}
+
+lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
+                        vk::Device* device,
+                        vk::PipelineCache* cache,
+                        vk::Format swapChainImageFormat,
+                        vk::Extent2D swapChainExtent,
+                        lpe::UniformBuffer* uniformBuffer)
+  : physicalDevice(physicalDevice)
+{
+  this->device.reset(device);
+  this->cache.reset(cache);
+  this->ubo.reset(uniformBuffer);
+
+  CreateRenderPass(swapChainImageFormat);
+
+  CreateDescriptorSetLayout();
+
+  CreatePipeline(swapChainExtent);
+
+  CreateDescriptorPool();
+
+  CreateDescriptorSet();
 }

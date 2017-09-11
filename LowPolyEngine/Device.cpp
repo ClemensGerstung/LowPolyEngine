@@ -75,7 +75,9 @@ lpe::Device::Device(vk::Instance* instance, vk::PhysicalDevice physicalDevice, c
   presentQueue = device.getQueue(indices.presentFamily, 0);
   graphicsQueue = device.getQueue(indices.graphicsFamily, 0);
 
-  
+  vk::PipelineCacheCreateInfo cacheCreateInfo = {};
+  auto result = device.createPipelineCache(&cacheCreateInfo, nullptr, &pipelineCache);
+  helper::ThrowIfNotSuccess(result, "Couldn't create pipelinecache");
 }
 
 lpe::Device::~Device()
