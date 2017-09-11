@@ -20,16 +20,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Commands.h" />
     <ClInclude Include="Device.h" />
     <ClInclude Include="ImageView.h" />
     <ClInclude Include="Instance.h" />
     <ClInclude Include="lpe.h" />
+    <ClInclude Include="Model.h" />
+    <ClInclude Include="Pipeline.h" />
     <ClInclude Include="QueueFamilyIndices.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="SwapChain.h" />
     <ClInclude Include="SwapChainSupportDetails.h" />
     <ClInclude Include="UniformBufferObject.h" />
+    <ClInclude Include="UniformBuffer.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
@@ -39,7 +43,9 @@
     <ClCompile Include="Device.cpp" />
     <ClCompile Include="ImageView.cpp" />
     <ClCompile Include="Instance.cpp" />
+    <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="SwapChain.cpp" />
+    <ClCompile Include="UniformBuffer.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

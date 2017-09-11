@@ -3,14 +3,14 @@
 
 #include <glm/glm.hpp>
 
-namespace lpe
+BEGIN_LPE
+
+struct UniformBufferObject
 {
-	struct UniformBufferObject
-	{
-		glm::mat4 model;
-		glm::mat4 view;
-		glm::mat4 proj;
-	};
-}
+  glm::mat4 view;
+  glm::mat4 projection;
+};
+
+END_LPE
 
 #endif

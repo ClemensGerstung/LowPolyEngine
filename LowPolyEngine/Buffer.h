@@ -13,6 +13,7 @@ private:
   vk::Buffer buffer;
   vk::DeviceMemory memory;
   vk::DeviceSize size;
+  void* mapped;
 
 protected:
   void CreateBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties);
@@ -33,14 +34,19 @@ public:
   Buffer(vk::PhysicalDevice physicalDevice,
          vk::Device* device,
          vk::DeviceSize size,
-         vk::BufferUsageFlags usage = vk::BufferUsageFlagBits::eTransferSrc,
+         vk::BufferUsageFlags usage = vk::BufferUsageFlagBits::eUniformBuffer,
          vk::MemoryPropertyFlags properties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 
   ~Buffer();
 
   void Copy(const Buffer& src, vk::CommandBuffer commandBuffer);
 
+  void CopyToBufferMemory(void* data, size_t size);
+  void CopyToBufferMemory(void* data);
+
   std::unique_ptr<vk::Buffer> GetBuffer();
+  std::unique_ptr<vk::DeviceMemory> GetMemory();
+  vk::DeviceSize GetSize();
 };
 
 END_LPE

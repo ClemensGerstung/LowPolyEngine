@@ -264,3 +264,6 @@ __pycache__/
 #cmake
 cmake-build-debug/
 external/
+
+*_.h
+*_.cpp

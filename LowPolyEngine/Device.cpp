@@ -74,6 +74,8 @@ lpe::Device::Device(vk::Instance* instance, vk::PhysicalDevice physicalDevice, c
 
   presentQueue = device.getQueue(indices.presentFamily, 0);
   graphicsQueue = device.getQueue(indices.graphicsFamily, 0);
+
+  
 }
 
 lpe::Device::~Device()

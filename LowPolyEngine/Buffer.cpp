@@ -81,10 +81,8 @@ lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
 
   CreateBuffer(size, usage, properties);
 
-  void* stagingData;
-  this->device->mapMemory(memory, 0, size, {}, &stagingData);
-  memcpy(stagingData, data, (size_t)size);
-  this->device->unmapMemory(memory);
+  this->device->mapMemory(memory, 0, size, {}, &mapped);
+  memcpy(mapped, data, (size_t)size);
 }
 
 lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
@@ -97,12 +95,20 @@ lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
   this->device.reset(device);
 
   CreateBuffer(size, usage, properties);
+
+  this->device->mapMemory(memory, 0, size, {}, &mapped);
 }
 
 lpe::Buffer::~Buffer()
 {
   if(device)
   {
+    if(mapped)
+    {
+      device->unmapMemory(memory);
+      mapped = nullptr;
+    }
+
     if(buffer)
     {
       device->destroyBuffer(buffer);
@@ -129,7 +135,27 @@ void lpe::Buffer::Copy(const Buffer& src, vk::CommandBuffer commandBuffer)
   commandBuffer.copyBuffer(src.buffer, buffer, 1, &copyRegion);
 }
 
+void lpe::Buffer::CopyToBufferMemory(void* data, size_t size)
+{
+  memcpy(mapped, data, size);
+}
+
+void lpe::Buffer::CopyToBufferMemory(void* data)
+{
+  memcpy(mapped, data, size);
+}
+
 std::unique_ptr<vk::Buffer> lpe::Buffer::GetBuffer()
 {
   return std::unique_ptr<vk::Buffer>(&buffer);
+}
+
+std::unique_ptr<vk::DeviceMemory> lpe::Buffer::GetMemory()
+{
+  return std::unique_ptr<vk::DeviceMemory>(&memory);
+}
+
+vk::DeviceSize lpe::Buffer::GetSize()
+{
+  return size;
 }
