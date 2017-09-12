@@ -27,6 +27,7 @@
     <ClInclude Include="Instance.h" />
     <ClInclude Include="lpe.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelsRenderer.h" />
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="QueueFamilyIndices.h" />
     <ClInclude Include="stdafx.h" />
@@ -45,6 +46,7 @@
     <ClCompile Include="ImageView.cpp" />
     <ClCompile Include="Instance.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelRenderer.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="UniformBuffer.cpp" />

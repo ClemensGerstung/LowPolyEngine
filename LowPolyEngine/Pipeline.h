@@ -16,7 +16,7 @@ private:
   vk::RenderPass renderPass;
   vk::DescriptorSetLayout descriptorSetLayout;
   vk::PipelineLayout pipelineLayout;
-  vk::Pipeline graphicsPipeline;
+  vk::Pipeline pipeline;
   vk::DescriptorPool descriptorPool;
   vk::DescriptorSet descriptorSet;
 
@@ -27,6 +27,9 @@ private:
   void CreateDescriptorSetLayout();
   void CreatePipeline(vk::Extent2D swapChainExtent);
   void CreateDescriptorSet();
+
+  void Copy(const Pipeline& other);
+  void Move(Pipeline& other);
 
 public:
   Pipeline() = default;

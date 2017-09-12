@@ -191,7 +191,7 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
 
   vk::GraphicsPipelineCreateInfo pipelineInfo = { {}, (uint32_t)shaderStages.size(), shaderStages.data(), &vertexInputInfo, &inputAssembly, nullptr, &viewportState, &rasterizer, &multisampling, &depthStencil, &colorBlending, nullptr, pipelineLayout, renderPass };
 
-  graphicsPipeline = device->createGraphicsPipeline(*cache, pipelineInfo);
+  pipeline = device->createGraphicsPipeline(*cache, pipelineInfo);
 
   device->destroyShaderModule(vertexShaderModule);
   device->destroyShaderModule(fragmentShaderModule);
@@ -216,6 +216,51 @@ void lpe::Pipeline::CreateDescriptorSet()
   device->updateDescriptorSets((uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 
+void lpe::Pipeline::Copy(const Pipeline& other)
+{
+  this->physicalDevice = physicalDevice;
+  this->device.reset(other.device.get());
+  this->cache.reset(other.cache.get());
+  this->ubo.reset(other.ubo.get());
+
+  this->renderPass = other.renderPass;
+  this->descriptorSetLayout = other.descriptorSetLayout;
+  this->pipelineLayout = other.pipelineLayout;
+  this->pipeline = other.pipeline;
+  this->descriptorPool = other.descriptorPool;
+  this->descriptorSet = other.descriptorSet;
+}
+
+void lpe::Pipeline::Move(Pipeline& other)
+{
+  Copy(other);
+  other.device.release();
+  other.cache.release();
+  other.ubo.release();
+}
+
+lpe::Pipeline::Pipeline(const Pipeline& other)
+{
+  Copy(other);
+}
+
+lpe::Pipeline::Pipeline(Pipeline&& other)
+{
+  Move(other);
+}
+
+lpe::Pipeline& lpe::Pipeline::operator=(const Pipeline& other)
+{
+  Copy(other);
+  return *this;
+}
+
+lpe::Pipeline& lpe::Pipeline::operator=(Pipeline&& other)
+{
+  Move(other);
+  return *this;
+}
+
 lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
                         vk::Device* device,
                         vk::PipelineCache* cache,
@@ -237,4 +282,47 @@ lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
   CreateDescriptorPool();
 
   CreateDescriptorSet();
+}
+
+lpe::Pipeline::~Pipeline()
+{
+  if(ubo)
+  {
+    ubo.release();
+  }
+
+  if(cache)
+  {
+    cache.release();
+  }
+
+  if(device)
+  {
+    if(renderPass)
+    {
+      device->destroyRenderPass(renderPass);
+    }
+
+    if(descriptorSetLayout)
+    {
+      device->destroyDescriptorSetLayout(descriptorSetLayout);
+    }
+
+    if(pipelineLayout)
+    {
+      device->destroyPipelineLayout(pipelineLayout);
+    }
+
+    if(pipeline)
+    {
+      device->destroyPipeline(pipeline);
+    }
+
+    if(descriptorPool)
+    {
+      device->destroyDescriptorPool(descriptorPool);
+    }
+
+    device.release();
+  }
 }

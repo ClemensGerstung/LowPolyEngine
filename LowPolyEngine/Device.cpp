@@ -89,6 +89,11 @@ lpe::Device::~Device()
       instance->destroySurfaceKHR(surface);
     }
 
+    if(pipelineCache)
+    {
+      device.destroyPipelineCache(pipelineCache);
+    }
+
     if (device)
     {
       device.destroy(nullptr);
@@ -106,6 +111,16 @@ lpe::SwapChain lpe::Device::CreateSwapChain(uint32_t width, uint32_t height)
 lpe::Commands lpe::Device::CreateCommands()
 {
   return {physicalDevice, &device, &graphicsQueue, indices.graphicsFamily};
+}
+
+lpe::UniformBuffer lpe::Device::CreateUniformBuffer(const std::vector<Model>& models, const Camera& camera)
+{
+  return { physicalDevice, &device, models, camera };
+}
+
+lpe::Pipeline lpe::Device::CreatePipeline()
+{
+
 }
 
 lpe::Device::operator bool() const

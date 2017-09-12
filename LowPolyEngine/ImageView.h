@@ -11,6 +11,7 @@ private:
 
   vk::Image image;
   vk::ImageView imageView;
+  vk::DeviceMemory memory;
 
 public:
   ImageView() = default;
@@ -20,8 +21,11 @@ public:
   ImageView& operator=(ImageView&& other);
 
   ImageView(vk::Device* device, const vk::Image& image, vk::Format format, vk::ImageAspectFlags flags);
+  ImageView(vk::PhysicalDevice physicalDevice, vk::Device* device, uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::ImageAspectFlags flags);
 
   ~ImageView();
+
+  void TransitionImageLayout(vk::CommandBuffer commandBuffer, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 };
 
 END_LPE

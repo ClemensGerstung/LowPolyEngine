@@ -14,8 +14,9 @@ void lpe::Window::Create()
   instance.Create(title);
   device = instance.CreateDevice(window);
   swapChain = device.CreateSwapChain(width, height);
+  defaultCamera = Camera({2,2,2}, {0,0,0}, swapChain.GetExtent(), 60, 0, 10);
   commands = device.CreateCommands();
-
+  depthImage = commands.CreateDepthImage(swapChain.GetExtent(), vk::Format::eUndefined);
 }
 
 lpe::Window::Window(uint32_t width, uint32_t height, std::string title, bool resizeable)

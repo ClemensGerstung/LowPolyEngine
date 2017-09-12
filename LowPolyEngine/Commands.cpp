@@ -129,3 +129,27 @@ lpe::Buffer lpe::Commands::CreateBuffer(vk::DeviceSize size) const
 {
   return { physicalDevice, device.get(), size };
 }
+
+lpe::ImageView lpe::Commands::CreateDepthImage(vk::Extent2D extent, vk::Format depthFormat) const
+{
+  ImageView image = 
+  {
+    physicalDevice,
+    device.get(), 
+    extent.width, 
+    extent.height, 
+    depthFormat, 
+    vk::ImageTiling::eOptimal,
+    vk::ImageUsageFlagBits::eDepthStencilAttachment,
+    vk::MemoryPropertyFlagBits::eDeviceLocal,
+    vk::ImageAspectFlagBits::eDepth
+  };
+
+  auto cmdBuffer = BeginSingleTimeCommands();
+
+  image.TransitionImageLayout(cmdBuffer, depthFormat, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+  EndSingleTimeCommands(cmdBuffer);
+
+  return image;
+}

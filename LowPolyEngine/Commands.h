@@ -2,6 +2,7 @@
 #define COMMANDS_H
 #include "stdafx.h"
 #include "Buffer.h"
+#include "ImageView.h"
 
 BEGIN_LPE
 
@@ -30,7 +31,7 @@ public:
 
   lpe::Buffer CreateBuffer(void* data, vk::DeviceSize size) const;
   lpe::Buffer CreateBuffer(vk::DeviceSize size) const;
-
+  lpe::ImageView CreateDepthImage(vk::Extent2D extent, vk::Format depthFormat) const;
 };
 
 END_LPE

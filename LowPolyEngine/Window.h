@@ -17,10 +17,14 @@ private:
 	uint32_t height;
 	std::string title;
 	bool resizeable;
+  lpe::Camera defaultCamera;
   lpe::Instance instance;
   lpe::Device device;
   lpe::SwapChain swapChain;
   lpe::Commands commands;
+  lpe::UniformBuffer uniformBuffer;
+  lpe::Pipeline graphicsPipeline;
+  lpe::ImageView depthImage;
 
 protected:
 	virtual void Create();
