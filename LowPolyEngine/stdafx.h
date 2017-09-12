@@ -1,6 +1,9 @@
 #ifndef STDAFX_H
 #define STDAFX_H
 
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 #define GLFW_INCLUDE_VULKAN
 
 #include <vulkan/vulkan.hpp>

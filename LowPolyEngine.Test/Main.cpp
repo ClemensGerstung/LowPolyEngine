@@ -1,6 +1,7 @@
 #include <iostream>
 #include "lpe.h"
 #include "Window.h"
+#include "Model.h"
 
 int main()
 {

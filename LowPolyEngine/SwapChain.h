@@ -36,6 +36,9 @@ public:
   SwapChain(vk::PhysicalDevice physicalDevice, vk::Device* device, const vk::SurfaceKHR& surface, QueueFamilyIndices indices, uint32_t width, uint32_t height);
 
   ~SwapChain();
+
+
+  vk::Extent2D GetExtent() const;
 };
 
 END_LPE

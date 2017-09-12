@@ -7,14 +7,16 @@ BEGIN_LPE
 
 class Camera
 {
-  friend class UniformBuffer;
-
 private:
-  glm::mat4 view;
-  glm::mat4 perspective;
+  vk::Extent2D swapChainExtent;
+  float fov;
+  float near;
+  float far;
 
   glm::vec3 position;
   glm::vec3 lookAt;
+
+  void Copy(const Camera& other);
 public:
   Camera() = default;
   Camera(const Camera& other);
@@ -22,7 +24,12 @@ public:
   Camera& operator=(const Camera& other);
   Camera& operator=(Camera&& other);
 
+  Camera(glm::vec3 position, glm::vec3 lookAt, vk::Extent2D swapChainExtent, float fov = 60, float near = 0.0, float far = 10);
+
   ~Camera() = default;
+
+  glm::mat4 GetView() const;
+  glm::mat4 GetPerspective() const;
 };
 
 END_LPE

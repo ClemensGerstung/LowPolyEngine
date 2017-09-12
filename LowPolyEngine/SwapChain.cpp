@@ -189,3 +189,8 @@ lpe::SwapChain::~SwapChain()
     device.release();
   }
 }
+
+vk::Extent2D lpe::SwapChain::GetExtent() const
+{
+  return extent;
+}

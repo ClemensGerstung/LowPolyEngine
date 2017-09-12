@@ -15,12 +15,16 @@ private:
   glm::vec3 position;
   glm::mat4 matrix;
 
+  void Copy(const Model& other);
+  void Move(Model& other);
+
 public:
   Model() = default;
   Model(const Model& other);
   Model(Model&& other);
   Model& operator=(const Model& other);
   Model& operator=(Model&& other);
+  ~Model() = default;
 
   void Load(std::string fileName);
 
@@ -29,10 +33,10 @@ public:
 
   void Transform(glm::mat4 transform);
 
-  glm::vec3 GetPosition();
-  glm::mat4 GetModelMatrix();
-  std::vector<lpe::Vertex> GetVertices();
-  std::vector<uint32_t> GetIndices();
+  glm::vec3 GetPosition() const;
+  glm::mat4 GetModelMatrix() const;
+  std::vector<lpe::Vertex> GetVertices() const;
+  std::vector<uint32_t> GetIndices(uint32_t offset = 0);
 };
 
 END_LPE

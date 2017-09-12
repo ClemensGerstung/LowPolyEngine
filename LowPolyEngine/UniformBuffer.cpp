@@ -59,9 +59,6 @@ lpe::UniformBuffer::UniformBuffer(vk::PhysicalDevice physicalDevice,
 
   viewBuffer = {physicalDevice, device, sizeof(ubo)};
   
-  ubo.view = camera.view;
-  ubo.projection = camera.perspective;
-
   Update(camera, models);
 }
 
@@ -75,8 +72,8 @@ lpe::UniformBuffer::~UniformBuffer()
 
 void lpe::UniformBuffer::Update(const Camera& camera, const std::vector<Model>& models, bool force)
 {
-  ubo.view = camera.view;
-  ubo.projection = camera.perspective;
+  ubo.view = camera.GetView();
+  ubo.projection = camera.GetPerspective();
 
   viewBuffer.CopyToBufferMemory(&ubo, sizeof(ubo));
 

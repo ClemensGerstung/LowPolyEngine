@@ -47,6 +47,13 @@ void lpe::Window::Create(uint32_t width, uint32_t height, std::string title, boo
   Create();
 }
 
+lpe::Camera lpe::Window::CreateCamera(glm::vec3 position, glm::vec3 lookAt, float fov, float near, float far) const
+{
+  // TODO: check creation done!
+
+  return Camera(position, lookAt, swapChain.GetExtent(), fov, near, far);
+}
+
 bool lpe::Window::IsOpen() const
 {
   if (!window)
