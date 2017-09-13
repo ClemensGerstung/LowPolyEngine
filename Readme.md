@@ -38,7 +38,7 @@ You need at least:
 Additional libraries (not needed yet, and may be replaced):
 
 4. stb_lib
-5. tinyobjloader
+5. ~~tinyobjloader~~
 
 It's recommended to create a *Libraries* folder where you put all of the needed libraries.  
 So you can find them easily. I use *D:\Libraries* where **ALL** external libraries are.  
@@ -144,9 +144,9 @@ You may also check in **General** the options **Target Platform Version** and **
 
 ### Under Windows
 
-1. Install Vulkan SDK see *Vulkan*
+1. Install Vulkan SDK see [Vulkan](https://gitlab.hopul.net/Clemens/LowPolyEngine#vulkan)
 2. Install MSys2 http://www.msys2.org/
-3. Install a toolchain: *pacman -S mingw-w64-x86_64-toolchain*
+3. Install a toolchain: ```pacman -S mingw-w64-x86_64-toolchain```
 4. Select the mingw installation in CLion:
     * File | Settings | Build ,Execution... | Toolchains
     * Set MinGW Home to {MSys2 installation dir}\mingw64
