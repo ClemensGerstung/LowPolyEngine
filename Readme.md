@@ -38,7 +38,7 @@ You need at least:
 Additional libraries (not needed yet, and may be replaced):
 
 4. stb_lib
-5. tinyobjloader
+5. ~~tinyobjloader~~
 
 It's recommended to create a *Libraries* folder where you put all of the needed libraries.  
 So you can find them easily. I use *D:\Libraries* where **ALL** external libraries are.  
@@ -86,15 +86,17 @@ Download the zip from the git repo and extract it into your libraries folder.
 
 Like glm stb_lib is a "header-only" library
 
-#### tinyobjloader
+#### ~~tinyobjloader~~
 
-tinyobjloader is a libary to load .obj files (3D models).
+~~tinyobjloader is a libary to load .obj files (3D models).~~
 
-**Download**: https://github.com/syoyo/tinyobjloader
+~~**Download**: https://github.com/syoyo/tinyobjloader~~
 
-Download the zip from the git repo and extract it into your libraries folder.
+~~Download the zip from the git repo and extract it into your libraries folder.~~
 
-Like glm and stb_lib tinyobjloader is a "header-only" library
+~~Like glm and stb_lib tinyobjloader is a "header-only" library~~
+
+**Won't need this anymore because I'm using the [ply](https://de.wikipedia.org/wiki/Polygon_File_Format) format now and have written a simple parser on my own!**
 
 ### Installation
 
@@ -118,15 +120,14 @@ Also don't forget to link LowPolyEngine to LowPolyEngine.Test so you can use the
       * D:\Libraries\glm
       * D:\Libraries\glfw\include
       * D:\Libraries\stb_lib
-      * D:\Libraries\tinyobjloader
 2. In **Linker**|**General** check **Additional Libraries Directories**
   1. You must link **Vulkan** and **GLFW**
-    1. For Vulkan you have to link the **Bin** (or **Bin32** if x86) and the **Lib** (or **Lib32** if x86) folder (because of some validation layer stuff)
+    1. For Vulkan you have to link the ~~**Bin** (or **Bin32** if x86)~~ **Source\lib** (or **Source\lib32** if x86) and the **Lib** (or **Lib32** if x86) folder (because of some validation layer stuff)
     2. For GLVFW select your VS (or other compiler) prebuild folder and select this (if you're using VS17 like me, just link the VS15 folder, works fine)
   2. Open the "Edit" Window of the "Libraries directories" and add new lines and select the library dir of the lib.
      In my case it lools like this:
       * D:\Libraries\Vulkan\Lib
-      * D:\Libraries\Vulkan\Bin
+      * ~~D:\Libraries\Vulkan\Bin~~ D:\Libraries\Vulkan\Source\lib
       * D:\Libraries\glfw\lib-vc2015
 3. In **Linker**|**Input** check **Additional Dependencies**
   1. You must link the static libraries of Vulkan and GLFW
@@ -143,9 +144,9 @@ You may also check in **General** the options **Target Platform Version** and **
 
 ### Under Windows
 
-1. Install Vulkan SDK see *Vulkan*
+1. Install Vulkan SDK see [Vulkan](https://gitlab.hopul.net/Clemens/LowPolyEngine#vulkan)
 2. Install MSys2 http://www.msys2.org/
-3. Install a toolchain: *pacman -S mingw-w64-x86_64-toolchain*
+3. Install a toolchain: ```pacman -S mingw-w64-x86_64-toolchain```
 4. Select the mingw installation in CLion:
     * File | Settings | Build ,Execution... | Toolchains
     * Set MinGW Home to {MSys2 installation dir}\mingw64
