@@ -5,6 +5,7 @@
 #include "Buffer.h"
 #include "Model.h"
 #include <set>
+#include "Commands.h"
 
 BEGIN_LPE
 
@@ -13,13 +14,17 @@ class ModelsRenderer
 private:
   struct Entry
   {
-    std::unique_ptr<lpe::Model> model;
+    std::shared_ptr<lpe::Model> model;
     uint32_t verticesStartIndex;
     uint32_t indicesStartIndex;
     uint32_t verticesLength;
     uint32_t indicesLength;
+
+    bool operator<(const Entry& e) const;
+    bool operator==(const Entry& e) const;
   };
 
+  std::unique_ptr<Commands> commands;
   std::set<Entry> entries;
 
   std::vector<lpe::Vertex> vertices;
@@ -38,12 +43,16 @@ public:
   ModelsRenderer& operator=(const ModelsRenderer& other);
   ModelsRenderer& operator=(ModelsRenderer&& other);
 
+  ModelsRenderer(Commands* commands);
+
   ~ModelsRenderer();
 
   void AddObject(Model* model);
   void RemoveObject(Model* model);
   
   void UpdateBuffer();
+
+  std::vector<Model> GetModels() const;
 };
 
 END_LPE

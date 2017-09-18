@@ -7,6 +7,9 @@ lpe::Device::Device(const Device& device)
   this->physicalDevice = device.physicalDevice;
   this->device = device.device;
   this->surface = device.surface;
+  this->graphicsQueue = device.graphicsQueue;
+  this->presentQueue = device.presentQueue;
+  this->indices = device.indices;
 }
 
 lpe::Device::Device(Device&& device)
@@ -16,6 +19,9 @@ lpe::Device::Device(Device&& device)
   this->physicalDevice = device.physicalDevice;
   this->device = device.device;
   this->surface = device.surface;
+  this->graphicsQueue = device.graphicsQueue;
+  this->presentQueue = device.presentQueue;
+  this->indices = device.indices;
 }
 
 lpe::Device& lpe::Device::operator=(const Device& device)
@@ -24,6 +30,9 @@ lpe::Device& lpe::Device::operator=(const Device& device)
   this->physicalDevice = device.physicalDevice;
   this->device = device.device;
   this->surface = device.surface;
+  this->graphicsQueue = device.graphicsQueue;
+  this->presentQueue = device.presentQueue;
+  this->indices = device.indices;
   return *this;
 }
 
@@ -32,6 +41,9 @@ lpe::Device& lpe::Device::operator=(Device&& device)
   instance.reset(device.instance.get());
   device.instance.release();
   this->physicalDevice = device.physicalDevice;
+  this->graphicsQueue = device.graphicsQueue;
+  this->presentQueue = device.presentQueue;
+  this->indices = device.indices;
   this->device = device.device;
   this->surface = device.surface;
   return *this;
@@ -113,14 +125,19 @@ lpe::Commands lpe::Device::CreateCommands()
   return {physicalDevice, &device, &graphicsQueue, indices.graphicsFamily};
 }
 
+lpe::ModelsRenderer lpe::Device::CreateModelsRenderer(Commands* commands)
+{
+  return { commands };
+}
+
 lpe::UniformBuffer lpe::Device::CreateUniformBuffer(const std::vector<Model>& models, const Camera& camera)
 {
   return { physicalDevice, &device, models, camera };
 }
 
-lpe::Pipeline lpe::Device::CreatePipeline()
+lpe::Pipeline lpe::Device::CreatePipeline(const SwapChain& swapChain, UniformBuffer* ubo)
 {
-
+  return {physicalDevice, &device, &pipelineCache, swapChain.GetImageFormat(), swapChain.GetExtent(), ubo};
 }
 
 lpe::Device::operator bool() const

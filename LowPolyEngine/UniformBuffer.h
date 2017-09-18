@@ -37,7 +37,7 @@ public:
 
   void Update(const Camera& camera, const std::vector<Model>& models, bool force = false);
 
-  std::vector<std::shared_ptr<vk::DescriptorBufferInfo>> GetDescriptors();
+  std::vector<vk::DescriptorBufferInfo*> GetDescriptors();
 };
 
 END_LPE

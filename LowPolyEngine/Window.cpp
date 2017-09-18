@@ -16,7 +16,10 @@ void lpe::Window::Create()
   swapChain = device.CreateSwapChain(width, height);
   defaultCamera = Camera({2,2,2}, {0,0,0}, swapChain.GetExtent(), 60, 0, 10);
   commands = device.CreateCommands();
-  depthImage = commands.CreateDepthImage(swapChain.GetExtent(), vk::Format::eUndefined);
+  modelsRenderer = device.CreateModelsRenderer(&commands);
+  uniformBuffer = device.CreateUniformBuffer(modelsRenderer.GetModels(), defaultCamera);
+  graphicsPipeline = device.CreatePipeline(swapChain, &uniformBuffer);
+  depthImage = commands.CreateDepthImage(swapChain.GetExtent(), graphicsPipeline.FindDepthFormat());
 }
 
 lpe::Window::Window(uint32_t width, uint32_t height, std::string title, bool resizeable)

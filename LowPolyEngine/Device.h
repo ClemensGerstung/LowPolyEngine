@@ -6,6 +6,7 @@
 #include "SwapChain.h"
 #include "Commands.h"
 #include "Pipeline.h"
+#include "ModelsRenderer.h"
 
 BEGIN_LPE
 
@@ -35,7 +36,8 @@ public:
   SwapChain CreateSwapChain(uint32_t width, uint32_t height);
   Commands CreateCommands();
   UniformBuffer CreateUniformBuffer(const std::vector<Model>& models, const Camera& camera);
-  Pipeline CreatePipeline();
+  Pipeline CreatePipeline(const SwapChain& swapChain, UniformBuffer* ubo);
+  ModelsRenderer CreateModelsRenderer(Commands* commands);
 
   explicit operator bool() const;
   bool operator!() const;

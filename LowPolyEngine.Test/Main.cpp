@@ -5,9 +5,10 @@
 
 int main()
 {
+  lpe::Window window;
 	try
 	{
-		lpe::Window window = { 800, 600, "Hello Vulkan", false };
+		window.Create(800, 600, "Hello Vulkan", false);
 
 		while(window.IsOpen())
 		{

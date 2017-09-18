@@ -104,7 +104,7 @@ void lpe::UniformBuffer::Update(const Camera& camera, const std::vector<Model>& 
   device->flushMappedMemoryRanges(1, &mappedMemoryRange);
 }
 
-std::vector<std::shared_ptr<vk::DescriptorBufferInfo>> lpe::UniformBuffer::GetDescriptors()
+std::vector<vk::DescriptorBufferInfo*> lpe::UniformBuffer::GetDescriptors()
 {
   return { viewBuffer.GetDescriptor(), dynamicBuffer.GetDescriptor() };
 }

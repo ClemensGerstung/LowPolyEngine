@@ -194,3 +194,8 @@ vk::Extent2D lpe::SwapChain::GetExtent() const
 {
   return extent;
 }
+
+vk::Format lpe::SwapChain::GetImageFormat() const
+{
+  return imageFormat;
+}

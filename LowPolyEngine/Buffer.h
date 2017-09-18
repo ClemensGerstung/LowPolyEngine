@@ -45,9 +45,9 @@ public:
   void CopyToBufferMemory(void* data, size_t size);
   void CopyToBufferMemory(void* data);
 
-  std::unique_ptr<vk::Buffer> GetBuffer();
-  std::unique_ptr<vk::DeviceMemory> GetMemory();
-  std::unique_ptr<vk::DescriptorBufferInfo> GetDescriptor();
+  vk::Buffer* GetBuffer();
+  vk::DeviceMemory* GetMemory();
+  vk::DescriptorBufferInfo* GetDescriptor();
   vk::DeviceSize GetSize();
 };
 

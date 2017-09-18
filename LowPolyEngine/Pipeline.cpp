@@ -209,8 +209,8 @@ void lpe::Pipeline::CreateDescriptorSet()
 
   std::vector<vk::WriteDescriptorSet> descriptorWrites =
   {
-    { descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, descriptors[0].get() },
-    { descriptorSet, 1, 0, 1, vk::DescriptorType::eUniformBufferDynamic, nullptr, descriptors[1].get() }
+    { descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, descriptors[0] },
+    { descriptorSet, 1, 0, 1, vk::DescriptorType::eUniformBufferDynamic, nullptr, descriptors[1] }
   };
 
   device->updateDescriptorSets((uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
@@ -218,7 +218,7 @@ void lpe::Pipeline::CreateDescriptorSet()
 
 void lpe::Pipeline::Copy(const Pipeline& other)
 {
-  this->physicalDevice = physicalDevice;
+  this->physicalDevice = other.physicalDevice;
   this->device.reset(other.device.get());
   this->cache.reset(other.cache.get());
   this->ubo.reset(other.ubo.get());

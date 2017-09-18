@@ -61,14 +61,14 @@ void lpe::Model::Load(std::string fileName)
   {
     if(header)
     {
-      int32_t find = line.find("element vertex");
+      int32_t find = (int32_t)line.find("element vertex");
       if(find >= 0)
       {
         countVertices = std::stoi(line.substr(line.find_last_of(" ") + 1));
         continue;
       }
 
-      find = line.find("element face");
+      find = (int32_t)line.find("element face");
       if (find >= 0)
       {
         countFaces = std::stoi(line.substr(line.find_last_of(" ") + 1));

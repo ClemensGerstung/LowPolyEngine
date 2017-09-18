@@ -17,6 +17,7 @@ void lpe::Buffer::CreateBuffer(vk::DeviceSize size,
   vk::MemoryAllocateInfo allocInfo = { requirements.size, helper::FindMemoryTypeIndex(requirements.memoryTypeBits, properties, physicalDevice.getMemoryProperties()) };
 
   result = device->allocateMemory(&allocInfo, nullptr, &memory);
+  
   if (result != vk::Result::eSuccess)
   {
     throw std::runtime_error("failed to allocate buffer memory!" + vk::to_string(result) + "");
@@ -37,8 +38,7 @@ lpe::Buffer::Buffer(const Buffer& other)
 
 lpe::Buffer::Buffer(Buffer&& other)
 {
-  this->device.reset(other.device.get());
-  other.device.release();
+  this->device = std::move(other.device);
 
   this->physicalDevice = other.physicalDevice;
   this->size = other.size;
@@ -61,7 +61,7 @@ lpe::Buffer& lpe::Buffer::operator=(const Buffer& other)
 
 lpe::Buffer& lpe::Buffer::operator=(Buffer&& other)
 {
-  this->device.reset(other.device.get());
+  this->device.swap(other.device);
   other.device.release();
 
   this->physicalDevice = other.physicalDevice;
@@ -79,7 +79,8 @@ lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
                     vk::DeviceSize size,
                     vk::BufferUsageFlags usage,
                     vk::MemoryPropertyFlags properties)
-  : physicalDevice(physicalDevice)
+  : physicalDevice(physicalDevice),
+    size(size)
 {
   this->device.reset(device);
 
@@ -89,7 +90,7 @@ lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
   memcpy(mapped, data, (size_t)size);
   this->device->unmapMemory(memory);
 
-  descriptor = { buffer, 0, VK_WHOLE_SIZE };
+  descriptor = {buffer, 0, VK_WHOLE_SIZE};
 }
 
 lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
@@ -97,7 +98,8 @@ lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
                     vk::DeviceSize size,
                     vk::BufferUsageFlags usage,
                     vk::MemoryPropertyFlags properties)
-  : physicalDevice(physicalDevice)
+  : physicalDevice(physicalDevice),
+    size(size)
 {
   this->device.reset(device);
 
@@ -139,7 +141,7 @@ void lpe::Buffer::Copy(const Buffer& src, vk::CommandBuffer commandBuffer)
 void lpe::Buffer::CopyToBufferMemory(void* data, size_t size)
 {
   device->mapMemory(memory, 0, size, {}, &mapped);
-  memcpy(mapped, data, size);
+  memcpy(&mapped, data, size);
   device->unmapMemory(memory);
 }
 
@@ -148,19 +150,19 @@ void lpe::Buffer::CopyToBufferMemory(void* data)
   CopyToBufferMemory(data, size);
 }
 
-std::unique_ptr<vk::Buffer> lpe::Buffer::GetBuffer()
+vk::Buffer* lpe::Buffer::GetBuffer()
 {
-  return std::unique_ptr<vk::Buffer>(&buffer);
+  return &buffer;
 }
 
-std::unique_ptr<vk::DeviceMemory> lpe::Buffer::GetMemory()
+vk::DeviceMemory* lpe::Buffer::GetMemory()
 {
-  return std::unique_ptr<vk::DeviceMemory>(&memory);
+  return &memory;
 }
 
-std::unique_ptr<vk::DescriptorBufferInfo> lpe::Buffer::GetDescriptor()
+vk::DescriptorBufferInfo* lpe::Buffer::GetDescriptor()
 {
-  return std::unique_ptr<vk::DescriptorBufferInfo>(&descriptor);
+  return &descriptor;
 }
 
 vk::DeviceSize lpe::Buffer::GetSize()

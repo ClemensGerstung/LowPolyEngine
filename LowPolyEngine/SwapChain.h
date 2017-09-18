@@ -37,8 +37,8 @@ public:
 
   ~SwapChain();
 
-
   vk::Extent2D GetExtent() const;
+  vk::Format GetImageFormat() const;
 };
 
 END_LPE

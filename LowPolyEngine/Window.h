@@ -25,6 +25,7 @@ private:
   lpe::UniformBuffer uniformBuffer;
   lpe::Pipeline graphicsPipeline;
   lpe::ImageView depthImage;
+  lpe::ModelsRenderer modelsRenderer;
 
 protected:
 	virtual void Create();

@@ -10,8 +10,7 @@ lpe::ImageView::ImageView(const ImageView& other)
 
 lpe::ImageView::ImageView(ImageView&& other)
 {
-  this->device.reset(other.device.get());
-  other.device.release();
+  this->device = std::move(other.device);
   this->image = other.image;
   this->imageView = other.imageView;
   this->memory = other.memory;
@@ -29,8 +28,7 @@ lpe::ImageView& lpe::ImageView::operator=(const ImageView& other)
 
 lpe::ImageView& lpe::ImageView::operator=(ImageView&& other)
 {
-  this->device.reset(other.device.get());
-  other.device.release();
+  this->device = std::move(other.device);
   this->image = other.image;
   this->imageView = other.imageView;
   this->memory = other.memory;
@@ -171,7 +169,6 @@ void lpe::ImageView::TransitionImageLayout(vk::CommandBuffer commandBuffer,
   {
     throw std::invalid_argument("unsupported layout transition!");
   }
-
 
   vk::ImageMemoryBarrier barrier = { srcAccessMask, dstAccessMask, oldLayout, newLayout, VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, image, range };
 

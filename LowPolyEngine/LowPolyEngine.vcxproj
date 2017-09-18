@@ -46,7 +46,7 @@
     <ClCompile Include="ImageView.cpp" />
     <ClCompile Include="Instance.cpp" />
     <ClCompile Include="Model.cpp" />
-    <ClCompile Include="ModelRenderer.cpp" />
+    <ClCompile Include="ModelsRenderer.cpp" />
     <ClCompile Include="Pipeline.cpp" />
     <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="UniformBuffer.cpp" />
