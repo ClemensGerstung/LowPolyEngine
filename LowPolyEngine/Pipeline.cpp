@@ -207,6 +207,12 @@ void lpe::Pipeline::CreateDescriptorSet()
   helper::ThrowIfNotSuccess(result, "failed to allocate descriptor set!");
   auto descriptors = ubo->GetDescriptors();
 
+  // TODO: not quite nice but works for now!
+  if (std::any_of(descriptors.begin(), descriptors.end(), [](const vk::DescriptorBufferInfo* info){ return !info->buffer; }))
+  {
+    return;
+  }
+
   std::vector<vk::WriteDescriptorSet> descriptorWrites =
   {
     { descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, descriptors[0] },

@@ -68,10 +68,18 @@ lpe::UniformBuffer::~UniformBuffer()
   {
     helper::AlignedFree(uboDataDynamic.model);
   }
+
+  if(device)
+  {
+    device.release();
+  }
 }
 
 void lpe::UniformBuffer::Update(const Camera& camera, const std::vector<Model>& models, bool force)
 {
+  if(models.empty()) 
+    return;
+
   ubo.view = camera.GetView();
   ubo.projection = camera.GetPerspective();
 
