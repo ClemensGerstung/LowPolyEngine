@@ -53,6 +53,11 @@ public:
   void UpdateBuffer();
 
   std::vector<Model> GetModels() const;
+  uint32_t GetCount() const;
+  std::vector<lpe::Vertex> GetVertices() const;
+  std::vector<uint32_t> GetIndices() const;
+  vk::Buffer* GetVertexBuffer();
+  vk::Buffer* GetIndexBuffer();
 };
 
 END_LPE

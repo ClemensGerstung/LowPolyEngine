@@ -26,6 +26,8 @@ public:
   ~ImageView();
 
   void TransitionImageLayout(vk::CommandBuffer commandBuffer, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+
+  vk::ImageView GetImageView() const;
 };
 
 END_LPE

@@ -174,3 +174,8 @@ void lpe::ImageView::TransitionImageLayout(vk::CommandBuffer commandBuffer,
 
   commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, 0, nullptr, 0, nullptr, 1, &barrier);
 }
+
+vk::ImageView lpe::ImageView::GetImageView() const
+{
+  return imageView;
+}

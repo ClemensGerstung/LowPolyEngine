@@ -44,6 +44,13 @@ public:
   ~Pipeline();
 
   vk::Format FindDepthFormat() const;
+
+  vk::RenderPass* GetRenderPassRef();
+  vk::Pipeline* GetPipelineRef();
+  vk::PipelineLayout GetPipelineLayout() const;
+  vk::DescriptorSet GetDescriptorSet() const;
+  vk::DescriptorSet* GetDescriptorSetRef();
+
 };
 
 END_LPE

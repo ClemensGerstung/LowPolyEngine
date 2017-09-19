@@ -147,10 +147,36 @@ vk::Format lpe::Pipeline::FindDepthFormat() const
   throw std::runtime_error("failed to find supported format!");
 }
 
+vk::RenderPass* lpe::Pipeline::GetRenderPassRef()
+{
+  return &renderPass;
+}
+
+vk::Pipeline* lpe::Pipeline::GetPipelineRef()
+{
+  return &pipeline;
+}
+
+vk::PipelineLayout lpe::Pipeline::GetPipelineLayout() const
+{
+  return pipelineLayout;
+}
+
+vk::DescriptorSet lpe::Pipeline::GetDescriptorSet() const
+{
+  return descriptorSet;
+}
+
+vk::DescriptorSet* lpe::Pipeline::GetDescriptorSetRef()
+{
+  return &descriptorSet;
+}
+
+
 void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
 {
-  auto vertexShaderCode = lpe::helper::ReadSPIRVFile("shaders/vertex.spv");
-  auto fragmentShaderCode = lpe::helper::ReadSPIRVFile("shaders/fragment.spv");
+  auto vertexShaderCode = lpe::helper::ReadSPIRVFile("shaders/base.vert.spv");
+  auto fragmentShaderCode = lpe::helper::ReadSPIRVFile("shaders/base.frag.spv");
 
   auto vertexShaderModule = CreateShaderModule(vertexShaderCode);
   auto fragmentShaderModule = CreateShaderModule(fragmentShaderCode);

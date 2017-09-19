@@ -88,14 +88,18 @@ void lpe::UniformBuffer::Update(const Camera& camera, const std::vector<Model>& 
   // Calculate required alignment depending on device limits
   // ¯\(°_o)/¯  https://github.com/SaschaWillems/Vulkan/blob/master/dynamicuniformbuffer/dynamicuniformbuffer.cpp#L414
   size_t uboAlignment = physicalDevice.getProperties().limits.minUniformBufferOffsetAlignment;
-  size_t dynamicAlignment = (sizeof(glm::mat4) / uboAlignment) * uboAlignment + ((sizeof(glm::mat4) % uboAlignment) > 0 ? uboAlignment : 0);
+  dynamicAlignment = (sizeof(glm::mat4) / uboAlignment) * uboAlignment + ((sizeof(glm::mat4) % uboAlignment) > 0 ? uboAlignment : 0);
   size_t bufferSize = models.size() * dynamicAlignment;
 
   uboDataDynamic.model = (glm::mat4*)helper::AlignedAlloc(bufferSize, dynamicAlignment);
   assert(uboDataDynamic.model);
 
-  // creating the buffer in every frame might be totally inefficient but otherwise it won't be totally dynamic
-  dynamicBuffer = { physicalDevice, device.get(), bufferSize, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible };
+  if (lastAllocSize != bufferSize) 
+  {
+    // creating the buffer in every frame might be totally inefficient but otherwise it won't be totally dynamic
+    dynamicBuffer = { physicalDevice, device.get(), bufferSize, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible };
+    lastAllocSize = bufferSize;
+  }
 
   for (uint64_t i = 0; i < models.size(); i++)
   {
@@ -108,11 +112,17 @@ void lpe::UniformBuffer::Update(const Camera& camera, const std::vector<Model>& 
 
   dynamicBuffer.CopyToBufferMemory(uboDataDynamic.model);
 
-  vk::MappedMemoryRange mappedMemoryRange = {*dynamicBuffer.GetMemory(), 0, dynamicBuffer.GetSize()};
-  device->flushMappedMemoryRanges(1, &mappedMemoryRange);
+  // TODO:
+  //vk::MappedMemoryRange mappedMemoryRange = {*dynamicBuffer.GetMemory(), 0, dynamicBuffer.GetSize()};
+  //device->flushMappedMemoryRanges(1, &mappedMemoryRange);
 }
 
 std::vector<vk::DescriptorBufferInfo*> lpe::UniformBuffer::GetDescriptors()
 {
   return { viewBuffer.GetDescriptor(), dynamicBuffer.GetDescriptor() };
+}
+
+size_t lpe::UniformBuffer::GetDynamicAlignment() const
+{
+  return dynamicAlignment;
 }

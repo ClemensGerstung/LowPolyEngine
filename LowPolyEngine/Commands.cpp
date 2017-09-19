@@ -1,4 +1,5 @@
 #include "Commands.h"
+#include "ModelsRenderer.h"
 
 
 lpe::Commands::Commands(const Commands& other)
@@ -83,6 +84,73 @@ lpe::Commands::~Commands()
     }
 
     device.release();
+  }
+}
+
+void lpe::Commands::DeleteCommandBuffers()
+{
+  if (commandBuffers.size() > 0)
+  {
+    device->freeCommandBuffers(commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+  }
+}
+
+void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers,
+                                         vk::Extent2D extent,
+                                         size_t dynamicAlignment,
+                                         lpe::Pipeline* pipeline,
+                                         ModelsRenderer* renderer)
+{
+  commandBuffers.resize(framebuffers.size());
+
+  vk::CommandBufferAllocateInfo allocInfo = { commandPool, vk::CommandBufferLevel::ePrimary, (uint32_t)commandBuffers.size() };
+
+  auto result = device->allocateCommandBuffers(&allocInfo, commandBuffers.data());
+  helper::ThrowIfNotSuccess(result, "failed to allocate command buffers!");
+
+  std::array<float, 4> color = { { 0, 0, 0, 1 } };
+
+  std::array<vk::ClearValue, 2> clearValues = {};
+  clearValues[0].color = color;
+  clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
+
+  for (size_t i = 0; i < commandBuffers.size(); i++)
+  {
+    vk::CommandBufferBeginInfo beginInfo = { vk::CommandBufferUsageFlagBits::eSimultaneousUse };
+
+    result = commandBuffers[i].begin(&beginInfo);
+    helper::ThrowIfNotSuccess(result, "failed to begin commandbuffer!");
+
+    vk::RenderPassBeginInfo renderPassInfo = { *pipeline->GetRenderPassRef(), framebuffers[i], { { 0, 0 }, extent }, (uint32_t)clearValues.size(), clearValues.data() };
+    commandBuffers[i].beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
+
+    commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline->GetPipelineRef());
+
+    if (*renderer->GetVertexBuffer() && *renderer->GetIndexBuffer())
+    {
+      VkDeviceSize offsets[1] = {0};
+      commandBuffers[i].bindVertexBuffers(0, 1, renderer->GetVertexBuffer(), offsets);
+      commandBuffers[i].bindIndexBuffer(*renderer->GetIndexBuffer(), 0, vk::IndexType::eUint32);
+
+      for (uint32_t j = 0; j < renderer->GetCount(); j++)
+      {
+        // One dynamic offset per dynamic descriptor to offset into the ubo containing all model matrices
+        uint32_t dynamicOffset = j * static_cast<uint32_t>(dynamicAlignment);
+        // Bind the descriptor set for rendering a mesh using the dynamic offset
+        commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+                                             pipeline->GetPipelineLayout(),
+                                             0,
+                                             1,
+                                             pipeline->GetDescriptorSetRef(),
+                                             1,
+                                             &dynamicOffset);
+
+        commandBuffers[i].drawIndexed((uint32_t)renderer->GetIndices().size(), 1, 0, 0, 0);
+      }
+    }
+
+    commandBuffers[i].endRenderPass();
+    commandBuffers[i].end();
   }
 }
 

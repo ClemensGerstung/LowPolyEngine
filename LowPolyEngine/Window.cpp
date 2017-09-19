@@ -20,6 +20,8 @@ void lpe::Window::Create()
   uniformBuffer = device.CreateUniformBuffer(modelsRenderer.GetModels(), defaultCamera);
   graphicsPipeline = device.CreatePipeline(swapChain, &uniformBuffer);
   depthImage = commands.CreateDepthImage(swapChain.GetExtent(), graphicsPipeline.FindDepthFormat());
+  auto frameBuffers = swapChain.CreateFrameBuffers(graphicsPipeline.GetRenderPassRef(), &depthImage);
+  commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), uniformBuffer.GetDynamicAlignment(), &graphicsPipeline, &modelsRenderer);
 }
 
 lpe::Window::Window(uint32_t width, uint32_t height, std::string title, bool resizeable)
@@ -58,6 +60,22 @@ lpe::Camera lpe::Window::CreateCamera(glm::vec3 position, glm::vec3 lookAt, floa
   return Camera(position, lookAt, swapChain.GetExtent(), fov, near, far);
 }
 
+lpe::Model lpe::Window::AddModel(std::string path)
+{
+  if (!window)
+    throw std::runtime_error("Cannot add model if the window wasn't created successfull. Call Create(...) before AddModel(...)!");
+
+  Model m = {};
+  m.Load(path);
+
+  modelsRenderer.AddObject(&m);
+  uniformBuffer.Update(defaultCamera, modelsRenderer.GetModels());
+  //commands.DeleteCommandBuffers();
+  //commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), uniformBuffer.GetDynamicAlignment(), &graphicsPipeline, &modelsRenderer);
+
+  return m;
+}
+
 bool lpe::Window::IsOpen() const
 {
   if (!window)
@@ -73,5 +91,6 @@ void lpe::Window::Render()
 
 	glfwPollEvents();
 
+  uniformBuffer.Update(defaultCamera, modelsRenderer.GetModels());
 
 }

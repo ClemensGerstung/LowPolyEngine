@@ -112,7 +112,19 @@ void lpe::SwapChain::CreateImageViews()
   }
 }
 
-lpe::SwapChain::SwapChain(const SwapChain& other)
+void lpe::SwapChain::Move(lpe::SwapChain& other)
+{
+  this->device.reset(other.device.get());
+  other.device.release();
+  this->physicalDevice = other.physicalDevice;
+  this->swapchain = other.swapchain;
+  this->extent = other.extent;
+  this->imageFormat = other.imageFormat;
+  this->imageViews = std::move(other.imageViews);
+  this->framebuffers = std::move(other.framebuffers);
+}
+
+void lpe::SwapChain::Copy(const lpe::SwapChain& other)
 {
   this->device.reset(other.device.get());
   
@@ -121,41 +133,29 @@ lpe::SwapChain::SwapChain(const SwapChain& other)
   this->extent = other.extent;
   this->imageFormat = other.imageFormat;
   this->imageViews = { other.imageViews };
+  this->framebuffers = { other.framebuffers };
+}
+
+lpe::SwapChain::SwapChain(const SwapChain& other)
+{
+  Copy(other);
 }
 
 lpe::SwapChain::SwapChain(SwapChain&& other)
 {
-  this->device.reset(other.device.get());
-  other.device.release();
-  this->physicalDevice = other.physicalDevice;
-  this->swapchain = other.swapchain;
-  this->extent = other.extent;
-  this->imageFormat = other.imageFormat;
-  this->imageViews = std::move(other.imageViews);
+  Move(other);
 }
 
 lpe::SwapChain& lpe::SwapChain::operator=(const SwapChain& other)
 {
-  this->device.reset(other.device.get());
-
-  this->physicalDevice = other.physicalDevice;
-  this->swapchain = other.swapchain;
-  this->extent = other.extent;
-  this->imageFormat = other.imageFormat;
-  this->imageViews = { other.imageViews };
+  Copy(other);
 
   return *this;
 }
 
 lpe::SwapChain& lpe::SwapChain::operator=(SwapChain&& other)
 {
-  this->device.reset(other.device.get());
-  other.device.release();
-  this->physicalDevice = other.physicalDevice;
-  this->swapchain = other.swapchain;
-  this->extent = other.extent;
-  this->imageFormat = other.imageFormat;
-  this->imageViews = std::move(other.imageViews);
+  Move(other);
 
   return *this;
 }
@@ -181,6 +181,11 @@ lpe::SwapChain::~SwapChain()
   {
     // this->imageViews will be automatically destroyed by the std::vector
 
+    for (size_t i = 0; i < framebuffers.size(); ++i)
+    {
+      device->destroyFramebuffer(framebuffers[i]);
+    }
+
     if(swapchain)
     {
       device->destroySwapchainKHR(swapchain, nullptr);
@@ -188,6 +193,23 @@ lpe::SwapChain::~SwapChain()
 
     device.release();
   }
+}
+
+std::vector<vk::Framebuffer> lpe::SwapChain::CreateFrameBuffers(vk::RenderPass* renderPass, lpe::ImageView* depthImage)
+{
+  framebuffers.resize(imageViews.size());
+
+  for (size_t i = 0; i < imageViews.size(); i++)
+  {
+    std::array<vk::ImageView, 2> attachments = { imageViews[i].GetImageView(), depthImage->GetImageView() };
+
+    vk::FramebufferCreateInfo framebufferInfo = { {}, *renderPass, (uint32_t)attachments.size(), attachments.data(), extent.width, extent.height, 1 };
+
+    auto result = device->createFramebuffer(&framebufferInfo, nullptr, &framebuffers[i]);
+    helper::ThrowIfNotSuccess(result, "failed to create framebuffer!");
+  }
+
+  return framebuffers;
 }
 
 vk::Extent2D lpe::SwapChain::GetExtent() const
@@ -198,4 +220,9 @@ vk::Extent2D lpe::SwapChain::GetExtent() const
 vk::Format lpe::SwapChain::GetImageFormat() const
 {
   return imageFormat;
+}
+
+std::vector<vk::Framebuffer> lpe::SwapChain::GetFramebuffers() const
+{
+  return framebuffers;
 }

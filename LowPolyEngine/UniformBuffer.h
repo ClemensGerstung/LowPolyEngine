@@ -16,6 +16,8 @@ private:
   std::unique_ptr<vk::Device> device;
 
   UniformBufferObject ubo;
+  size_t dynamicAlignment;
+  size_t lastAllocSize = 0;
 
   struct UboDataDynamic {
     glm::mat4 *model = nullptr;
@@ -38,6 +40,9 @@ public:
   void Update(const Camera& camera, const std::vector<Model>& models, bool force = false);
 
   std::vector<vk::DescriptorBufferInfo*> GetDescriptors();
+
+
+  size_t GetDynamicAlignment() const;
 };
 
 END_LPE

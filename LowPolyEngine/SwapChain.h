@@ -18,10 +18,14 @@ private:
   vk::Format imageFormat;
   
   std::vector<lpe::ImageView> imageViews;
+  std::vector<vk::Framebuffer> framebuffers;
 
   vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const;
   vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& presentModes) const;
   vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities, const uint32_t width, const uint32_t height) const;
+
+  void Move(lpe::SwapChain& other);
+  void Copy(const lpe::SwapChain& other);
 
   void CreateSwapChain(vk::PhysicalDevice physicalDevice, const vk::SurfaceKHR& surface, lpe::QueueFamilyIndices indices, uint32_t width, uint32_t height);
   void CreateImageViews();
@@ -37,8 +41,11 @@ public:
 
   ~SwapChain();
 
+  std::vector<vk::Framebuffer> CreateFrameBuffers(vk::RenderPass* renderPass, lpe::ImageView* depthImage);
+
   vk::Extent2D GetExtent() const;
   vk::Format GetImageFormat() const;
+  std::vector<vk::Framebuffer> GetFramebuffers() const;
 };
 
 END_LPE

@@ -3,8 +3,11 @@
 #include "stdafx.h"
 #include "Buffer.h"
 #include "ImageView.h"
+#include "Pipeline.h"
 
 BEGIN_LPE
+
+class ModelsRenderer;
 
 class Commands
 {
@@ -25,6 +28,9 @@ public:
   Commands(vk::PhysicalDevice physicalDevice, vk::Device* device, vk::Queue* graphicsQueue, uint32_t graphicsFamilyIndex);
 
   ~Commands();
+
+  void DeleteCommandBuffers();
+  void CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers, vk::Extent2D extent, size_t dynamicAlignment, lpe::Pipeline* pipeline, ModelsRenderer* renderer);
 
   vk::CommandBuffer BeginSingleTimeCommands() const;
   void EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const;
