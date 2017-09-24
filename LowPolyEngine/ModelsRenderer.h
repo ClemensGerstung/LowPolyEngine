@@ -14,18 +14,17 @@ class ModelsRenderer
 private:
   struct Entry
   {
-    std::shared_ptr<lpe::Model> model;
+    lpe::Model model;
     uint32_t verticesStartIndex;
     uint32_t indicesStartIndex;
     uint32_t verticesLength;
     uint32_t indicesLength;
 
-    bool operator<(const Entry& e) const;
-    bool operator==(const Entry& e) const;
+	bool operator==(const Entry& e);
   };
 
   std::unique_ptr<Commands> commands;
-  std::set<Entry> entries;
+  std::vector<Entry> entries;
 
   std::vector<lpe::Vertex> vertices;
   std::vector<uint32_t> indices;
@@ -47,7 +46,7 @@ public:
 
   ~ModelsRenderer();
 
-  void AddObject(Model* model);
+  Model* AddObject(std::string path);
   void RemoveObject(Model* model);
   
   void UpdateBuffer();
@@ -58,6 +57,11 @@ public:
   std::vector<uint32_t> GetIndices() const;
   vk::Buffer* GetVertexBuffer();
   vk::Buffer* GetIndexBuffer();
+
+  bool Empty() const;
+  uint32_t EntriesCount() const;
+
+  Model operator[](uint32_t index) const;
 };
 
 END_LPE

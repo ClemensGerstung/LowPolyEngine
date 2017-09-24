@@ -8,49 +8,49 @@
 #include "Camera.h"
 
 BEGIN_LPE
+	class Window
+	{
+	private:
+		GLFWwindow* window;
+		// using raw pointer because glfw is an c api and std::unique_ptr wouldn't work due to incomplete type...
+		uint32_t width;
+		uint32_t height;
+		std::string title;
+		bool resizeable;
+		lpe::Camera defaultCamera;
+		lpe::Instance instance;
+		lpe::Device device;
+		lpe::SwapChain swapChain;
+		lpe::Commands commands;
+		lpe::UniformBuffer uniformBuffer;
+		lpe::Pipeline graphicsPipeline;
+		lpe::ImageView depthImage;
+		lpe::ModelsRenderer modelsRenderer;
+	protected:
+		virtual void Create();
 
-class Window
-{
-private:
-	GLFWwindow* window; // using raw pointer because glfw is an c api and std::unique_ptr wouldn't work due to incomplete type...
-	uint32_t width;
-	uint32_t height;
-	std::string title;
-	bool resizeable;
-  lpe::Camera defaultCamera;
-  lpe::Instance instance;
-  lpe::Device device;
-  lpe::SwapChain swapChain;
-  lpe::Commands commands;
-  lpe::UniformBuffer uniformBuffer;
-  lpe::Pipeline graphicsPipeline;
-  lpe::ImageView depthImage;
-  lpe::ModelsRenderer modelsRenderer;
+	public:
+		Window() = default;
+		Window(const Window& window) = delete;
+		Window(Window&& window) = delete;
+		Window operator=(const Window& window) const = delete;
+		Window operator=(Window&& window) const = delete;
 
-protected:
-	virtual void Create();
+		Window(uint32_t width, uint32_t height, std::string title, bool resizeable = false);
+		virtual ~Window();
 
-public:
-	Window() = default;
-	Window(const Window &window) = delete;
-	Window(Window &&window) = delete;
-	Window operator=(const Window &window) const = delete;
-	Window operator=(Window &&window) const = delete;
+		// TODO: add functions for imgui stuff and further methods to preinit window!
+		void Create(uint32_t width, uint32_t height, std::string title, bool resizeable = false);
 
-	Window(uint32_t width, uint32_t height, std::string title, bool resizeable = false);
-	virtual ~Window();
+		lpe::Camera CreateCamera(glm::vec3 position, glm::vec3 lookAt = {0, 0, 0}, float fov = 60, float near = 0.0,
+		                         float far = 10) const;
 
-  // TODO: add functions for imgui stuff and further methods to preinit window!
-  void Create(uint32_t width, uint32_t height, std::string title, bool resizeable = false);
+		lpe::Model AddModel(std::string path);
 
-  lpe::Camera CreateCamera(glm::vec3 position, glm::vec3 lookAt = { 0, 0, 0 }, float fov = 60, float near = 0.0, float far = 10) const;
+		bool IsOpen() const;
 
-  lpe::Model AddModel(std::string path);
-
-	bool IsOpen() const;
-
-	void Render();
-};
+		void Render();
+	};
 
 END_LPE
 

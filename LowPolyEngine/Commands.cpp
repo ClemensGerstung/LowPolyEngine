@@ -87,11 +87,14 @@ lpe::Commands::~Commands()
   }
 }
 
-void lpe::Commands::DeleteCommandBuffers()
+void lpe::Commands::ResetCommandBuffers()
 {
   if (commandBuffers.size() > 0)
   {
-    device->freeCommandBuffers(commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+    for (const auto& cmdBuffer : commandBuffers)
+    {
+      cmdBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
+    }
   }
 }
 
@@ -121,7 +124,7 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
     result = commandBuffers[i].begin(&beginInfo);
     helper::ThrowIfNotSuccess(result, "failed to begin commandbuffer!");
 
-    vk::RenderPassBeginInfo renderPassInfo = { *pipeline->GetRenderPassRef(), framebuffers[i], { { 0, 0 }, extent }, (uint32_t)clearValues.size(), clearValues.data() };
+    vk::RenderPassBeginInfo renderPassInfo = { pipeline->GetRenderPass(), framebuffers[i], { { 0, 0 }, extent }, (uint32_t)clearValues.size(), clearValues.data() };
     commandBuffers[i].beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
 
     commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline->GetPipelineRef());

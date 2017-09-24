@@ -51,6 +51,10 @@ public:
   vk::DescriptorSet GetDescriptorSet() const;
   vk::DescriptorSet* GetDescriptorSetRef();
 
+	vk::RenderPass GetRenderPass()
+	{
+		return renderPass;
+	}
 };
 
 END_LPE

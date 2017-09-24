@@ -35,7 +35,7 @@ public:
 
   SwapChain CreateSwapChain(uint32_t width, uint32_t height);
   Commands CreateCommands();
-  UniformBuffer CreateUniformBuffer(const std::vector<Model>& models, const Camera& camera);
+  UniformBuffer CreateUniformBuffer(const ModelsRenderer& modelsRenderer, const Camera& camera);
   Pipeline CreatePipeline(const SwapChain& swapChain, UniformBuffer* ubo);
   ModelsRenderer CreateModelsRenderer(Commands* commands);
 

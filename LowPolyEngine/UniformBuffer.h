@@ -9,6 +9,8 @@
 
 BEGIN_LPE
 
+class ModelsRenderer;
+
 class UniformBuffer
 {
 private:
@@ -33,11 +35,11 @@ public:
   UniformBuffer& operator=(const UniformBuffer& other);
   UniformBuffer& operator=(UniformBuffer&& other);
 
-  UniformBuffer(vk::PhysicalDevice physicalDevice, vk::Device* device, const std::vector<Model>& models, const Camera& camera);
+  UniformBuffer(vk::PhysicalDevice physicalDevice, vk::Device* device, const ModelsRenderer& modelsRenderer, const Camera& camera);
 
   ~UniformBuffer();
 
-  void Update(const Camera& camera, const std::vector<Model>& models, bool force = false);
+  void Update(const Camera& camera, const ModelsRenderer& models, bool force = false);
 
   std::vector<vk::DescriptorBufferInfo*> GetDescriptors();
 

@@ -130,9 +130,9 @@ lpe::ModelsRenderer lpe::Device::CreateModelsRenderer(Commands* commands)
   return { commands };
 }
 
-lpe::UniformBuffer lpe::Device::CreateUniformBuffer(const std::vector<Model>& models, const Camera& camera)
+lpe::UniformBuffer lpe::Device::CreateUniformBuffer(const ModelsRenderer& modelsRenderer, const Camera& camera)
 {
-  return { physicalDevice, &device, models, camera };
+  return { physicalDevice, &device, modelsRenderer, camera };
 }
 
 lpe::Pipeline lpe::Device::CreatePipeline(const SwapChain& swapChain, UniformBuffer* ubo)

@@ -193,3 +193,8 @@ std::vector<uint32_t> lpe::Model::GetIndices(uint32_t offset)
 
   return copy;
 }
+
+bool lpe::Model::operator==(const Model& model)
+{
+	return position == model.position && matrix == model.matrix && vertices == model.vertices && indices == model.indices;
+}

@@ -34,6 +34,7 @@ lpe::Buffer::Buffer(const Buffer& other)
   this->buffer = other.buffer;
   this->memory = other.memory;
   this->descriptor = other.descriptor;
+  this->mapped = other.mapped;
 }
 
 lpe::Buffer::Buffer(Buffer&& other)
@@ -45,6 +46,7 @@ lpe::Buffer::Buffer(Buffer&& other)
   this->buffer = other.buffer;
   this->memory = other.memory;
   this->descriptor = other.descriptor;
+  this->mapped = other.mapped;
 }
 
 lpe::Buffer& lpe::Buffer::operator=(const Buffer& other)
@@ -55,6 +57,7 @@ lpe::Buffer& lpe::Buffer::operator=(const Buffer& other)
   this->buffer = other.buffer;
   this->memory = other.memory;
   this->descriptor = other.descriptor;
+  this->mapped = other.mapped;
 
   return *this;
 }
@@ -69,6 +72,7 @@ lpe::Buffer& lpe::Buffer::operator=(Buffer&& other)
   this->buffer = other.buffer;
   this->memory = other.memory;
   this->descriptor = other.descriptor;
+  this->mapped = other.mapped;
 
   return *this;
 }
@@ -126,7 +130,7 @@ lpe::Buffer::~Buffer()
   }
 }
 
-void lpe::Buffer::Copy(const Buffer& src, vk::CommandBuffer commandBuffer)
+void lpe::Buffer::Copy(lpe::Buffer& src, vk::CommandBuffer& commandBuffer) const
 {
   if(src.size != size)
   {
@@ -141,7 +145,7 @@ void lpe::Buffer::Copy(const Buffer& src, vk::CommandBuffer commandBuffer)
 void lpe::Buffer::CopyToBufferMemory(void* data, size_t size)
 {
   device->mapMemory(memory, 0, size, {}, &mapped);
-  memcpy(&mapped, data, size);
+  memcpy(mapped, data, size);
   device->unmapMemory(memory);
 }
 

@@ -1,13 +1,8 @@
 #include "ModelsRenderer.h"
 
-bool lpe::ModelsRenderer::Entry::operator<(const Entry& e) const
+bool lpe::ModelsRenderer::Entry::operator==(const Entry& e)
 {
-  return model < e.model;
-}
-
-bool lpe::ModelsRenderer::Entry::operator==(const Entry& e) const
-{
-  return e.model == model;
+	return model == e.model;
 }
 
 void lpe::ModelsRenderer::Copy(const ModelsRenderer& other)
@@ -64,32 +59,40 @@ lpe::ModelsRenderer::~ModelsRenderer()
   }
 }
 
-void lpe::ModelsRenderer::AddObject(Model* model)
+lpe::Model lpe::ModelsRenderer::operator[](uint32_t index) const
 {
-  auto vertices = model->GetVertices();
+  return entries[index].model;
+}
 
-  Entry e = {};
-  e.model.reset(model);
-  e.indicesLength = (uint32_t)model->GetIndices().size();
-  e.verticesLength = (uint32_t)model->GetVertices().size();
-  e.verticesStartIndex = (uint32_t)this->vertices.size();
-  e.indicesStartIndex = (uint32_t)indices.size();
+lpe::Model* lpe::ModelsRenderer::AddObject(std::string path)
+{
+	Entry e = {};
+	e.model.Load(path);
+	e.indicesLength = (uint32_t)e.model.GetIndices().size();
 
-  entries.insert(e);
+	std::vector<Vertex> vertices = e.model.GetVertices();
+	auto indices = e.model.GetIndices((uint32_t)this->indices.size());
 
-  this->vertices.insert(std::end(this->vertices), std::begin(vertices), std::end(vertices));
-  auto indices = model->GetIndices((uint32_t)this->indices.size());
-  this->indices.insert(std::end(this->indices), std::begin(indices), std::end(indices));
+	e.verticesLength = (uint32_t)vertices.size();
+	e.verticesStartIndex = (uint32_t)this->vertices.size();
+	e.indicesStartIndex = (uint32_t)indices.size();
 
-  UpdateBuffer();
+	entries.push_back(e);
+
+	this->vertices.insert(std::end(this->vertices), std::begin(vertices), std::end(vertices));
+	this->indices.insert(std::end(this->indices), std::begin(indices), std::end(indices));
+
+	UpdateBuffer();
+
+	return &(*(entries.end() - 1)).model;
 }
 
 void lpe::ModelsRenderer::RemoveObject(Model* model)
 {
   Entry e = {};
-  e.model.reset(model);
+  e.model = *model;
 
-  std::set<Entry>::iterator find = entries.find(e);
+  auto find = std::find(entries.begin(), entries.end(), e);
 
   if(find != entries.end())
   {
@@ -114,8 +117,13 @@ void lpe::ModelsRenderer::UpdateBuffer()
 std::vector<lpe::Model> lpe::ModelsRenderer::GetModels() const
 {
   std::vector<lpe::Model> models = {};
+  models.resize(entries.size());
 
-  std::for_each(entries.begin(), entries.end(), [models = &models](const Entry& item) { models->push_back(*item.model); });
+
+  for (size_t i = 0; i < models.size(); ++i)
+  {
+    models[i] = { entries[i].model };
+  }
 
   return models;
 }
@@ -143,4 +151,14 @@ vk::Buffer* lpe::ModelsRenderer::GetVertexBuffer()
 vk::Buffer* lpe::ModelsRenderer::GetIndexBuffer()
 {
   return indexBuffer.GetBuffer();
+}
+
+bool lpe::ModelsRenderer::Empty() const
+{
+  return entries.empty();
+}
+
+uint32_t lpe::ModelsRenderer::EntriesCount() const
+{
+  return (uint32_t)entries.size();
 }
