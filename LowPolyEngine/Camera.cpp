@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include <glm/gtc/matrix_transform.inl>
+#include <glm/gtc/matrix_transform.hpp>
 
 void lpe::Camera::Copy(const Camera& other)
 {
