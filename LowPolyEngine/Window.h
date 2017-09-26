@@ -11,7 +11,7 @@ BEGIN_LPE
 	class Window
 	{
 	private:
-		GLFWwindow* window;
+		GLFWwindow* window = nullptr;
 		// using raw pointer because glfw is an c api and std::unique_ptr wouldn't work due to incomplete type...
 		uint32_t width;
 		uint32_t height;

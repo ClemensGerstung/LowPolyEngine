@@ -118,7 +118,7 @@ BEGIN_LPE
 		                                                                   const char* msg,
 		                                                                   void* userData)
 		{
-			std::cerr << "validaion layer: " << msg << std::endl;
+			std::cerr << "validation layer: " << msg << std::endl;
 
 			return VK_FALSE;
 		}
