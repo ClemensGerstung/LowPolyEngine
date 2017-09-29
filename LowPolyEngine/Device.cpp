@@ -130,6 +130,67 @@ lpe::ModelsRenderer lpe::Device::CreateModelsRenderer(Commands* commands)
   return { commands };
 }
 
+vk::SubmitInfo lpe::Device::PrepareFrame(const SwapChain& swapChain, uint32_t* imageIndex)
+{
+  if(!imageAvailableSemaphore)
+  {
+    vk::SemaphoreCreateInfo semaphoreInfo = {};
+
+    auto result = device.createSemaphore(&semaphoreInfo, nullptr, &imageAvailableSemaphore);
+    helper::ThrowIfNotSuccess(result, "failed to create imageAvailableSemaphore!");
+  }
+
+  if(!renderAvailableSemaphore)
+  {
+    vk::SemaphoreCreateInfo semaphoreInfo = {};
+
+    auto result = device.createSemaphore(&semaphoreInfo, nullptr, &renderAvailableSemaphore);
+    helper::ThrowIfNotSuccess(result, "failed to create renderAvailableSemaphore!");
+  }
+
+  auto result = device.acquireNextImageKHR(swapChain.GetSwapchain(), std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, {}, imageIndex);
+
+  if (result == vk::Result::eErrorOutOfDateKHR)
+  {
+    // TOOD: recreate swapchain
+    return {};
+  }
+  else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
+  {
+    throw std::runtime_error("failed to acquire swap chain image! (" + vk::to_string(result) + ")");
+  }
+
+  vk::SubmitInfo submitInfo = { 1, &imageAvailableSemaphore, waitFlags, 0, nullptr, 1, &renderAvailableSemaphore };
+
+  return submitInfo;
+}
+
+void lpe::Device::SubmitQueue(uint32_t submitCount, const vk::SubmitInfo* infos)
+{
+  auto result = graphicsQueue.submit(submitCount, infos, nullptr);
+  helper::ThrowIfNotSuccess(result, "failed to submit draw command buffer!");
+}
+
+void lpe::Device::SubmitFrame(const std::vector<vk::SwapchainKHR>& swapChains, uint32_t* imageIndex)
+{
+  vk::Semaphore signalSemaphores[] = { renderAvailableSemaphore };
+
+  vk::PresentInfoKHR presentInfo = { 1, signalSemaphores, (uint32_t)swapChains.size(), swapChains.data(), imageIndex };
+
+  auto result = presentQueue.presentKHR(&presentInfo);
+
+  if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+  {
+    // TODO: recreate swapchain
+  }
+  else if (result != vk::Result::eSuccess)
+  {
+    throw std::runtime_error("failed to present swap chain image! (" + vk::to_string(result) + ")");
+  }
+
+  presentQueue.waitIdle();
+}
+
 lpe::UniformBuffer lpe::Device::CreateUniformBuffer(const ModelsRenderer& modelsRenderer, const Camera& camera)
 {
   return { physicalDevice, &device, modelsRenderer, camera };

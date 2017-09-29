@@ -226,3 +226,8 @@ std::vector<vk::Framebuffer> lpe::SwapChain::GetFramebuffers() const
 {
   return framebuffers;
 }
+
+vk::SwapchainKHR lpe::SwapChain::GetSwapchain() const
+{
+  return swapchain;
+}

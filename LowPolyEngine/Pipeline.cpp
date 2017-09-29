@@ -87,7 +87,7 @@ void lpe::Pipeline::CreateDescriptorPool()
   {
     {vk::DescriptorType::eUniformBuffer, 1},
     {vk::DescriptorType::eUniformBufferDynamic, 1},
-    {vk::DescriptorType::eCombinedImageSampler, 1}
+    //{vk::DescriptorType::eCombinedImageSampler, 1}
   };
 
   vk::DescriptorPoolCreateInfo poolInfo = { {}, 2, (uint32_t)poolSizes.size(), poolSizes.data() };
@@ -102,10 +102,8 @@ void lpe::Pipeline::CreateDescriptorSetLayout()
   {
     { 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex },
     { 1, vk::DescriptorType::eUniformBufferDynamic, 1, vk::ShaderStageFlagBits::eVertex },
-    { 2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment }
+    //{ 2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment }
   };
-  vk::DescriptorSetLayoutBinding uboLayoutBinding = { 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex };
-  vk::DescriptorSetLayoutBinding samplerLayoutBinding = { 1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment };
 
   vk::DescriptorSetLayoutCreateInfo layoutInfo = { {}, (uint32_t)bindings.size(), bindings.data() };
 
@@ -172,6 +170,11 @@ vk::DescriptorSet* lpe::Pipeline::GetDescriptorSetRef()
   return &descriptorSet;
 }
 
+vk::RenderPass lpe::Pipeline::GetRenderPass() const
+{
+  return renderPass;
+}
+
 
 void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
 {
@@ -225,19 +228,20 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
 
 void lpe::Pipeline::CreateDescriptorSet()
 {
+  auto descriptors = ubo->GetDescriptors();
+
+  // TODO: not quite nice but works for now!
+  if (std::any_of(descriptors.begin(), descriptors.end(), [](const vk::DescriptorBufferInfo* info) { return !info->buffer; }))
+  {
+    return;
+  }
+
   std::array<vk::DescriptorSetLayout, 1> layouts = { descriptorSetLayout };
 
   vk::DescriptorSetAllocateInfo allocInfo = { descriptorPool, (uint32_t)layouts.size(), layouts.data() };
 
   auto result = device->allocateDescriptorSets(&allocInfo, &descriptorSet);
   helper::ThrowIfNotSuccess(result, "failed to allocate descriptor set!");
-  auto descriptors = ubo->GetDescriptors();
-
-  // TODO: not quite nice but works for now!
-  if (std::any_of(descriptors.begin(), descriptors.end(), [](const vk::DescriptorBufferInfo* info){ return !info->buffer; }))
-  {
-    return;
-  }
 
   std::vector<vk::WriteDescriptorSet> descriptorWrites =
   {

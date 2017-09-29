@@ -67,6 +67,8 @@ lpe::Model lpe::Window::AddModel(std::string path)
 
   auto model = modelsRenderer.AddObject(path);
   uniformBuffer.Update(defaultCamera, modelsRenderer);
+  commands.ResetCommandBuffers();
+  commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), uniformBuffer.GetDynamicAlignment(), &graphicsPipeline, &modelsRenderer);
   
   return *model;
 }
@@ -87,6 +89,20 @@ void lpe::Window::Render()
 	glfwPollEvents();
 
   uniformBuffer.Update(defaultCamera, modelsRenderer);
-  commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), uniformBuffer.GetDynamicAlignment(), &graphicsPipeline, &modelsRenderer);
 
+
+  uint32_t imageIndex = -1;
+  vk::SubmitInfo submitInfo = device.PrepareFrame(swapChain, &imageIndex);
+  
+  if(imageIndex == -1)
+    return;
+
+  submitInfo.commandBufferCount = 1;
+  auto commandBuffer = commands[imageIndex];
+  submitInfo.setPCommandBuffers(&commandBuffer);
+
+  device.SubmitQueue(1, &submitInfo);
+
+  std::vector<vk::SwapchainKHR> swapchains = { swapChain.GetSwapchain() };
+  device.SubmitFrame(swapchains, &imageIndex);
 }

@@ -58,7 +58,7 @@ lpe::Commands::Commands(vk::PhysicalDevice physicalDevice, vk::Device* device, v
   this->device.reset(device);
   this->graphicsQueue.reset(graphicsQueue);
 
-  vk::CommandPoolCreateInfo createInfo = { {}, graphicsFamilyIndex };
+  vk::CommandPoolCreateInfo createInfo = { vk::CommandPoolCreateFlagBits::eResetCommandBuffer, graphicsFamilyIndex };
 
   auto result = this->device->createCommandPool(&createInfo, nullptr, &commandPool);
   helper::ThrowIfNotSuccess(result, "failed to create graphics command pool!");
@@ -137,6 +137,11 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
 
       for (uint32_t j = 0; j < renderer->GetCount(); j++)
       {
+        if (!*pipeline->GetDescriptorSetRef())
+        {
+          pipeline->CreateDescriptorSet();
+        }
+
         // One dynamic offset per dynamic descriptor to offset into the ubo containing all model matrices
         uint32_t dynamicOffset = j * static_cast<uint32_t>(dynamicAlignment);
         // Bind the descriptor set for rendering a mesh using the dynamic offset
@@ -167,6 +172,11 @@ vk::CommandBuffer lpe::Commands::BeginSingleTimeCommands() const
   commandBuffer.begin(beginInfo);
 
   return commandBuffer;
+}
+
+vk::CommandBuffer lpe::Commands::operator[](uint32_t index)
+{
+  return commandBuffers[index];
 }
 
 void lpe::Commands::EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const

@@ -26,8 +26,7 @@ private:
   void CreateDescriptorPool();
   void CreateDescriptorSetLayout();
   void CreatePipeline(vk::Extent2D swapChainExtent);
-  void CreateDescriptorSet();
-
+  
   void Copy(const Pipeline& other);
   void Move(Pipeline& other);
 
@@ -43,6 +42,8 @@ public:
 
   ~Pipeline();
 
+  void CreateDescriptorSet();
+
   vk::Format FindDepthFormat() const;
 
   vk::RenderPass* GetRenderPassRef();
@@ -51,10 +52,7 @@ public:
   vk::DescriptorSet GetDescriptorSet() const;
   vk::DescriptorSet* GetDescriptorSetRef();
 
-	vk::RenderPass GetRenderPass()
-	{
-		return renderPass;
-	}
+  vk::RenderPass GetRenderPass() const;
 };
 
 END_LPE

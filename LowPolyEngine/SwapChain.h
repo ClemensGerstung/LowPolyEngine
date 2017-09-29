@@ -46,6 +46,7 @@ public:
   vk::Extent2D GetExtent() const;
   vk::Format GetImageFormat() const;
   std::vector<vk::Framebuffer> GetFramebuffers() const;
+  vk::SwapchainKHR GetSwapchain() const;
 };
 
 END_LPE

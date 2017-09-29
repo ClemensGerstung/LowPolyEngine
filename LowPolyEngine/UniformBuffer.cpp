@@ -112,8 +112,7 @@ void lpe::UniformBuffer::Update(const Camera& camera, const ModelsRenderer& mode
 
   dynamicBuffer.CopyToBufferMemory(uboDataDynamic.model);
 
-  // TODO:
-  vk::MappedMemoryRange mappedMemoryRange = { *dynamicBuffer.GetMemory(), 0, dynamicBuffer.GetSize() };
+  vk::MappedMemoryRange mappedMemoryRange = { *dynamicBuffer.GetMemory(), 0, /*dynamicBuffer.GetSize()*/ VK_WHOLE_SIZE };
   device->flushMappedMemoryRanges(1, &mappedMemoryRange);
 }
 

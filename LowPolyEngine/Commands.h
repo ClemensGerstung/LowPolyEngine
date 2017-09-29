@@ -38,6 +38,8 @@ public:
   lpe::Buffer CreateBuffer(void* data, vk::DeviceSize size) const;
   lpe::Buffer CreateBuffer(vk::DeviceSize size) const;
   lpe::ImageView CreateDepthImage(vk::Extent2D extent, vk::Format depthFormat) const;
+
+  vk::CommandBuffer operator[](uint32_t index);
 };
 
 END_LPE
