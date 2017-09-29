@@ -94,7 +94,7 @@ lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
   memcpy(mapped, data, (size_t)size);
   this->device->unmapMemory(memory);
 
-  descriptor = {buffer, 0, VK_WHOLE_SIZE};
+  descriptor = vk::DescriptorBufferInfo{buffer, 0, VK_WHOLE_SIZE};
 }
 
 lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
@@ -109,7 +109,7 @@ lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
 
   CreateBuffer(size, usage, properties);
 
-  descriptor = {buffer, 0, VK_WHOLE_SIZE};
+  descriptor = vk::DescriptorBufferInfo{buffer, 0, VK_WHOLE_SIZE};
 }
 
 lpe::Buffer::~Buffer()
