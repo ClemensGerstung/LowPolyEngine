@@ -18,40 +18,6 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Buffer.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Commands.h" />
-    <ClInclude Include="Device.h" />
-    <ClInclude Include="ImageView.h" />
-    <ClInclude Include="Instance.h" />
-    <ClInclude Include="lpe.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="ModelsRenderer.h" />
-    <ClInclude Include="Pipeline.h" />
-    <ClInclude Include="QueueFamilyIndices.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="SwapChain.h" />
-    <ClInclude Include="SwapChainSupportDetails.h" />
-    <ClInclude Include="UniformBufferObject.h" />
-    <ClInclude Include="UniformBuffer.h" />
-    <ClInclude Include="Vertex.h" />
-    <ClInclude Include="Window.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Buffer.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Commands.cpp" />
-    <ClCompile Include="Device.cpp" />
-    <ClCompile Include="ImageView.cpp" />
-    <ClCompile Include="Instance.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="ModelsRenderer.cpp" />
-    <ClCompile Include="Pipeline.cpp" />
-    <ClCompile Include="SwapChain.cpp" />
-    <ClCompile Include="UniformBuffer.cpp" />
-    <ClCompile Include="Window.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{CADCF3B7-5FC7-4EEF-B291-4AF2734CE901}</ProjectGuid>
