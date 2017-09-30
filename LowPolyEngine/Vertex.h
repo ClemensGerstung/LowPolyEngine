@@ -18,6 +18,23 @@ BEGIN_LPE
     glm::vec3 normals;
     //glm::vec2 texCoord;
 
+    Vertex() = default;
+    Vertex(std::initializer_list<glm::vec3> list)
+    {
+      if(list.size() == 3)
+      {
+        position = *list.begin();
+        color = *(list.begin() + 1);
+        normals = *(list.begin() + 2);
+      }
+
+      if (list.size() == 2)
+      {
+        position = *list.begin();
+        color = *(list.begin() + 1);
+      }
+    }
+
     static vk::VertexInputBindingDescription getBindingDescription()
     {
       return {0, sizeof(Vertex), vk::VertexInputRate::eVertex};

@@ -87,7 +87,7 @@ void lpe::Pipeline::CreateDescriptorPool()
   {
     {vk::DescriptorType::eUniformBuffer, 1},
     {vk::DescriptorType::eUniformBufferDynamic, 1},
-    //{vk::DescriptorType::eCombinedImageSampler, 1}
+    {vk::DescriptorType::eCombinedImageSampler, 1}
   };
 
   vk::DescriptorPoolCreateInfo poolInfo = { {}, 2, (uint32_t)poolSizes.size(), poolSizes.data() };
@@ -102,7 +102,7 @@ void lpe::Pipeline::CreateDescriptorSetLayout()
   {
     { 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex },
     { 1, vk::DescriptorType::eUniformBufferDynamic, 1, vk::ShaderStageFlagBits::eVertex },
-    //{ 2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment }
+    { 2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment }
   };
 
   vk::DescriptorSetLayoutCreateInfo layoutInfo = { {}, (uint32_t)bindings.size(), bindings.data() };

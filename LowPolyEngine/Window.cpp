@@ -17,6 +17,14 @@ void lpe::Window::Create()
   defaultCamera = Camera({2,2,2}, {0,0,0}, swapChain.GetExtent(), 60, 0, 10);
   commands = device.CreateCommands();
   modelsRenderer = device.CreateModelsRenderer(&commands);
+  modelsRenderer.AddObject({
+                             {{0.5, 0.5, 0.5}, {1, 0, 0}},
+                             {{-0.5, 0.5, 0.5},{0, 1, 0}},
+                             {{-0.5, -0.5, 0.5},{0, 0, 1}},
+                             {{0.5, -0.5, 0.5},{1, 1, 1}}
+                           },
+                           {0, 1, 2, 2, 3, 0});
+
   uniformBuffer = device.CreateUniformBuffer(modelsRenderer, defaultCamera);
   graphicsPipeline = device.CreatePipeline(swapChain, &uniformBuffer);
   depthImage = commands.CreateDepthImage(swapChain.GetExtent(), graphicsPipeline.FindDepthFormat());
@@ -89,7 +97,6 @@ void lpe::Window::Render()
 	glfwPollEvents();
 
   uniformBuffer.Update(defaultCamera, modelsRenderer);
-
 
   uint32_t imageIndex = -1;
   vk::SubmitInfo submitInfo = device.PrepareFrame(swapChain, &imageIndex);

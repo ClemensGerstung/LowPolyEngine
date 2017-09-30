@@ -46,6 +46,7 @@ public:
 
   ~ModelsRenderer();
 
+  void AddObject(std::vector<lpe::Vertex> vertices, std::vector<uint32_t> indices);
   Model* AddObject(std::string path);
   void RemoveObject(Model* model);
   

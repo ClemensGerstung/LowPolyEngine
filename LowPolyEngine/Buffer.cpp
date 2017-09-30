@@ -130,16 +130,16 @@ lpe::Buffer::~Buffer()
   }
 }
 
-void lpe::Buffer::Copy(lpe::Buffer& src, vk::CommandBuffer& commandBuffer) const
+void lpe::Buffer::Copy(lpe::Buffer* src, vk::CommandBuffer& commandBuffer) const
 {
-  if(src.size != size)
+  if(src->size != size)
   {
     throw std::runtime_error("copying a buffer to another buffer with another size is not possible");
   }
 
   vk::BufferCopy copyRegion = { 0, 0, size };
 
-  commandBuffer.copyBuffer(src.buffer, buffer, 1, &copyRegion);
+  commandBuffer.copyBuffer(src->buffer, buffer, 1, &copyRegion);
 }
 
 void lpe::Buffer::CopyToBufferMemory(void* data, size_t size)

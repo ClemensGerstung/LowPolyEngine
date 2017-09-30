@@ -40,7 +40,9 @@ public:
 
   ~Buffer();
 
-  void Copy(Buffer& src, vk::CommandBuffer& commandBuffer) const;
+  void Create();
+
+  void Copy(Buffer* src, vk::CommandBuffer& commandBuffer) const;
 
   void CopyToBufferMemory(void* data, size_t size);
   void CopyToBufferMemory(void* data);

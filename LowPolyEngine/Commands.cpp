@@ -199,7 +199,7 @@ lpe::Buffer lpe::Commands::CreateBuffer(void* data, vk::DeviceSize size) const
 
   auto commandBuffer = BeginSingleTimeCommands();
 
-  actual.Copy(staging, commandBuffer);
+  actual.Copy(&staging, commandBuffer);
 
   EndSingleTimeCommands(commandBuffer);
 

@@ -59,6 +59,14 @@ lpe::ModelsRenderer::~ModelsRenderer()
   }
 }
 
+void lpe::ModelsRenderer::AddObject(std::vector<lpe::Vertex> vertices, std::vector<uint32_t> indices)
+{
+  this->vertices.insert(std::end(this->vertices), std::begin(vertices), std::end(vertices));
+  this->indices.insert(std::end(this->indices), std::begin(indices), std::end(indices));
+
+  UpdateBuffer();
+}
+
 lpe::Model lpe::ModelsRenderer::operator[](uint32_t index) const
 {
   return entries[index].model;

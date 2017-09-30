@@ -83,6 +83,7 @@ void lpe::UniformBuffer::Update(const Camera& camera, const ModelsRenderer& mode
 
   ubo.view = camera.GetView();
   ubo.projection = camera.GetPerspective();
+  ubo.projection[1][1] *= -1;
 
   viewBuffer.CopyToBufferMemory(&ubo, sizeof(ubo));
 
