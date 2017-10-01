@@ -23,6 +23,8 @@ private:
 	bool operator==(const Entry& e);
   };
 
+  vk::PhysicalDevice physicalDevice;
+  std::unique_ptr<vk::Device> device;
   std::unique_ptr<Commands> commands;
   std::vector<Entry> entries;
 
@@ -42,7 +44,7 @@ public:
   ModelsRenderer& operator=(const ModelsRenderer& other);
   ModelsRenderer& operator=(ModelsRenderer&& other);
 
-  ModelsRenderer(Commands* commands);
+  ModelsRenderer(vk::PhysicalDevice physicalDevice, vk::Device* device, Commands* commands);
 
   ~ModelsRenderer();
 

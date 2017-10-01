@@ -131,6 +131,12 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
 
     if (*renderer->GetVertexBuffer() && *renderer->GetIndexBuffer())
     {
+      vk::Viewport viewport = { 0, 0, (float)extent.width, (float)extent.height };
+      commandBuffers[i].setViewport(0, 1, &viewport);
+
+      vk::Rect2D scissor = { {0, 0}, extent };
+      commandBuffers[i].setScissor(0, 1, &scissor);
+
       VkDeviceSize offsets[1] = {0};
       commandBuffers[i].bindVertexBuffers(0, 1, renderer->GetVertexBuffer(), offsets);
       commandBuffers[i].bindIndexBuffer(*renderer->GetIndexBuffer(), 0, vk::IndexType::eUint32);
@@ -152,7 +158,8 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
                                              pipeline->GetDescriptorSetRef(),
                                              1,
                                              &dynamicOffset);
-
+        
+        //commandBuffers[i].drawIndexedIndirect(*renderer->GetIndexBuffer(), 0, (uint32_t)renderer->GetIndices().size(), 0);
         commandBuffers[i].drawIndexed((uint32_t)renderer->GetIndices().size(), 1, 0, 0, 0);
       }
     }
@@ -199,7 +206,7 @@ lpe::Buffer lpe::Commands::CreateBuffer(void* data, vk::DeviceSize size) const
 
   auto commandBuffer = BeginSingleTimeCommands();
 
-  actual.Copy(&staging, commandBuffer);
+  actual.Copy(staging, commandBuffer);
 
   EndSingleTimeCommands(commandBuffer);
 

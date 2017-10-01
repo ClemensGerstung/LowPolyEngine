@@ -46,9 +46,14 @@ lpe::ModelsRenderer& lpe::ModelsRenderer::operator=(ModelsRenderer&& other)
   return *this;
 }
 
-lpe::ModelsRenderer::ModelsRenderer(Commands* commands)
+lpe::ModelsRenderer::ModelsRenderer(vk::PhysicalDevice physicalDevice, vk::Device* device, Commands* commands)
 {
+  this->physicalDevice = physicalDevice;
+  this->device.reset(device);
   this->commands.reset(commands);
+
+  indexBuffer = { physicalDevice, device };
+  vertexBuffer = { physicalDevice, device };
 }
 
 lpe::ModelsRenderer::~ModelsRenderer()
@@ -56,6 +61,11 @@ lpe::ModelsRenderer::~ModelsRenderer()
   if(commands)
   {
     commands.release();
+  }
+
+  if(device)
+  {
+    device.release();
   }
 }
 
@@ -118,8 +128,11 @@ void lpe::ModelsRenderer::UpdateBuffer()
   vk::DeviceSize indexSize = sizeof(indices[0]) * indices.size();
   vk::DeviceSize vertexSize = sizeof(vertices[0]) * vertices.size();
 
-  indexBuffer = commands->CreateBuffer(indices.data(), indexSize);
-  vertexBuffer = commands->CreateBuffer(vertices.data(), vertexSize);
+  /*indexBuffer = commands->CreateBuffer(indices.data(), indexSize);
+  vertexBuffer = commands->CreateBuffer(vertices.data(), vertexSize);*/
+
+  indexBuffer.Create(*commands, indexSize, indices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+  vertexBuffer.Create(*commands, vertexSize, vertices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 }
 
 std::vector<lpe::Model> lpe::ModelsRenderer::GetModels() const

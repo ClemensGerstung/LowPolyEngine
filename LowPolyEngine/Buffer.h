@@ -4,6 +4,8 @@
 
 BEGIN_LPE
 
+class Commands;
+
 class Buffer
 {
 private:
@@ -26,6 +28,7 @@ public:
   Buffer& operator=(const Buffer& other);
   Buffer& operator=(Buffer&& other);
 
+  Buffer(vk::PhysicalDevice physicalDevice, vk::Device* device);
   Buffer(vk::PhysicalDevice physicalDevice,
          vk::Device* device,
          void* data,
@@ -40,9 +43,9 @@ public:
 
   ~Buffer();
 
-  void Create();
+  void Create(const Commands& commands, vk::DeviceSize size, void* data, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties);
 
-  void Copy(Buffer* src, vk::CommandBuffer& commandBuffer) const;
+  void Copy(lpe::Buffer& src, vk::CommandBuffer& commandBuffer) const;
 
   void CopyToBufferMemory(void* data, size_t size);
   void CopyToBufferMemory(void* data);

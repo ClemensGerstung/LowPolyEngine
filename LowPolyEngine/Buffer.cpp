@@ -1,4 +1,5 @@
 #include "Buffer.h"
+#include "Commands.h"
 
 void lpe::Buffer::CreateBuffer(vk::DeviceSize size,
                                vk::BufferUsageFlags usage,
@@ -77,6 +78,16 @@ lpe::Buffer& lpe::Buffer::operator=(Buffer&& other)
   return *this;
 }
 
+lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice, vk::Device* device)
+  : physicalDevice(physicalDevice),
+    size(VK_WHOLE_SIZE),
+    mapped(nullptr)
+{
+  this->device.reset(device);
+
+  descriptor = vk::DescriptorBufferInfo{ buffer, 0, VK_WHOLE_SIZE };
+}
+
 lpe::Buffer::Buffer(vk::PhysicalDevice physicalDevice,
                     vk::Device* device,
                     void* data,
@@ -130,16 +141,30 @@ lpe::Buffer::~Buffer()
   }
 }
 
-void lpe::Buffer::Copy(lpe::Buffer* src, vk::CommandBuffer& commandBuffer) const
+void lpe::Buffer::Create(const Commands& commands, vk::DeviceSize size, void* data, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties)
 {
-  if(src->size != size)
+  Buffer staging = { physicalDevice, device.get(), data, size };
+
+  this->size = size;
+  CreateBuffer(size, usage, properties);
+
+  auto commandBuffer = commands.BeginSingleTimeCommands();
+
+  Copy(staging, commandBuffer);
+
+  commands.EndSingleTimeCommands(commandBuffer);
+}
+
+void lpe::Buffer::Copy(lpe::Buffer& src, vk::CommandBuffer& commandBuffer) const
+{
+  if(src.size != size)
   {
     throw std::runtime_error("copying a buffer to another buffer with another size is not possible");
   }
 
   vk::BufferCopy copyRegion = { 0, 0, size };
 
-  commandBuffer.copyBuffer(src->buffer, buffer, 1, &copyRegion);
+  commandBuffer.copyBuffer(src.buffer, buffer, 1, &copyRegion);
 }
 
 void lpe::Buffer::CopyToBufferMemory(void* data, size_t size)

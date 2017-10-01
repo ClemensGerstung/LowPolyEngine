@@ -9,7 +9,7 @@ int main()
   try
   {
     window.Create(800, 600, "Hello Vulkan", false);
-    lpe::Model m = window.AddModel("models/tree.ply");
+    //lpe::Model m = window.AddModel("models/tree.ply");
 
     while (window.IsOpen())
     {

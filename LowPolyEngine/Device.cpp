@@ -127,7 +127,7 @@ lpe::Commands lpe::Device::CreateCommands()
 
 lpe::ModelsRenderer lpe::Device::CreateModelsRenderer(Commands* commands)
 {
-  return { commands };
+  return { physicalDevice, &device, commands };
 }
 
 vk::SubmitInfo lpe::Device::PrepareFrame(const SwapChain& swapChain, uint32_t* imageIndex)
