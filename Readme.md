@@ -1,1 +1,1 @@
-Branch to test the last chapter of the (vulkan-tutorial.com)[https://vulkan-tutorial.com/Loading_models] tutorial.
+Branch to test the last chapter of the [vulkan-tutorial.com](https://vulkan-tutorial.com/Loading_models) tutorial.
