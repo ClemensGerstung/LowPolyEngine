@@ -150,6 +150,16 @@ void lpe::Model::Load(std::string fileName)
   file.close();
 }
 
+void lpe::Model::SetVertices(const std::vector<lpe::Vertex>& vertices)
+{
+  this->vertices = vertices;
+}
+
+void lpe::Model::SetIndices(const std::vector<uint32_t>& indices)
+{
+  this->indices = indices;
+}
+
 void lpe::Model::SetPosition(glm::vec3 position)
 {
   this->position = position;

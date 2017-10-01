@@ -14,16 +14,9 @@ void lpe::Window::Create()
   instance.Create(title);
   device = instance.CreateDevice(window);
   swapChain = device.CreateSwapChain(width, height);
-  defaultCamera = Camera({2,2,2}, {0,0,0}, swapChain.GetExtent(), 60, 0.1, 10);
+  defaultCamera = Camera({5,10,0}, {0,0,0}, swapChain.GetExtent(), 45, 0, 100);
   commands = device.CreateCommands();
   modelsRenderer = device.CreateModelsRenderer(&commands);
-  modelsRenderer.AddObject({
-                             {{0.5, 0.5, 0.5}, {1, 0, 0}},
-                             {{-0.5, 0.5, 0.5},{0, 1, 0}},
-                             {{-0.5, -0.5, 0.5},{0, 0, 1}},
-                             {{0.5, -0.5, 0.5},{1, 1, 1}}
-                           },
-                           {0, 1, 2, 2, 3, 0});
 
   uniformBuffer = device.CreateUniformBuffer(modelsRenderer, defaultCamera);
   graphicsPipeline = device.CreatePipeline(swapChain, &uniformBuffer);
@@ -68,7 +61,7 @@ lpe::Camera lpe::Window::CreateCamera(glm::vec3 position, glm::vec3 lookAt, floa
   return Camera(position, lookAt, swapChain.GetExtent(), fov, near, far);
 }
 
-lpe::Model lpe::Window::AddModel(std::string path)
+lpe::Model* lpe::Window::AddModel(std::string path)
 {
   if (!window)
     throw std::runtime_error("Cannot add model if the window wasn't created successfull. Call Create(...) before AddModel(...)!");
@@ -78,7 +71,7 @@ lpe::Model lpe::Window::AddModel(std::string path)
   commands.ResetCommandBuffers();
   commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), uniformBuffer.GetDynamicAlignment(), &graphicsPipeline, &modelsRenderer);
   
-  return *model;
+  return model;
 }
 
 bool lpe::Window::IsOpen() const

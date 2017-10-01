@@ -243,11 +243,20 @@ void lpe::Pipeline::CreateDescriptorSet()
   auto result = device->allocateDescriptorSets(&allocInfo, &descriptorSet);
   helper::ThrowIfNotSuccess(result, "failed to allocate descriptor set!");
 
-  std::vector<vk::WriteDescriptorSet> descriptorWrites =
-  {
-    { descriptorSet, 0, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, descriptors[0] },
-    { descriptorSet, 1, 0, 1, vk::DescriptorType::eUniformBufferDynamic, nullptr, descriptors[1] }
-  };
+
+  vk::WriteDescriptorSet uboVSwds = { descriptorSet };
+  uboVSwds.dstBinding = 0;
+  uboVSwds.descriptorCount = 1;
+  uboVSwds.descriptorType = vk::DescriptorType::eUniformBuffer;
+  uboVSwds.pBufferInfo = descriptors[0];
+
+  vk::WriteDescriptorSet dynamicwds = { descriptorSet };
+  dynamicwds.dstBinding = 1;
+  dynamicwds.descriptorCount = 1;
+  dynamicwds.descriptorType = vk::DescriptorType::eUniformBufferDynamic;
+  dynamicwds.pBufferInfo = descriptors[1];
+
+  std::vector<vk::WriteDescriptorSet> descriptorWrites = { uboVSwds, dynamicwds };
 
   device->updateDescriptorSets((uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }

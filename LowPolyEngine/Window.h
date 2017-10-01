@@ -45,7 +45,7 @@ BEGIN_LPE
 		lpe::Camera CreateCamera(glm::vec3 position, glm::vec3 lookAt = {0, 0, 0}, float fov = 60, float near = 0.0,
 		                         float far = 10) const;
 
-		lpe::Model AddModel(std::string path);
+		lpe::Model* AddModel(std::string path);
 
 		bool IsOpen() const;
 

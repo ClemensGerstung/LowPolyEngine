@@ -28,6 +28,10 @@ public:
 
   void Load(std::string fileName);
 
+
+  void SetVertices(const std::vector<lpe::Vertex>& vertices);
+  void SetIndices(const std::vector<uint32_t>& indices);
+
   void SetPosition(glm::vec3 position);
   void Move(glm::vec3 offset);
 

@@ -131,6 +131,11 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
 
     if (*renderer->GetVertexBuffer() && *renderer->GetIndexBuffer())
     {
+      if (!*pipeline->GetDescriptorSetRef())
+      {
+        pipeline->CreateDescriptorSet();
+      }
+
       vk::Viewport viewport = { 0, 0, (float)extent.width, (float)extent.height };
       commandBuffers[i].setViewport(0, 1, &viewport);
 
@@ -143,11 +148,6 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
 
       for (uint32_t j = 0; j < renderer->GetCount(); j++)
       {
-        if (!*pipeline->GetDescriptorSetRef())
-        {
-          pipeline->CreateDescriptorSet();
-        }
-
         // One dynamic offset per dynamic descriptor to offset into the ubo containing all model matrices
         uint32_t dynamicOffset = j * static_cast<uint32_t>(dynamicAlignment);
         // Bind the descriptor set for rendering a mesh using the dynamic offset
@@ -162,6 +162,8 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
         //commandBuffers[i].drawIndexedIndirect(*renderer->GetIndexBuffer(), 0, (uint32_t)renderer->GetIndices().size(), 0);
         commandBuffers[i].drawIndexed((uint32_t)renderer->GetIndices().size(), 1, 0, 0, 0);
       }
+
+      
     }
 
     commandBuffers[i].endRenderPass();
