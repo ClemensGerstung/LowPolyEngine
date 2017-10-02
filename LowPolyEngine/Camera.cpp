@@ -50,6 +50,6 @@ glm::mat4 lpe::Camera::GetView() const
 
 glm::mat4 lpe::Camera::GetPerspective() const
 {
-  return glm::perspective(glm::radians(fov), swapChainExtent.width / (float)swapChainExtent.height, near, far);
+  //return glm::perspective(glm::radians(fov), swapChainExtent.width / (float)swapChainExtent.height, near, far);
   return glm::perspectiveFov(glm::radians(fov), (float)swapChainExtent.width, (float)swapChainExtent.height, near, far);
 }
