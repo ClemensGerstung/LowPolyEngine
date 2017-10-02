@@ -212,6 +212,10 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
   colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
 
   vk::PipelineColorBlendStateCreateInfo colorBlending = { {}, VK_FALSE, vk::LogicOp::eCopy, 1, &colorBlendAttachment };
+  colorBlending.blendConstants[0] = 0;
+  colorBlending.blendConstants[1] = 0;
+  colorBlending.blendConstants[2] = 0;
+  colorBlending.blendConstants[3] = 0;
 
     vk::PipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{
             {},2,std::array<vk::DynamicState,2>{vk::DynamicState::eScissor,vk::DynamicState::eViewport}.data()
