@@ -24,14 +24,16 @@ int main()
 
     lpe::Model* m = window.AddModel("models/tree.ply");
     auto startTime = std::chrono::high_resolution_clock::now();
-
+    
     while (window.IsOpen())
     {
       auto currentTime = std::chrono::high_resolution_clock::now();
       float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
 
       auto transform = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-      m->Transform(transform);
+      //m->SetTransform(transform);
+      m->SetTransform(glm::mat4(1.0f));
+      m->Transform(glm::scale(glm::mat4(1.0), { 1.5f, 1.5f, 1.5f }));
 
       window.Render();
     }

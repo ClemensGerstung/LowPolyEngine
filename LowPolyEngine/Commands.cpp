@@ -222,15 +222,15 @@ lpe::Buffer lpe::Commands::CreateBuffer(vk::DeviceSize size) const
 
 lpe::ImageView lpe::Commands::CreateDepthImage(vk::Extent2D extent, vk::Format depthFormat) const
 {
-  ImageView image = 
+  ImageView image =
   {
     physicalDevice,
-    device.get(), 
-    extent.width, 
-    extent.height, 
-    depthFormat, 
+    device.get(),
+    extent.width,
+    extent.height,
+    depthFormat,
     vk::ImageTiling::eOptimal,
-    vk::ImageUsageFlagBits::eDepthStencilAttachment,
+    vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferSrc,
     vk::MemoryPropertyFlagBits::eDeviceLocal,
     vk::ImageAspectFlagBits::eDepth
   };

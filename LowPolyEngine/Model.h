@@ -35,6 +35,8 @@ public:
   void SetPosition(glm::vec3 position);
   void Move(glm::vec3 offset);
 
+
+  void SetTransform(const glm::mat4& matrix);
   void Transform(glm::mat4 transform);
 
   glm::vec3 GetPosition() const;

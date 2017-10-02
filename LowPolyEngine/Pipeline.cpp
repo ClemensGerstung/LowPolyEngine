@@ -40,19 +40,10 @@ void lpe::Pipeline::CreateRenderPass(vk::Format swapChainImageFormat)
     vk::ImageLayout::eDepthStencilAttachmentOptimal
   };
 
-  vk::SubpassDescription subpass =
-  {
-    {},
-    vk::PipelineBindPoint::eGraphics,
-    0,
-    nullptr,
-    1,
-    &colorAttachmentRef,
-    nullptr,
-    &depthAttachmentRef,
-    0,
-    nullptr
-  };
+  vk::SubpassDescription subpass = { {}, vk::PipelineBindPoint::eGraphics };
+  subpass.colorAttachmentCount = 1;
+  subpass.pColorAttachments = &colorAttachmentRef;
+  subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
   vk::SubpassDependency dependency =
   {
@@ -175,7 +166,6 @@ vk::RenderPass lpe::Pipeline::GetRenderPass() const
   return renderPass;
 }
 
-
 void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
 {
   auto vertexShaderCode = lpe::helper::ReadSPIRVFile("shaders/base.vert.spv");
@@ -207,6 +197,8 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
   vk::PipelineMultisampleStateCreateInfo multisampling = { {}, vk::SampleCountFlagBits::e1, VK_FALSE };
 
   vk::PipelineDepthStencilStateCreateInfo depthStencil = { {}, VK_TRUE, VK_TRUE, vk::CompareOp::eLess, VK_FALSE, VK_FALSE };
+  depthStencil.front = depthStencil.back;
+  depthStencil.back.compareOp = vk::CompareOp::eAlways;
 
   vk::PipelineColorBlendAttachmentState colorBlendAttachment = { VK_FALSE };
   colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;

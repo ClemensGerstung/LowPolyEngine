@@ -89,7 +89,7 @@ lpe::ImageView::ImageView(vk::PhysicalDevice physicalDevice,
 
   this->device->bindImageMemory(image, memory, 0);
 
-  vk::ImageViewCreateInfo viewCreateInfo = { {}, image, vk::ImageViewType::e2D, format,{},{ flags, 0, 1, 0, 1 } };
+  vk::ImageViewCreateInfo viewCreateInfo = { {}, image, vk::ImageViewType::e2D, format, {}, { flags, 0, 1, 0, 1 } };
   result = this->device->createImageView(&viewCreateInfo, nullptr, &imageView);
   helper::ThrowIfNotSuccess(result, "failed to create texture image view!");
 }

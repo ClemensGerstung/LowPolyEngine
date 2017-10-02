@@ -1,6 +1,8 @@
 #include "Window.h"
 #include "UniformBufferObject.h"
 
+#include <glm/ext.hpp>
+
 void lpe::Window::Create()
 {
 	glfwInit();
@@ -8,8 +10,11 @@ void lpe::Window::Create()
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 	glfwWindowHint(GLFW_RESIZABLE, resizeable ? GLFW_TRUE : GLFW_FALSE);
-
+  
 	window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+
+  glfwSetWindowUserPointer(window, this);
+  glfwSetKeyCallback(window, KeyInputCallback);
 
   instance.Create(title);
   device = instance.CreateDevice(window);
@@ -24,6 +29,64 @@ void lpe::Window::Create()
   auto frameBuffers = swapChain.CreateFrameBuffers(graphicsPipeline.GetRenderPassRef(), &depthImage);
   commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), uniformBuffer.GetDynamicAlignment(), &graphicsPipeline, &modelsRenderer);
 }
+
+void lpe::Window::KeyInputCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+  lpe::Window* pointer = reinterpret_cast<lpe::Window*>(glfwGetWindowUserPointer(window));
+
+  if(key == GLFW_KEY_W && action == GLFW_PRESS)
+  {
+    pointer->defaultCamera.Move({ -0.05, 0, 0 });
+  }
+  if (key == GLFW_KEY_S && action == GLFW_PRESS)
+  {
+    pointer->defaultCamera.Move({ 0.05, 0, 0 });
+  }
+  if (key == GLFW_KEY_A && action == GLFW_PRESS)
+  {
+    pointer->defaultCamera.Move({ 0, -0.05, 0 });
+  }
+  if (key == GLFW_KEY_D && action == GLFW_PRESS)
+  {
+    pointer->defaultCamera.Move({ 0, 0.05, 0 });
+  }
+  if (key == GLFW_KEY_Z && action == GLFW_PRESS)
+  {
+    pointer->defaultCamera.Move({ 0, 0, 0.05 });
+  }
+  if (key == GLFW_KEY_X && action == GLFW_PRESS)
+  {
+    pointer->defaultCamera.Move({ 0, 0, -0.05 });
+  }
+
+  if (key == GLFW_KEY_Q && action == GLFW_PRESS)
+  {
+    pointer->defaultCamera.Rotate(-15, {0, 0, 1});
+  }
+  if (key == GLFW_KEY_E && action == GLFW_PRESS)
+  {
+    pointer->defaultCamera.Rotate(15, { 0, 0, 1 });
+  }
+  if (key == GLFW_KEY_R && action == GLFW_PRESS)
+  {
+    pointer->defaultCamera.Rotate(-15, { 1, 0, 0 });
+  }
+  if (key == GLFW_KEY_F && action == GLFW_PRESS)
+  {
+    pointer->defaultCamera.Rotate(15, { 1, 0, 0 });
+  }
+  if (key == GLFW_KEY_C && action == GLFW_PRESS)
+  {
+    pointer->defaultCamera.Rotate(-15, { 0, 1, 0 });
+  }
+  if (key == GLFW_KEY_V && action == GLFW_PRESS)
+  {
+    pointer->defaultCamera.Rotate(15, { 0, 1, 0 });
+  }
+
+  std::cout << glm::to_string(pointer->defaultCamera.GetPosition()) << " -> " << glm::to_string(pointer->defaultCamera.GetLookAt()) << std::endl;
+}
+
 
 lpe::Window::Window(uint32_t width, uint32_t height, std::string title, bool resizeable)
 	: width(width),
@@ -106,3 +169,5 @@ void lpe::Window::Render()
   std::vector<vk::SwapchainKHR> swapchains = { swapChain.GetSwapchain() };
   device.SubmitFrame(swapchains, &imageIndex);
 }
+
+
