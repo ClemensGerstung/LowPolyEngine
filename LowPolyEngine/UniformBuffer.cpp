@@ -93,11 +93,13 @@ void lpe::UniformBuffer::Update(const Camera& camera, const ModelsRenderer& mode
   dynamicAlignment = (sizeof(glm::mat4) / uboAlignment) * uboAlignment + ((sizeof(glm::mat4) % uboAlignment) > 0 ? uboAlignment : 0);
   size_t bufferSize = modelsRenderer.EntriesCount() * dynamicAlignment;
 
-  uboDataDynamic.model = (glm::mat4*)helper::AlignedAlloc(bufferSize, dynamicAlignment);
-  assert(uboDataDynamic.model);
-
   if (lastAllocSize != bufferSize)
   {
+    helper::AlignedFree(uboDataDynamic.model);
+
+    uboDataDynamic.model = (glm::mat4*)helper::AlignedAlloc(bufferSize, dynamicAlignment);
+    assert(uboDataDynamic.model);
+
     // creating the buffer in every frame might be totally inefficient but otherwise it won't be totally dynamic
     dynamicBuffer = { physicalDevice, device.get(), bufferSize, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible };
     lastAllocSize = bufferSize;

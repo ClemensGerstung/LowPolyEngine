@@ -146,15 +146,16 @@ void lpe::ModelsRenderer::UpdateBuffer()
   vertexBuffer.Create(*commands, vertexSize, vertices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 }
 
-std::vector<lpe::Model> lpe::ModelsRenderer::GetModels() const
+std::vector<lpe::Model> lpe::ModelsRenderer::GetModels()
 {
-  std::vector<lpe::Model> models = {};
-  models.resize(entries.size());
-
-
-  for (size_t i = 0; i < models.size(); ++i)
+  if (models.size() != entries.size())
   {
-    models[i] = { entries[i].model };
+    models.resize(entries.size());
+
+    for (size_t i = 0; i < models.size(); ++i)
+    {
+      models[i] = { entries[i].model };
+    }
   }
 
   return models;

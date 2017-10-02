@@ -27,6 +27,7 @@ private:
   std::unique_ptr<vk::Device> device;
   std::unique_ptr<Commands> commands;
   std::vector<Entry> entries;
+  std::vector<Model> models;
 
   std::vector<lpe::Vertex> vertices;
   std::vector<uint32_t> indices;
@@ -54,7 +55,7 @@ public:
   
   void UpdateBuffer();
 
-  std::vector<Model> GetModels() const;
+  std::vector<Model> GetModels();
   uint32_t GetCount() const;
   std::vector<lpe::Vertex> GetVertices() const;
   std::vector<uint32_t> GetIndices() const;
