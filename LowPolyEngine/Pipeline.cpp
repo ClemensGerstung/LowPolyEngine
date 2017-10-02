@@ -213,12 +213,16 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
 
   vk::PipelineColorBlendStateCreateInfo colorBlending = { {}, VK_FALSE, vk::LogicOp::eCopy, 1, &colorBlendAttachment };
 
+    vk::PipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{
+            {},2,std::array<vk::DynamicState,2>{vk::DynamicState::eScissor,vk::DynamicState::eViewport}.data()
+    };
+
   vk::PipelineLayoutCreateInfo pipelineLayoutInfo = { {}, 1, &descriptorSetLayout };
 
   auto result = device->createPipelineLayout(&pipelineLayoutInfo, nullptr, &pipelineLayout);
   helper::ThrowIfNotSuccess(result, "failed to create pipeline layout!");
 
-  vk::GraphicsPipelineCreateInfo pipelineInfo = { {}, (uint32_t)shaderStages.size(), shaderStages.data(), &vertexInputInfo, &inputAssembly, nullptr, &viewportState, &rasterizer, &multisampling, &depthStencil, &colorBlending, nullptr, pipelineLayout, renderPass };
+    vk::GraphicsPipelineCreateInfo pipelineInfo = { {}, (uint32_t)shaderStages.size(), shaderStages.data(), &vertexInputInfo, &inputAssembly, nullptr, &viewportState, &rasterizer, &multisampling, &depthStencil, &colorBlending, &pipelineDynamicStateCreateInfo, pipelineLayout, renderPass };
 
   pipeline = device->createGraphicsPipeline(*cache, pipelineInfo);
 
