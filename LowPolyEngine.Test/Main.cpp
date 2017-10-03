@@ -1,3 +1,6 @@
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 #include <iostream>
 #include "lpe.h"
 #include "Window.h"
@@ -5,11 +8,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 
 int main()
 {
+  lpe::settings.EnableValidationLayer = false;
+
   lpe::Window window;
   try
   {

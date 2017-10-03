@@ -194,11 +194,19 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
 
   vk::PipelineRasterizationStateCreateInfo rasterizer = { {}, VK_FALSE, VK_FALSE, vk::PolygonMode::eFill, vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, VK_FALSE, 0, 0, 0, 1 };
 
+  //vk::PipelineRasterizationStateCreateInfo rasterizer = {};
+  //rasterizer.polygonMode = vk::PolygonMode::eFill;
+  //rasterizer.depthClampEnable = VK_FALSE;
+  //rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+  //rasterizer.frontFace = vk::FrontFace::eCounterClockwise;
+  //rasterizer.lineWidth = 1.0f;
+
   vk::PipelineMultisampleStateCreateInfo multisampling = { {}, vk::SampleCountFlagBits::e1, VK_FALSE };
 
   vk::PipelineDepthStencilStateCreateInfo depthStencil = { {}, VK_TRUE, VK_TRUE, vk::CompareOp::eLess, VK_FALSE, VK_FALSE };
   depthStencil.front = depthStencil.back;
   depthStencil.back.compareOp = vk::CompareOp::eAlways;
+  depthStencil.maxDepthBounds = 1.0;
 
   vk::PipelineColorBlendAttachmentState colorBlendAttachment = { VK_FALSE };
   colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;

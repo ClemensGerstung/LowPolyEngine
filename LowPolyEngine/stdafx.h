@@ -26,8 +26,6 @@ BEGIN_LPE
 #define ENGINE_NAME "LowPolyEngine"
 #define ENGINE_VERSION VK_MAKE_VERSION(0, 0, 1)
 
-#define ENABLE_VALIDATION_LAYER true
-
 		VULKAN_HPP_INLINE LPE void ThrowIfNotSuccess(vk::Result result, std::string message)
 		{
 			if (result != vk::Result::eSuccess)

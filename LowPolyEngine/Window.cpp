@@ -19,7 +19,7 @@ void lpe::Window::Create()
   instance.Create(title);
   device = instance.CreateDevice(window);
   swapChain = device.CreateSwapChain(width, height);
-  defaultCamera = Camera({2,2,2}, {0,0,0}, swapChain.GetExtent(), 45, 0, 100);
+  defaultCamera = { {2,2,2}, {0,0,0}, swapChain.GetExtent(), 45, 0, 100 };
   commands = device.CreateCommands();
   modelsRenderer = device.CreateModelsRenderer(&commands);
 
