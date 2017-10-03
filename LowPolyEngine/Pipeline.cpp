@@ -21,8 +21,8 @@ void lpe::Pipeline::CreateRenderPass(vk::Format swapChainImageFormat)
     FindDepthFormat(),
     vk::SampleCountFlagBits::e1,
     vk::AttachmentLoadOp::eClear,
-    vk::AttachmentStoreOp::eDontCare,
-    vk::AttachmentLoadOp::eDontCare,
+    vk::AttachmentStoreOp::eStore,
+    vk::AttachmentLoadOp::eClear,
     vk::AttachmentStoreOp::eDontCare,
     vk::ImageLayout::eUndefined,
     vk::ImageLayout::eDepthStencilAttachmentOptimal
@@ -203,7 +203,7 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
 
   vk::PipelineMultisampleStateCreateInfo multisampling = { {}, vk::SampleCountFlagBits::e1, VK_FALSE };
 
-  vk::PipelineDepthStencilStateCreateInfo depthStencil = { {}, VK_TRUE, VK_TRUE, vk::CompareOp::eLess, VK_FALSE, VK_FALSE };
+  vk::PipelineDepthStencilStateCreateInfo depthStencil = { {}, VK_TRUE, VK_TRUE, vk::CompareOp::eLessOrEqual, VK_FALSE, VK_FALSE };
   depthStencil.front = depthStencil.back;
   depthStencil.back.compareOp = vk::CompareOp::eAlways;
   depthStencil.maxDepthBounds = 1.0;

@@ -24,6 +24,7 @@ void lpe::Window::Create()
   modelsRenderer = device.CreateModelsRenderer(&commands);
 
   uniformBuffer = device.CreateUniformBuffer(modelsRenderer, defaultCamera);
+  uniformBuffer.SetLightPosition({ 2, 2, 2 });
   graphicsPipeline = device.CreatePipeline(swapChain, &uniformBuffer);
   depthImage = commands.CreateDepthImage(swapChain.GetExtent(), graphicsPipeline.FindDepthFormat());
   auto frameBuffers = swapChain.CreateFrameBuffers(graphicsPipeline.GetRenderPassRef(), &depthImage);

@@ -292,6 +292,9 @@ echo please define variable!
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="models\cube.ply" />
+    <None Include="models\monkey.ply" />
+    <None Include="models\tree.ply" />
     <None Include="shaders\base.frag" />
     <None Include="shaders\base.vert" />
   </ItemGroup>

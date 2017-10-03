@@ -43,8 +43,9 @@ public:
 
   std::vector<vk::DescriptorBufferInfo*> GetDescriptors();
 
-
   size_t GetDynamicAlignment() const;
+
+  void SetLightPosition(glm::vec3 light);
 };
 
 END_LPE
