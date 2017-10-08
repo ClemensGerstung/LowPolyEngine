@@ -128,3 +128,8 @@ size_t lpe::UniformBuffer::GetDynamicAlignment() const
 {
   return dynamicAlignment;
 }
+
+void lpe::UniformBuffer::SetLightPosition(glm::vec3 light)
+{
+  ubo.lightPos = light;
+}

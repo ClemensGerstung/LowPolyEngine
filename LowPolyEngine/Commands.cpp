@@ -115,7 +115,7 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
 
   std::array<vk::ClearValue, 2> clearValues = {};
   clearValues[0].color = color;
-  clearValues[1].depthStencil = vk::ClearDepthStencilValue(1.0f, 0);
+  clearValues[1].depthStencil = vk::ClearDepthStencilValue(1, 0);
 
   for (size_t i = 0; i < commandBuffers.size(); i++)
   {
@@ -136,7 +136,7 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
         pipeline->CreateDescriptorSet();
       }
 
-      vk::Viewport viewport = { 0, 0, (float)extent.width, (float)extent.height };
+      vk::Viewport viewport = { 0, 0, (float)extent.width, (float)extent.height, 0.0, 1.0f };
       commandBuffers[i].setViewport(0, 1, &viewport);
 
       vk::Rect2D scissor = { {0, 0}, extent };
@@ -222,15 +222,15 @@ lpe::Buffer lpe::Commands::CreateBuffer(vk::DeviceSize size) const
 
 lpe::ImageView lpe::Commands::CreateDepthImage(vk::Extent2D extent, vk::Format depthFormat) const
 {
-  ImageView image = 
+  ImageView image =
   {
     physicalDevice,
-    device.get(), 
-    extent.width, 
-    extent.height, 
-    depthFormat, 
+    device.get(),
+    extent.width,
+    extent.height,
+    depthFormat,
     vk::ImageTiling::eOptimal,
-    vk::ImageUsageFlagBits::eDepthStencilAttachment,
+    vk::ImageUsageFlagBits::eDepthStencilAttachment | vk::ImageUsageFlagBits::eTransferSrc,
     vk::MemoryPropertyFlagBits::eDeviceLocal,
     vk::ImageAspectFlagBits::eDepth
   };

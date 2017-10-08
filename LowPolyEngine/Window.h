@@ -26,8 +26,10 @@ BEGIN_LPE
 		lpe::Pipeline graphicsPipeline;
 		lpe::ImageView depthImage;
 		lpe::ModelsRenderer modelsRenderer;
+
 	protected:
 		virtual void Create();
+    static void KeyInputCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 	public:
 		Window() = default;

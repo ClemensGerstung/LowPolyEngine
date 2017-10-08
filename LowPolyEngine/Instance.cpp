@@ -99,7 +99,7 @@ vk::PhysicalDevice lpe::Instance::PickPhysicalDevice(const uint32_t physicalDevi
     }
   }
 
-  if(!physicalDevice)
+  if (!physicalDevice)
   {
     throw std::runtime_error("failed to find suitable GPU!");
   }
@@ -123,12 +123,10 @@ lpe::Instance::~Instance()
 
 void lpe::Instance::Create(const std::string& appName)
 {
-#if defined(ENABLE_VALIDATION_LAYER) && ENABLE_VALIDATION_LAYER
-  if (!helper::CheckValidationLayerSupport())
+  if (settings.EnableValidationLayer && !helper::CheckValidationLayerSupport())
   {
     throw std::runtime_error("validation layers requested, but not available");
   }
-#endif
 
   std::vector<const char*> extensions;
 
@@ -140,48 +138,54 @@ void lpe::Instance::Create(const std::string& appName)
     extensions.push_back(glfwExtensions[i]);
   }
 
-#if defined(ENABLE_VALIDATION_LAYER) && ENABLE_VALIDATION_LAYER
-  extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-#endif
+  if (settings.EnableValidationLayer)
+  {
+    extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+  }
 
-  vk::ApplicationInfo appInfo = { appName.c_str(), APPLICATION_VERSION, ENGINE_NAME, ENGINE_VERSION, VK_MAKE_VERSION(1, 0, 39) };
+  vk::ApplicationInfo appInfo = {
+    appName.c_str(), APPLICATION_VERSION, ENGINE_NAME, ENGINE_VERSION, VK_MAKE_VERSION(1, 0, 39)
+  };
 
   vk::InstanceCreateInfo createInfo =
   {
     {},
     &appInfo,
-#if defined(ENABLE_VALIDATION_LAYER) && ENABLE_VALIDATION_LAYER
-    (uint32_t)helper::ValidationLayer.size(),
-    helper::ValidationLayer.data(),
-#else
     0,
     nullptr,
-#endif
     (uint32_t)extensions.size(),
     extensions.data()
   };
 
+  if(settings.EnableValidationLayer)
+  {
+    createInfo.enabledLayerCount = (uint32_t)helper::ValidationLayer.size();
+    createInfo.ppEnabledLayerNames = helper::ValidationLayer.data();
+  }
+
   auto result = vk::createInstance(&createInfo, nullptr, &instance);
   helper::ThrowIfNotSuccess(result, "Couldn't create Vulkan instance");
 
-#if defined(ENABLE_VALIDATION_LAYER) && ENABLE_VALIDATION_LAYER
-  VkDebugReportCallbackCreateInfoEXT debugReportCreateInfo = {};
-  debugReportCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-  debugReportCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
-  debugReportCreateInfo.pfnCallback = helper::debugCallback;
-
-  if (helper::CreateDebugReportCallbackEXT(instance, &debugReportCreateInfo, nullptr, &callback))
+  if (settings.EnableValidationLayer)
   {
-    throw std::runtime_error("Failed to set up debug callback");
+    VkDebugReportCallbackCreateInfoEXT debugReportCreateInfo = {};
+    debugReportCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+    debugReportCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+    debugReportCreateInfo.pfnCallback = helper::debugCallback;
+
+    if (helper::CreateDebugReportCallbackEXT(instance, &debugReportCreateInfo, nullptr, &callback))
+    {
+      throw std::runtime_error("Failed to set up debug callback");
+    }
   }
-#endif
 }
 
 lpe::Device lpe::Instance::CreateDevice(GLFWwindow* window, const uint32_t physicalDeviceIndex)
 {
   vk::SurfaceKHR surface;
 
-  if (glfwCreateWindowSurface(static_cast<VkInstance>(instance), window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS)
+  if (glfwCreateWindowSurface(static_cast<VkInstance>(instance), window, nullptr,
+                              reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS)
   {
     throw std::runtime_error("failed to create window surface!");
   }

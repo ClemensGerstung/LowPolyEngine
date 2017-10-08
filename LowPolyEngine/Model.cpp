@@ -170,9 +170,14 @@ void lpe::Model::Move(glm::vec3 offset)
   position += offset;
 }
 
+void lpe::Model::SetTransform(const glm::mat4& matrix)
+{
+  this->matrix = matrix;
+}
+
 void lpe::Model::Transform(glm::mat4 transform)
 {
-  this->matrix = transform;
+  this->matrix = matrix * transform;
 }
 
 glm::vec3 lpe::Model::GetPosition() const

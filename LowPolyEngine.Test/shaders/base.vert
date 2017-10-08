@@ -4,12 +4,14 @@
 #extension GL_ARB_shading_language_420pack : enable
 
 layout (location = 0) in vec3 inPos;
-layout (location = 1) in vec3 inColor;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec3 inColor;
 
 layout (binding = 0) uniform UboView 
 {
 	mat4 projection;
 	mat4 view;
+	vec3 lightPos;
 } uboView;
 
 layout (binding = 1) uniform UboInstance 
@@ -18,7 +20,9 @@ layout (binding = 1) uniform UboInstance
 } uboInstance;
 
 layout (location = 0) out vec3 outColor;
-layout (location = 1) out vec4 outPos;
+layout (location = 1) out vec3 outNormal;
+layout (location = 2) out vec3 view;
+layout (location = 3) out vec3 light;
 
 out gl_PerVertex 
 {
@@ -27,9 +31,12 @@ out gl_PerVertex
 
 void main() 
 {
+	vec4 worldPos = uboInstance.model * vec4(inPos, 1.0);
+
 	outColor = inColor;
-	mat4 modelView = uboView.view * uboInstance.model;
-	vec3 worldPos = vec3(modelView * vec4(inPos, 1.0));
-	outPos = modelView * vec4(inPos, 1.0);
-	gl_Position = uboView.projection * modelView * vec4(inPos.xyz, 1.0);
+	outNormal = mat3(uboInstance.model) * inNormal;
+	light = uboView.lightPos - worldPos.xyz;
+	view = (uboView.view * worldPos).xyz;
+
+	gl_Position = uboView.projection * uboView.view * uboInstance.model * vec4(inPos, 1.0);
 }

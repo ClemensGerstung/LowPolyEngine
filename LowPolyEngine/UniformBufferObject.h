@@ -9,6 +9,7 @@ struct UniformBufferObject
 {
   glm::mat4 projection;
   glm::mat4 view;
+  glm::vec3 lightPos;
 };
 
 END_LPE

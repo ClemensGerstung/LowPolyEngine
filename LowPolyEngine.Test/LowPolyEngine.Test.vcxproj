@@ -69,7 +69,18 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <CustomBuildBeforeTargets>Build</CustomBuildBeforeTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <CustomBuildBeforeTargets>Build</CustomBuildBeforeTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CustomBuildBeforeTargets>Build</CustomBuildBeforeTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <CustomBuildBeforeTargets>Build</CustomBuildBeforeTargets>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -79,6 +90,44 @@
     <Link>
       <AdditionalLibraryDirectories>D:\Libraries\glfw\x64\lib-vc2015;D:\Libraries\Vulkan\Source\lib;D:\Libraries\Vulkan\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command>@echo off
+
+if [%VULKAN_SDK%] == [] goto ERROR_NO_VULKAN
+
+for %%f in (shaders/*.vert, shaders/*.frag) do (
+	%VULKAN_SDK%/Bin/glslangValidator.exe -V shaders/%%f -o shaders/%%f.spv
+)
+
+goto END
+
+:ERROR_NO_VULKAN
+echo VULKAN_SDK path not found
+echo please define variable!
+
+:END</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>@echo off
+
+if [%VULKAN_SDK%] == [] goto ERROR_NO_VULKAN
+
+for %%f in (shaders/*.vert, shaders/*.frag) do (
+	%VULKAN_SDK%/Bin/glslangValidator.exe -V shaders/%%f -o shaders/%%f.spv
+)
+
+goto END
+
+:ERROR_NO_VULKAN
+echo VULKAN_SDK path not found
+echo please define variable!
+
+:END</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -91,6 +140,44 @@
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\Libraries\glfw\x64\lib-vc2015;D:\Libraries\Vulkan\Source\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command>@echo off
+
+if [%VULKAN_SDK%] == [] goto ERROR_NO_VULKAN
+
+for %%f in (shaders/*.vert, shaders/*.frag) do (
+	%VULKAN_SDK%/Bin/glslangValidator.exe -V shaders/%%f -o shaders/%%f.spv
+)
+
+goto END
+
+:ERROR_NO_VULKAN
+echo VULKAN_SDK path not found
+echo please define variable!
+
+:END</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>@echo off
+
+if [%VULKAN_SDK%] == [] goto ERROR_NO_VULKAN
+
+for %%f in (shaders/*.vert, shaders/*.frag) do (
+	%VULKAN_SDK%/Bin/glslangValidator.exe -V shaders/%%f -o shaders/%%f.spv
+)
+
+goto END
+
+:ERROR_NO_VULKAN
+echo VULKAN_SDK path not found
+echo please define variable!
+
+:END</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -105,6 +192,44 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>D:\Libraries\glfw\x64\lib-vc2015;D:\Libraries\Vulkan\Source\lib;D:\Libraries\Vulkan\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command>@echo off
+
+if [%VULKAN_SDK%] == [] goto ERROR_NO_VULKAN
+
+for %%f in (shaders/*.vert, shaders/*.frag) do (
+	%VULKAN_SDK%/Bin/glslangValidator.exe -V shaders/%%f -o shaders/%%f.spv
+)
+
+goto END
+
+:ERROR_NO_VULKAN
+echo VULKAN_SDK path not found
+echo please define variable!
+
+:END</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>@echo off
+
+if [%VULKAN_SDK%] == [] goto ERROR_NO_VULKAN
+
+for %%f in (shaders/*.vert, shaders/*.frag) do (
+	%VULKAN_SDK%/Bin/glslangValidator.exe -V shaders/%%f -o shaders/%%f.spv
+)
+
+goto END
+
+:ERROR_NO_VULKAN
+echo VULKAN_SDK path not found
+echo please define variable!
+
+:END</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -119,6 +244,44 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>D:\Libraries\glfw\x64\lib-vc2015;D:\Libraries\Vulkan\Source\lib;D:\Libraries\Vulkan\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PreBuildEvent>
+      <Command>@echo off
+
+if [%VULKAN_SDK%] == [] goto ERROR_NO_VULKAN
+
+for %%f in (shaders/*.vert, shaders/*.frag) do (
+	%VULKAN_SDK%/Bin/glslangValidator.exe -V shaders/%%f -o shaders/%%f.spv
+)
+
+goto END
+
+:ERROR_NO_VULKAN
+echo VULKAN_SDK path not found
+echo please define variable!
+
+:END</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>@echo off
+
+if [%VULKAN_SDK%] == [] goto ERROR_NO_VULKAN
+
+for %%f in (shaders/*.vert, shaders/*.frag) do (
+	%VULKAN_SDK%/Bin/glslangValidator.exe -V shaders/%%f -o shaders/%%f.spv
+)
+
+goto END
+
+:ERROR_NO_VULKAN
+echo VULKAN_SDK path not found
+echo please define variable!
+
+:END</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
@@ -127,6 +290,13 @@
     <ProjectReference Include="..\LowPolyEngine\LowPolyEngine.vcxproj">
       <Project>{cadcf3b7-5fc7-4eef-b291-4af2734ce901}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="models\cube.ply" />
+    <None Include="models\monkey.ply" />
+    <None Include="models\tree.ply" />
+    <None Include="shaders\base.frag" />
+    <None Include="shaders\base.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
