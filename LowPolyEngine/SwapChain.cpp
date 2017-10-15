@@ -161,14 +161,14 @@ lpe::SwapChain& lpe::SwapChain::operator=(SwapChain&& other)
 }
 
 lpe::SwapChain::SwapChain(vk::PhysicalDevice physicalDevice,
-                          vk::Device* device,
+                          std::unique_ptr<vk::Device> device,
                           const vk::SurfaceKHR& surface,
                           QueueFamilyIndices indices,
                           uint32_t width,
                           uint32_t height)
   : physicalDevice(physicalDevice)
 {
-  this->device.reset(device);
+  this->device.swap(device);
 
   CreateSwapChain(physicalDevice, surface, indices, width, height);
 

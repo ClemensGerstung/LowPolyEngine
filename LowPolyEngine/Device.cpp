@@ -117,7 +117,7 @@ lpe::Device::~Device()
 
 lpe::SwapChain lpe::Device::CreateSwapChain(uint32_t width, uint32_t height)
 {
-  return {physicalDevice, &device, surface, indices, width, height};
+  return {physicalDevice, std::make_unique<vk::Device>(device), surface, indices, width, height};
 }
 
 lpe::Commands lpe::Device::CreateCommands()

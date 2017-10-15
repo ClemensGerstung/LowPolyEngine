@@ -37,7 +37,7 @@ public:
   SwapChain& operator=(const SwapChain& other);
   SwapChain& operator=(SwapChain&& other);
 
-  SwapChain(vk::PhysicalDevice physicalDevice, vk::Device* device, const vk::SurfaceKHR& surface, QueueFamilyIndices indices, uint32_t width, uint32_t height);
+  SwapChain(vk::PhysicalDevice physicalDevice, std::unique_ptr<vk::Device> device, const vk::SurfaceKHR& surface, QueueFamilyIndices indices, uint32_t width, uint32_t height);
 
   ~SwapChain();
 
