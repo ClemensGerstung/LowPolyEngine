@@ -1,5 +1,6 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_ENABLE_EXPERIMENTAL
 
 #include <iostream>
 #include "lpe.h"
@@ -7,8 +8,6 @@
 #include "Model.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
-
-
 
 int main()
 {

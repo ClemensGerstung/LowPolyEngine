@@ -1,6 +1,6 @@
-#include "Model.h"
-#include "fstream"
-#include "sstream"
+#include "../include/Model.h"
+#include <fstream>
+#include <sstream>
 
 void lpe::Model::Copy(const Model& other)
 {

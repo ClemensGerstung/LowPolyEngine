@@ -1,4 +1,4 @@
-#include "Instance.h"
+#include "../include/Instance.h"
 #include <set>
 
 lpe::QueueFamilyIndices lpe::Instance::FindQueueFamilies(vk::PhysicalDevice device, const vk::SurfaceKHR& surface)

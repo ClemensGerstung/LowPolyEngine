@@ -1,5 +1,5 @@
-#include "Pipeline.h"
-#include "Vertex.h"
+#include "../include/Pipeline.h"
+#include "../include/Vertex.h"
 
 void lpe::Pipeline::CreateRenderPass(vk::Format swapChainImageFormat)
 {

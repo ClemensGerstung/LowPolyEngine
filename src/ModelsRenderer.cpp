@@ -1,4 +1,4 @@
-#include "ModelsRenderer.h"
+#include "../include/ModelsRenderer.h"
 
 bool lpe::ModelsRenderer::Entry::operator==(const Entry& e)
 {

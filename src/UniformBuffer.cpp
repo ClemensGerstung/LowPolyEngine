@@ -1,5 +1,5 @@
-#include "UniformBuffer.h"
-#include "ModelsRenderer.h"
+#include "../include/UniformBuffer.h"
+#include "../include/ModelsRenderer.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 lpe::UniformBuffer::UniformBuffer(const UniformBuffer& other)

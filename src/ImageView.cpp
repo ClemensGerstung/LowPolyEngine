@@ -1,4 +1,4 @@
-#include "ImageView.h"
+#include "../include/ImageView.h"
 
 lpe::ImageView::ImageView(const ImageView& other)
 {

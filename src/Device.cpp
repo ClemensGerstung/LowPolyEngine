@@ -1,5 +1,5 @@
-#include "Device.h"
-#include "Instance.h"
+#include "../include/Device.h"
+#include "../include/Instance.h"
 
 lpe::Device::Device(const Device& device)
 {
