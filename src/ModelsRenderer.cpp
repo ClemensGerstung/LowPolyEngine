@@ -100,7 +100,7 @@ lpe::Model* lpe::ModelsRenderer::AddObject(std::string path)
 	e.indicesLength = (uint32_t)e.model.GetIndices().size();
 
 	std::vector<Vertex> vertices = e.model.GetVertices();
-	auto indices = e.model.GetIndices((uint32_t)this->indices.size());
+	auto indices = e.model.GetIndices((uint32_t)this->vertices.size());
 
 	e.verticesLength = (uint32_t)vertices.size();
 	e.verticesStartIndex = (uint32_t)this->vertices.size();

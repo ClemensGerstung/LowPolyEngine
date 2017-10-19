@@ -109,7 +109,7 @@ void lpe::UniformBuffer::Update(const Camera& camera, const ModelsRenderer& mode
   {
     glm::mat4* modelMat = (glm::mat4*)(((uint64_t)uboDataDynamic.model + (i * dynamicAlignment)));
 
-    *modelMat = glm::translate(glm::mat4(), modelsRenderer[i].GetPosition());
+    *modelMat = glm::translate(glm::mat4(1.0f), modelsRenderer[i].GetPosition());
     *modelMat = *modelMat * modelsRenderer[i].GetModelMatrix(); // multiplying matrices should work fine...
   }
 
