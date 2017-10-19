@@ -22,6 +22,15 @@ target_include_directories(stb INTERFACE "external/stb")
 add_library(tinyobjloader INTERFACE)
 target_include_directories(tinyobjloader INTERFACE "external/tinyobjloader")
 
+# Assets
+file(GLOB_RECURSE shaders LowPolyEngine.Test/shaders/*)
+file(COPY ${shaders} DESTINATION shaders/)
+
+file(GLOB_RECURSE textures LowPolyEngine.Test/textures/*)
+file(COPY ${textures} DESTINATION textures/)
+
+file(GLOB_RECURSE models LowPolyEngine.Test/models/*)
+file(COPY ${models} DESTINATION models/)
 
 
 # Disable glfw Documentation, Tests and Examples
