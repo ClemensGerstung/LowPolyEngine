@@ -25,7 +25,7 @@ BEGIN_LPE
 	namespace helper
 	{
 #define ENGINE_NAME "LowPolyEngine"
-#define ENGINE_VERSION VK_MAKE_VERSION(0, 0, 1)
+#define ENGINE_VERSION VK_MAKE_VERSION(0, 1, 1)
 
 		VULKAN_HPP_INLINE LPE void ThrowIfNotSuccess(vk::Result result, std::string message)
 		{

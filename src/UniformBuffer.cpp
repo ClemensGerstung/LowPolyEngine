@@ -87,10 +87,9 @@ void lpe::UniformBuffer::Update(const Camera& camera, const ModelsRenderer& mode
 
   viewBuffer.CopyToBufferMemory(&ubo, sizeof(ubo));
 
-  // Calculate required alignment depending on device limits
-  // ¯\(°_o)/¯  https://github.com/SaschaWillems/Vulkan/blob/master/dynamicuniformbuffer/dynamicuniformbuffer.cpp#L414
+
   size_t uboAlignment = physicalDevice.getProperties().limits.minUniformBufferOffsetAlignment;
-  dynamicAlignment = (sizeof(glm::mat4) / uboAlignment) * uboAlignment + ((sizeof(glm::mat4) % uboAlignment) > 0 ? uboAlignment : 0);
+  dynamicAlignment = uboAlignment >= sizeof(glm::mat4x4) ? uboAlignment : alignof(glm::mat4x4);
   size_t bufferSize = modelsRenderer.EntriesCount() * dynamicAlignment;
 
   if (lastAllocSize != bufferSize)
