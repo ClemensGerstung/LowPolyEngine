@@ -12,19 +12,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="test\models\cube.ply">
+    <None Include="models\cube.ply">
       <Filter>models</Filter>
     </None>
-    <None Include="test\models\monkey.ply">
+    <None Include="models\monkey.ply">
       <Filter>models</Filter>
     </None>
-    <None Include="test\models\tree.ply">
+    <None Include="models\tree.ply">
       <Filter>models</Filter>
     </None>
-    <None Include="test\shaders\base.frag">
+    <None Include="shaders\base.frag">
       <Filter>shaders</Filter>
     </None>
-    <None Include="test\shaders\base.vert">
+    <None Include="shaders\base.vert">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>
