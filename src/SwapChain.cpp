@@ -1,5 +1,5 @@
-#include "SwapChain.h"
-#include "Instance.h"
+#include "../include/SwapChain.h"
+#include "../include/Instance.h"
 
 vk::SurfaceFormatKHR lpe::SwapChain::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats) const
 {

@@ -1,5 +1,6 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_ENABLE_EXPERIMENTAL
 
 #include <iostream>
 #include "lpe.h"
@@ -8,11 +9,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 
-
-
 int main()
 {
-  //lpe::settings.EnableValidationLayer = false;
+  lpe::settings.EnableValidationLayer = true;
 
   lpe::Window window;
   try
@@ -26,16 +25,18 @@ int main()
     //},
     //{ 0, 1, 2, 2, 3, 0 });
 
+    window.AddModel("models/tree.ply")->SetPosition({2, 0, 0});
     //lpe::Model* m = window.AddModel("models/tree.ply");
     //lpe::Model* m = window.AddModel("models/cube.ply");
     lpe::Model* m = window.AddModel("models/monkey.ply");
+    //m->SetPosition({ 2, 0, 0 });
     //m->SetPosition({ 1, 1, 1 });
     auto startTime = std::chrono::high_resolution_clock::now();
     
     while (window.IsOpen())
     {
       auto currentTime = std::chrono::high_resolution_clock::now();
-      float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
+      float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 10000.0f;
 
       auto transform = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
       m->SetTransform(transform);

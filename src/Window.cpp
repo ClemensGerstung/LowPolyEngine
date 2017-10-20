@@ -1,5 +1,5 @@
-#include "Window.h"
-#include "UniformBufferObject.h"
+#include "../include/Window.h"
+#include "../include/UniformBufferObject.h"
 
 #include <glm/ext.hpp>
 
@@ -19,7 +19,7 @@ void lpe::Window::Create()
   instance.Create(title);
   device = instance.CreateDevice(window);
   swapChain = device.CreateSwapChain(width, height);
-  defaultCamera = { {2,2,2}, {0,0,0}, swapChain.GetExtent(), 45, 0, 100 };
+  defaultCamera = { {3,0,0}, {0,0,0}, swapChain.GetExtent(), 45, 0.1f, 256 };
   commands = device.CreateCommands();
   modelsRenderer = device.CreateModelsRenderer(&commands);
 

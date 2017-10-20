@@ -1,5 +1,5 @@
-#include "Buffer.h"
-#include "Commands.h"
+#include "../include/Buffer.h"
+#include "../include/Commands.h"
 
 void lpe::Buffer::CreateBuffer(vk::DeviceSize size,
                                vk::BufferUsageFlags usage,

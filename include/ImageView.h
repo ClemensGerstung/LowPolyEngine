@@ -12,7 +12,6 @@ private:
   vk::Image image;
   vk::ImageView imageView;
   vk::DeviceMemory memory;
-
 public:
   ImageView() = default;
   ImageView(const ImageView& other);

@@ -1,4 +1,4 @@
-#include "ImageView.h"
+#include "../include/ImageView.h"
 
 lpe::ImageView::ImageView(const ImageView& other)
 {
@@ -70,11 +70,7 @@ lpe::ImageView::ImageView(vk::PhysicalDevice physicalDevice,
     1,
     vk::SampleCountFlagBits::e1,
     tiling,
-    usage,
-    vk::SharingMode::eExclusive,
-    0,
-    nullptr,
-    vk::ImageLayout::eUndefined
+    usage
   };
 
   auto result = this->device->createImage(&createInfo, nullptr, &image);

@@ -41,14 +41,14 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 #GLFW Build through CMake (Loads and links Vulkan as well)
 add_subdirectory("external/glfw" glfw_local)
 
-file(GLOB_RECURSE lpe_sources LowPolyEngine/*)
-file(GLOB_RECURSE lpe_test_sources LowPolyEngine.Test/*)
+file(GLOB_RECURSE lpe_sources src/*)
+file(GLOB_RECURSE lpe_test_sources test/*)
 #Source Files Maybe use GLOB?
 set(SOURCE_FILES ${lpe_sources} ${lpe_test_sources})
 
 include_directories(.)
-include_directories(LowPolyEngine)
-include_directories(LowPolyEngine.Test)
+include_directories(include)
+include_directories(test)
 
 add_executable(LowPolyEngine ${SOURCE_FILES})
 

@@ -1,5 +1,5 @@
-#include "Commands.h"
-#include "ModelsRenderer.h"
+#include "../include/Commands.h"
+#include "../include/ModelsRenderer.h"
 
 
 lpe::Commands::Commands(const Commands& other)

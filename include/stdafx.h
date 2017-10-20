@@ -3,6 +3,7 @@
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#define GLM_ENABLE_EXPERIMENTAL
 
 #define GLFW_INCLUDE_VULKAN
 
@@ -24,7 +25,7 @@ BEGIN_LPE
 	namespace helper
 	{
 #define ENGINE_NAME "LowPolyEngine"
-#define ENGINE_VERSION VK_MAKE_VERSION(0, 0, 1)
+#define ENGINE_VERSION VK_MAKE_VERSION(0, 1, 1)
 
 		VULKAN_HPP_INLINE LPE void ThrowIfNotSuccess(vk::Result result, std::string message)
 		{

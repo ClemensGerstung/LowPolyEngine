@@ -1,5 +1,4 @@
-#define GLM_ENABLE_EXPERIMENTAL
-#include "Camera.h"
+#include "../include/Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
@@ -68,6 +67,5 @@ glm::mat4 lpe::Camera::GetView() const
 
 glm::mat4 lpe::Camera::GetPerspective() const
 {
-  return glm::perspective(glm::radians(fov), swapChainExtent.width / (float)swapChainExtent.height, near, far);
-  //return glm::perspectiveFov(glm::radians(fov), (float)swapChainExtent.width, (float)swapChainExtent.height, near, far);
+  return glm::perspective(glm::radians(fov), static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height), near, far);
 }
