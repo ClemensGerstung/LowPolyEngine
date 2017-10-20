@@ -3,6 +3,9 @@ project(LowPolyEngine)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/output")
+
 
 # Static Library Link to make .exe copyable under Windows
 if (WIN32)
@@ -19,8 +22,6 @@ target_include_directories(glm INTERFACE "external/glm")
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE "external/stb")
 
-add_library(tinyobjloader INTERFACE)
-target_include_directories(tinyobjloader INTERFACE "external/tinyobjloader")
 
 # Assets
 file(GLOB_RECURSE shaders LowPolyEngine.Test/shaders/*)
@@ -53,5 +54,5 @@ include_directories(test)
 add_executable(LowPolyEngine ${SOURCE_FILES})
 
 # ${VULKAN_LIBRARY} gets definied by glfw
-target_link_libraries(LowPolyEngine glfw ${VULKAN_LIBRARY} glm stb tinyobjloader)
+target_link_libraries(LowPolyEngine glfw ${VULKAN_LIBRARY} glm stb)
 
