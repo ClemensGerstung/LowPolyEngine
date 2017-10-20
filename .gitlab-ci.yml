@@ -8,5 +8,4 @@ image: kradxn/vulkan-cmake-c14:latest
 
 build:
   script:
-    - cmake .
-    - make
+    - sh build.sh
