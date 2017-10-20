@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.5)
 project(LowPolyEngine)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
@@ -46,10 +46,11 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 #GLFW Build through CMake (Loads and links Vulkan as well)
 add_subdirectory("external/glfw" glfw_local)
 
+file(GLOB_RECURSE lpe_includes include/*)
 file(GLOB_RECURSE lpe_sources src/*)
 file(GLOB_RECURSE lpe_test_sources test/*)
 #Source Files Maybe use GLOB?
-set(SOURCE_FILES ${lpe_sources} ${lpe_test_sources})
+set(SOURCE_FILES ${lpe_sources} ${lpe_test_sources} ${lpe_includes})
 
 include_directories(include)
 include_directories(test)
