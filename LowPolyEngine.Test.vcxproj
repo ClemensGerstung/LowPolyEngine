@@ -94,7 +94,8 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\Libraries\Vulkan\Source\lib;D:\Libraries\Vulkan\Lib;D:\Projekte\LowPolyEngine\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;LowPolyEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vulkan-1.lib;LowPolyEngine.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -109,7 +110,9 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Libraries\Vulkan\Source\lib;D:\Libraries\Vulkan\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\Projekte\LowPolyEngine\x64\Debug;D:\Libraries\Vulkan\Source\lib;D:\Libraries\Vulkan\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;LowPolyEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -154,11 +157,11 @@
     <ClCompile Include="test\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="test\models\cube.ply" />
-    <None Include="test\models\monkey.ply" />
-    <None Include="test\models\tree.ply" />
-    <None Include="test\shaders\base.frag" />
-    <None Include="test\shaders\base.vert" />
+    <None Include="models\cube.ply" />
+    <None Include="models\monkey.ply" />
+    <None Include="models\tree.ply" />
+    <None Include="shaders\base.frag" />
+    <None Include="shaders\base.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

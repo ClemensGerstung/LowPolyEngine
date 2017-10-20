@@ -192,7 +192,7 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
 
   vk::PipelineViewportStateCreateInfo viewportState = { {}, 1, &viewport, 1, &scissor };
 
-  vk::PipelineRasterizationStateCreateInfo rasterizer = { {}, VK_FALSE, VK_FALSE, vk::PolygonMode::eLine, vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, VK_FALSE, 0, 0, 0, 1 };
+  vk::PipelineRasterizationStateCreateInfo rasterizer = { {}, VK_FALSE, VK_FALSE, vk::PolygonMode::eFill, vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, VK_FALSE, 0, 0, 0, 1 };
 
   //vk::PipelineRasterizationStateCreateInfo rasterizer = {};
   //rasterizer.polygonMode = vk::PolygonMode::eFill;
