@@ -50,13 +50,16 @@ file(GLOB_RECURSE lpe_includes include/*)
 file(GLOB_RECURSE lpe_sources src/*)
 file(GLOB_RECURSE lpe_test_sources test/*)
 #Source Files Maybe use GLOB?
-set(SOURCE_FILES ${lpe_sources} ${lpe_test_sources} ${lpe_includes})
+set(SOURCE_FILES ${lpe_sources} ${lpe_includes})
 
 include_directories(include)
 include_directories(test)
 
-add_executable(LowPolyEngine ${SOURCE_FILES})
+add_library(LowPolyEngine ${SOURCE_FILES})
 
 # ${VULKAN_LIBRARY} gets definied by glfw
 target_link_libraries(LowPolyEngine glfw ${VULKAN_LIBRARY} glm stb)
 
+add_executable(LowPolyEngineTest ${lpe_test_sources})
+
+target_link_libraries(LowPolyEngineTest LowPolyEngine)
