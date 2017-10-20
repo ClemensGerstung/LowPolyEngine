@@ -19,7 +19,7 @@ private:
   void Move(Model& other);
 
 public:
-  Model() = default;
+  Model();
   Model(const Model& other);
   Model(Model&& other);
   Model& operator=(const Model& other);

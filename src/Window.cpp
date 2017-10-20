@@ -10,7 +10,7 @@ void lpe::Window::Create()
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 	glfwWindowHint(GLFW_RESIZABLE, resizeable ? GLFW_TRUE : GLFW_FALSE);
-  
+	
 	window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 
   glfwSetWindowUserPointer(window, this);
