@@ -28,13 +28,10 @@ target_include_directories(stb INTERFACE "external/stb")
 
 
 # Assets
-file(GLOB_RECURSE shaders test/shaders/*)
+file(GLOB_RECURSE shaders shaders/*)
 file(COPY ${shaders} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders/)
 
-file(GLOB_RECURSE textures test/textures/*)
-file(COPY ${textures} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/textures/)
-
-file(GLOB_RECURSE models test/models/*)
+file(GLOB_RECURSE models models/*)
 file(COPY ${models} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models/)
 
 
