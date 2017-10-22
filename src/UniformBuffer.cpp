@@ -87,7 +87,6 @@ void lpe::UniformBuffer::Update(const Camera& camera, const ModelsRenderer& mode
 
   viewBuffer.CopyToBufferMemory(&ubo, sizeof(ubo));
 
-
   size_t uboAlignment = physicalDevice.getProperties().limits.minUniformBufferOffsetAlignment;
   dynamicAlignment = uboAlignment >= sizeof(glm::mat4x4) ? uboAlignment : alignof(glm::mat4x4);
   size_t bufferSize = modelsRenderer.EntriesCount() * dynamicAlignment;
