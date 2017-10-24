@@ -1,5 +1,6 @@
 #include "../include/Commands.h"
 #include "../include/ModelsRenderer.h"
+#include "../include/UniformBuffer.h"
 
 
 lpe::Commands::Commands(const Commands& other)
@@ -100,9 +101,9 @@ void lpe::Commands::ResetCommandBuffers()
 
 void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers,
                                          vk::Extent2D extent,
-                                         size_t dynamicAlignment,
-                                         lpe::Pipeline* pipeline,
-                                         ModelsRenderer* renderer)
+                                         lpe::Pipeline& pipeline,
+                                         ModelsRenderer& renderer, 
+																				 lpe::UniformBuffer& ubo)
 {
   commandBuffers.resize(framebuffers.size());
 
@@ -124,16 +125,16 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
     result = commandBuffers[i].begin(&beginInfo);
     helper::ThrowIfNotSuccess(result, "failed to begin commandbuffer!");
 
-    vk::RenderPassBeginInfo renderPassInfo = { pipeline->GetRenderPass(), framebuffers[i], { { 0, 0 }, extent }, (uint32_t)clearValues.size(), clearValues.data() };
+    vk::RenderPassBeginInfo renderPassInfo = { pipeline.GetRenderPass(), framebuffers[i], { { 0, 0 }, extent }, (uint32_t)clearValues.size(), clearValues.data() };
     commandBuffers[i].beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
 
-    commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline->GetPipelineRef());
+    commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline.GetPipelineRef());
 
-    if (*renderer->GetVertexBuffer() && *renderer->GetIndexBuffer())
+    if (renderer.GetVertexBuffer() && renderer.GetIndexBuffer())
     {
-      if (!*pipeline->GetDescriptorSetRef())
+      if (!*pipeline.GetDescriptorSetRef())
       {
-        pipeline->CreateDescriptorSet();
+        pipeline.CreateDescriptorSet();
       }
 
       vk::Viewport viewport = { 0, 0, (float)extent.width, (float)extent.height, 0.0, 1.0f };
@@ -142,28 +143,28 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
       vk::Rect2D scissor = { {0, 0}, extent };
       commandBuffers[i].setScissor(0, 1, &scissor);
 
+			commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineLayout(), 0, 1, pipeline.GetDescriptorSetRef(), 1, 0);
+
+
       VkDeviceSize offsets[1] = {0};
-      commandBuffers[i].bindVertexBuffers(0, 1, renderer->GetVertexBuffer(), offsets);
-      commandBuffers[i].bindIndexBuffer(*renderer->GetIndexBuffer(), 0, vk::IndexType::eUint32);
+      commandBuffers[i].bindVertexBuffers(0, 1, &renderer.GetVertexBuffer(), offsets);
+			commandBuffers[i].bindVertexBuffers(1, 1, &ubo.GetInstanceBuffer(), offsets);
+      commandBuffers[i].bindIndexBuffer(renderer.GetIndexBuffer(), 0, vk::IndexType::eUint32);
 
-      for (uint32_t j = 0; j < renderer->GetCount(); j++)
-      {
-        // One dynamic offset per dynamic descriptor to offset into the ubo containing all model matrices
-        uint32_t dynamicOffset = j * static_cast<uint32_t>(dynamicAlignment);
-        // Bind the descriptor set for rendering a mesh using the dynamic offset
-        commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                                             pipeline->GetPipelineLayout(),
-                                             0,
-                                             1,
-                                             pipeline->GetDescriptorSetRef(),
-                                             1,
-                                             &dynamicOffset);
-        
-        //commandBuffers[i].drawIndexedIndirect(*renderer->GetIndexBuffer(), 0, (uint32_t)renderer->GetIndices().size(), 0);
-        commandBuffers[i].drawIndexed((uint32_t)renderer->GetIndices().size(), 1, 0, 0, 0);
-      }
+			if (physicalDevice.getFeatures().multiDrawIndirect)
+			{
+				commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(), 0, renderer.GetCount(), sizeof(vk::DrawIndexedIndirectCommand));
+			}
+			else
+			{
+				auto cmds = renderer.GetDrawIndexedIndirectCommands();
 
-      
+				for (auto j = 0; j < cmds.size(); j++)
+				{
+					commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(), j * sizeof(vk::DrawIndexedIndirectCommand), 1, sizeof(vk::DrawIndexedIndirectCommand));
+				}
+			}
+
     }
 
     commandBuffers[i].endRenderPass();

@@ -77,7 +77,6 @@ void lpe::Pipeline::CreateDescriptorPool()
   std::vector<vk::DescriptorPoolSize> poolSizes =
   {
     {vk::DescriptorType::eUniformBuffer, 1},
-    {vk::DescriptorType::eUniformBufferDynamic, 1},
     {vk::DescriptorType::eCombinedImageSampler, 1}
   };
 
@@ -92,8 +91,7 @@ void lpe::Pipeline::CreateDescriptorSetLayout()
   std::vector<vk::DescriptorSetLayoutBinding> bindings = 
   {
     { 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex },
-    { 1, vk::DescriptorType::eUniformBufferDynamic, 1, vk::ShaderStageFlagBits::eVertex },
-    { 2, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment }
+    { 1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment }
   };
 
   vk::DescriptorSetLayoutCreateInfo layoutInfo = { {}, (uint32_t)bindings.size(), bindings.data() };
@@ -238,7 +236,7 @@ void lpe::Pipeline::CreateDescriptorSet()
   auto descriptors = ubo->GetDescriptors();
 
   // TODO: not quite nice but works for now!
-  if (std::any_of(descriptors.begin(), descriptors.end(), [](const vk::DescriptorBufferInfo* info) { return !info->buffer; }))
+  if (std::any_of(descriptors.begin(), descriptors.end(), [](const vk::DescriptorBufferInfo info) { return !info.buffer; }))
   {
     return;
   }
@@ -255,15 +253,9 @@ void lpe::Pipeline::CreateDescriptorSet()
   uboVSwds.dstBinding = 0;
   uboVSwds.descriptorCount = 1;
   uboVSwds.descriptorType = vk::DescriptorType::eUniformBuffer;
-  uboVSwds.pBufferInfo = descriptors[0];
+  uboVSwds.pBufferInfo = &descriptors[0];
 
-  vk::WriteDescriptorSet dynamicwds = { descriptorSet };
-  dynamicwds.dstBinding = 1;
-  dynamicwds.descriptorCount = 1;
-  dynamicwds.descriptorType = vk::DescriptorType::eUniformBufferDynamic;
-  dynamicwds.pBufferInfo = descriptors[1];
-
-  std::vector<vk::WriteDescriptorSet> descriptorWrites = { uboVSwds, dynamicwds };
+  std::vector<vk::WriteDescriptorSet> descriptorWrites = { uboVSwds };
 
   device->updateDescriptorSets((uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }

@@ -45,6 +45,21 @@ public:
   {
     return lookAt;
   }
+
+	void SetFoV(float fov)
+	{
+		this->fov = fov;
+	}
+
+	void ChangeFoV(float delta)
+	{
+		this->fov += delta;
+	}
+
+	float GetFoV()
+	{
+		return fov;
+	}
 };
 
 END_LPE

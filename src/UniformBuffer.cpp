@@ -7,8 +7,6 @@ lpe::UniformBuffer::UniformBuffer(const UniformBuffer& other)
   this->device.reset(other.device.get());
   this->physicalDevice = other.physicalDevice;
   this->ubo = other.ubo;
-  this->uboDataDynamic = other.uboDataDynamic;
-  this->dynamicBuffer = other.dynamicBuffer;
   this->viewBuffer = other.viewBuffer;
 }
 
@@ -19,8 +17,6 @@ lpe::UniformBuffer::UniformBuffer(UniformBuffer&& other)
 
   this->physicalDevice = other.physicalDevice;
   this->ubo = other.ubo;
-  this->uboDataDynamic = other.uboDataDynamic;
-  this->dynamicBuffer = std::move(other.dynamicBuffer);
   this->viewBuffer = std::move(other.viewBuffer);
 }
 
@@ -29,8 +25,6 @@ lpe::UniformBuffer& lpe::UniformBuffer::operator=(const UniformBuffer& other)
   this->device.reset(other.device.get());
   this->physicalDevice = other.physicalDevice;
   this->ubo = other.ubo;
-  this->uboDataDynamic = other.uboDataDynamic;
-  this->dynamicBuffer = other.dynamicBuffer;
   this->viewBuffer = other.viewBuffer;
 
   return *this;
@@ -43,8 +37,6 @@ lpe::UniformBuffer& lpe::UniformBuffer::operator=(UniformBuffer&& other)
 
   this->physicalDevice = other.physicalDevice;
   this->ubo = other.ubo;
-  this->uboDataDynamic = other.uboDataDynamic;
-  this->dynamicBuffer = std::move(other.dynamicBuffer);
   this->viewBuffer = std::move(other.viewBuffer);
 
   return *this;
@@ -52,83 +44,70 @@ lpe::UniformBuffer& lpe::UniformBuffer::operator=(UniformBuffer&& other)
 
 lpe::UniformBuffer::UniformBuffer(vk::PhysicalDevice physicalDevice,
                                   vk::Device* device,
-                                  const ModelsRenderer& modelsRenderer,
+                                  ModelsRenderer& modelsRenderer,
                                   const Camera& camera)
   : physicalDevice(physicalDevice)
 {
   this->device.reset(device);
 
   viewBuffer = {physicalDevice, device, sizeof(ubo)};
+	
   
   Update(camera, modelsRenderer);
 }
 
 lpe::UniformBuffer::~UniformBuffer()
 {
-  if (uboDataDynamic.model) 
-  {
-    helper::AlignedFree(uboDataDynamic.model);
-  }
-
   if(device)
   {
     device.release();
   }
 }
 
-void lpe::UniformBuffer::Update(const Camera& camera, const ModelsRenderer& modelsRenderer, bool force)
+void lpe::UniformBuffer::Update(const Camera& camera, ModelsRenderer& renderer)
 {
-  if (modelsRenderer.Empty())
-    return;
-
   ubo.view = camera.GetView();
   ubo.projection = camera.GetPerspective();
   ubo.projection[1][1] *= -1;
 
   viewBuffer.CopyToBufferMemory(&ubo, sizeof(ubo));
 
+	std::vector<glm::mat4x4> instanceData = {};
+	auto models = renderer.GetModels();
 
-  size_t uboAlignment = physicalDevice.getProperties().limits.minUniformBufferOffsetAlignment;
-  dynamicAlignment = uboAlignment >= sizeof(glm::mat4x4) ? uboAlignment : alignof(glm::mat4x4);
-  size_t bufferSize = modelsRenderer.EntriesCount() * dynamicAlignment;
+	for (const auto& model : models)
+	{
+		glm::mat4x4 data = glm::translate(glm::mat4(1.0f), model.GetPosition());
+		data = data * model.GetModelMatrix();
 
-  if (lastAllocSize != bufferSize)
-  {
-    helper::AlignedFree(uboDataDynamic.model);
+		instanceData.push_back(data);
+	}
 
-    uboDataDynamic.model = (glm::mat4*)helper::AlignedAlloc(bufferSize, dynamicAlignment);
-    assert(uboDataDynamic.model);
+	if (instanceData.size() > 0 && instanceData.size() * sizeof(glm::mat4x4) != instanceBuffer.GetSize())
+	{
+		vk::DeviceSize size = instanceData.size() * sizeof(glm::mat4x4);
 
-    // creating the buffer in every frame might be totally inefficient but otherwise it won't be totally dynamic
-    dynamicBuffer = { physicalDevice, device.get(), bufferSize, vk::BufferUsageFlagBits::eUniformBuffer, vk::MemoryPropertyFlagBits::eHostVisible };
-    lastAllocSize = bufferSize;
-  }
+		// totally dump and inefficient
+		instanceBuffer = { physicalDevice, device.get(), size, vk::BufferUsageFlagBits::eTransferSrc };
+	}
 
-  for (uint32_t i = 0; i < modelsRenderer.EntriesCount(); i++)
-  {
-    glm::mat4* modelMat = (glm::mat4*)(((uint64_t)uboDataDynamic.model + (i * dynamicAlignment)));
-
-    *modelMat = glm::translate(glm::mat4(1.0f), modelsRenderer[i].GetPosition());
-    *modelMat = *modelMat * modelsRenderer[i].GetModelMatrix(); // multiplying matrices should work fine...
-  }
-
-  dynamicBuffer.CopyToBufferMemory(uboDataDynamic.model);
-
-  vk::MappedMemoryRange mappedMemoryRange = { *dynamicBuffer.GetMemory(), 0, /*dynamicBuffer.GetSize()*/ VK_WHOLE_SIZE };
-  device->flushMappedMemoryRanges(1, &mappedMemoryRange);
+	if (instanceData.size() > 0)
+	{
+		instanceBuffer.CopyToBufferMemory(instanceData.data());
+	}
 }
 
-std::vector<vk::DescriptorBufferInfo*> lpe::UniformBuffer::GetDescriptors()
+std::vector<vk::DescriptorBufferInfo> lpe::UniformBuffer::GetDescriptors()
 {
-  return { viewBuffer.GetDescriptor(), dynamicBuffer.GetDescriptor() };
-}
-
-size_t lpe::UniformBuffer::GetDynamicAlignment() const
-{
-  return dynamicAlignment;
+  return { viewBuffer.GetDescriptor() };
 }
 
 void lpe::UniformBuffer::SetLightPosition(glm::vec3 light)
 {
   ubo.lightPos = light;
+}
+
+vk::Buffer lpe::UniformBuffer::GetInstanceBuffer()
+{
+	return instanceBuffer.GetBuffer();
 }

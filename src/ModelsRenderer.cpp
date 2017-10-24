@@ -13,6 +13,7 @@ void lpe::ModelsRenderer::Copy(const ModelsRenderer& other)
   this->entries = { other.entries };
   this->indexBuffer = { other.indexBuffer };
   this->vertexBuffer = { other.vertexBuffer };
+	this->indirectBuffer = { other.indirectBuffer };
 }
 
 void lpe::ModelsRenderer::Move(ModelsRenderer& other)
@@ -22,6 +23,7 @@ void lpe::ModelsRenderer::Move(ModelsRenderer& other)
   this->vertices = std::move(other.vertices);
   this->indexBuffer = std::move(other.indexBuffer);
   this->vertexBuffer = std::move(other.vertexBuffer);
+	this->indirectBuffer = std::move(other.indirectBuffer);
 }
 
 lpe::ModelsRenderer::ModelsRenderer(const ModelsRenderer& other)
@@ -54,6 +56,7 @@ lpe::ModelsRenderer::ModelsRenderer(vk::PhysicalDevice physicalDevice, vk::Devic
 
   indexBuffer = { physicalDevice, device };
   vertexBuffer = { physicalDevice, device };
+	indirectBuffer = { physicalDevice, device };
 }
 
 lpe::ModelsRenderer::~ModelsRenderer()
@@ -91,6 +94,20 @@ void lpe::ModelsRenderer::AddObject(std::vector<lpe::Vertex> vertices, std::vect
 lpe::Model lpe::ModelsRenderer::operator[](uint32_t index) const
 {
   return entries[index].model;
+}
+
+std::vector<vk::DrawIndexedIndirectCommand> lpe::ModelsRenderer::GetDrawIndexedIndirectCommands()
+{
+	std::vector<vk::DrawIndexedIndirectCommand> commands = {};
+
+	uint32_t i = 0;
+	for (auto& entry : entries)
+	{
+		vk::DrawIndexedIndirectCommand cmd = { entry.verticesLength, 1, entry.indicesStartIndex, (int32_t)entry.verticesStartIndex, i++ };
+		commands.push_back(cmd);
+	}
+
+	return commands;
 }
 
 lpe::Model* lpe::ModelsRenderer::AddObject(std::string path)
@@ -144,6 +161,9 @@ void lpe::ModelsRenderer::UpdateBuffer()
 
   indexBuffer.Create(*commands, indexSize, indices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
   vertexBuffer.Create(*commands, vertexSize, vertices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+
+	auto cmds = GetDrawIndexedIndirectCommands();
+	indirectBuffer.Create(*commands, cmds.size() * sizeof(vk::DrawIndexedIndirectCommand), cmds.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndirectBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 }
 
 std::vector<lpe::Model> lpe::ModelsRenderer::GetModels()
@@ -176,12 +196,12 @@ std::vector<uint32_t> lpe::ModelsRenderer::GetIndices() const
   return indices;
 }
 
-vk::Buffer* lpe::ModelsRenderer::GetVertexBuffer()
+vk::Buffer lpe::ModelsRenderer::GetVertexBuffer()
 {
   return vertexBuffer.GetBuffer();
 }
 
-vk::Buffer* lpe::ModelsRenderer::GetIndexBuffer()
+vk::Buffer lpe::ModelsRenderer::GetIndexBuffer()
 {
   return indexBuffer.GetBuffer();
 }
@@ -194,4 +214,9 @@ bool lpe::ModelsRenderer::Empty() const
 uint32_t lpe::ModelsRenderer::EntriesCount() const
 {
   return (uint32_t)entries.size();
+}
+
+vk::Buffer lpe::ModelsRenderer::GetIndirectBuffer()
+{
+	return indirectBuffer.GetBuffer();
 }

@@ -48,6 +48,8 @@ BEGIN_LPE
       descriptions[2] = {2, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)};
       //descriptions[3] = {3, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, texCoord)};
 
+			//descriptions[3] = { 3, 1, vk::Format::eR32G32B32A32Sfloat, 0 };
+
       return descriptions;
     }
 

@@ -19,7 +19,7 @@ void lpe::Window::Create()
   instance.Create(title);
   device = instance.CreateDevice(window);
   swapChain = device.CreateSwapChain(width, height);
-  defaultCamera = { {3,0,0}, {0,0,0}, swapChain.GetExtent(), 45, 0.1f, 256 };
+  defaultCamera = { {3,0,0}, {0,0,0}, swapChain.GetExtent(), 110, 0.1f, 256 };
   commands = device.CreateCommands();
   modelsRenderer = device.CreateModelsRenderer(&commands);
 
@@ -28,12 +28,22 @@ void lpe::Window::Create()
   graphicsPipeline = device.CreatePipeline(swapChain, &uniformBuffer);
   depthImage = commands.CreateDepthImage(swapChain.GetExtent(), graphicsPipeline.FindDepthFormat());
   auto frameBuffers = swapChain.CreateFrameBuffers(graphicsPipeline.GetRenderPassRef(), &depthImage);
-  commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), uniformBuffer.GetDynamicAlignment(), &graphicsPipeline, &modelsRenderer);
+  commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), graphicsPipeline, modelsRenderer, uniformBuffer);
 }
 
 void lpe::Window::KeyInputCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
   lpe::Window* pointer = reinterpret_cast<lpe::Window*>(glfwGetWindowUserPointer(window));
+
+	if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS)
+	{
+		pointer->defaultCamera.ChangeFoV(-5);
+	}
+	if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
+	{
+		pointer->defaultCamera.ChangeFoV(5);
+	}
+
 
   if(key == GLFW_KEY_W && action == GLFW_PRESS)
   {
@@ -85,8 +95,8 @@ void lpe::Window::KeyInputCallback(GLFWwindow* window, int key, int scancode, in
     pointer->defaultCamera.Rotate(15, { 0, 1, 0 });
   }
 
-  std::cout << glm::to_string(pointer->defaultCamera.GetPosition()) << " -> " << glm::to_string(pointer->defaultCamera.GetLookAt()) << std::endl;
-}
+  std::cout << glm::to_string(pointer->defaultCamera.GetPosition()) << " -> " << glm::to_string(pointer->defaultCamera.GetLookAt()) << " -> " << pointer->defaultCamera.GetFoV() << std::endl;
+} 
 
 
 lpe::Window::Window(uint32_t width, uint32_t height, std::string title, bool resizeable)
@@ -133,7 +143,7 @@ lpe::Model* lpe::Window::AddModel(std::string path)
   auto model = modelsRenderer.AddObject(path);
   uniformBuffer.Update(defaultCamera, modelsRenderer);
   commands.ResetCommandBuffers();
-  commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), uniformBuffer.GetDynamicAlignment(), &graphicsPipeline, &modelsRenderer);
+  commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), graphicsPipeline, modelsRenderer, uniformBuffer);
   
   return model;
 }

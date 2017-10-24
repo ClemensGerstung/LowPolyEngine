@@ -18,15 +18,9 @@ private:
   std::unique_ptr<vk::Device> device;
 
   UniformBufferObject ubo;
-  size_t dynamicAlignment;
-  size_t lastAllocSize = 0;
-
-  struct UboDataDynamic {
-    glm::mat4 *model = nullptr;
-  } uboDataDynamic;
 
   Buffer viewBuffer;
-  Buffer dynamicBuffer;
+	Buffer instanceBuffer;
 
 public:
   UniformBuffer() = default;
@@ -35,17 +29,17 @@ public:
   UniformBuffer& operator=(const UniformBuffer& other);
   UniformBuffer& operator=(UniformBuffer&& other);
 
-  UniformBuffer(vk::PhysicalDevice physicalDevice, vk::Device* device, const ModelsRenderer& modelsRenderer, const Camera& camera);
+  UniformBuffer(vk::PhysicalDevice physicalDevice, vk::Device* device, ModelsRenderer& modelsRenderer, const Camera& camera);
 
   ~UniformBuffer();
 
-  void Update(const Camera& camera, const ModelsRenderer& models, bool force = false);
+  void Update(const Camera& camera, ModelsRenderer& renderer);
 
-  std::vector<vk::DescriptorBufferInfo*> GetDescriptors();
-
-  size_t GetDynamicAlignment() const;
+  std::vector<vk::DescriptorBufferInfo> GetDescriptors();
 
   void SetLightPosition(glm::vec3 light);
+
+	vk::Buffer GetInstanceBuffer();
 };
 
 END_LPE

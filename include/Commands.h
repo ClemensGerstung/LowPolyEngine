@@ -30,7 +30,7 @@ public:
   ~Commands();
 
   void ResetCommandBuffers();
-  void CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers, vk::Extent2D extent, size_t dynamicAlignment, lpe::Pipeline* pipeline, ModelsRenderer* renderer);
+  void CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers, vk::Extent2D extent, lpe::Pipeline& pipeline, ModelsRenderer& renderer, lpe::UniformBuffer& ubo);
 
   vk::CommandBuffer BeginSingleTimeCommands() const;
   void EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const;

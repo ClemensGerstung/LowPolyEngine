@@ -178,6 +178,7 @@ void lpe::Device::SubmitFrame(const std::vector<vk::SwapchainKHR>& swapChains, u
   vk::PresentInfoKHR presentInfo = { 1, signalSemaphores, (uint32_t)swapChains.size(), swapChains.data(), imageIndex };
 
   auto result = presentQueue.presentKHR(&presentInfo);
+	//auto result = vk::Result::eSuccess;
 
   if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
   {
@@ -191,7 +192,7 @@ void lpe::Device::SubmitFrame(const std::vector<vk::SwapchainKHR>& swapChains, u
   presentQueue.waitIdle();
 }
 
-lpe::UniformBuffer lpe::Device::CreateUniformBuffer(const ModelsRenderer& modelsRenderer, const Camera& camera)
+lpe::UniformBuffer lpe::Device::CreateUniformBuffer(ModelsRenderer& modelsRenderer, const Camera& camera)
 {
   return { physicalDevice, &device, modelsRenderer, camera };
 }
