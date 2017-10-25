@@ -88,7 +88,7 @@ void lpe::UniformBuffer::Update(const Camera& camera, ModelsRenderer& renderer)
 		vk::DeviceSize size = instanceData.size() * sizeof(glm::mat4x4);
 
 		// totally dump and inefficient
-		instanceBuffer = { physicalDevice, device.get(), size, vk::BufferUsageFlagBits::eTransferSrc };
+		instanceBuffer = { physicalDevice, device.get(), size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eStorageBuffer };
 	}
 
 	if (instanceData.size() > 0)

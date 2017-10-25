@@ -175,12 +175,12 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
   vk::PipelineShaderStageCreateInfo vertexShaderStageInfo = { {}, vk::ShaderStageFlagBits::eVertex, vertexShaderModule, "main" };
   vk::PipelineShaderStageCreateInfo fragmentShaderStageInfo = { {}, vk::ShaderStageFlagBits::eFragment, fragmentShaderModule, "main" };
 
-  auto bindingDescription = Vertex::getBindingDescription();
+  auto bindingDescriptions = Vertex::getBindingDescription();
   auto attributeDescriptions = Vertex::getAttributeDescriptions();
 
   std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStages = { vertexShaderStageInfo, fragmentShaderStageInfo };
 
-  vk::PipelineVertexInputStateCreateInfo vertexInputInfo = { {}, 1, &bindingDescription, (uint32_t)attributeDescriptions.size(), attributeDescriptions.data() };
+  vk::PipelineVertexInputStateCreateInfo vertexInputInfo = { {}, (uint32_t)bindingDescriptions.size(), bindingDescriptions.data(), (uint32_t)attributeDescriptions.size(), attributeDescriptions.data() };
 
   vk::PipelineInputAssemblyStateCreateInfo inputAssembly = { {}, vk::PrimitiveTopology::eTriangleList, VK_FALSE };
 

@@ -143,10 +143,10 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
       vk::Rect2D scissor = { {0, 0}, extent };
       commandBuffers[i].setScissor(0, 1, &scissor);
 
-			commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineLayout(), 0, 1, pipeline.GetDescriptorSetRef(), 1, 0);
+			std::array<uint32_t, 1> dynOffsets = { 0 };
+			commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineLayout(), 0, 1, pipeline.GetDescriptorSetRef(), dynOffsets.size(), dynOffsets.data());
 
-
-      VkDeviceSize offsets[1] = {0};
+			VkDeviceSize offsets[1] = { 0 };
       commandBuffers[i].bindVertexBuffers(0, 1, &renderer.GetVertexBuffer(), offsets);
 			commandBuffers[i].bindVertexBuffers(1, 1, &ubo.GetInstanceBuffer(), offsets);
       commandBuffers[i].bindIndexBuffer(renderer.GetIndexBuffer(), 0, vk::IndexType::eUint32);

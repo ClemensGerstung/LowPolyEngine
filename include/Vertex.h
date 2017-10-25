@@ -35,9 +35,15 @@ BEGIN_LPE
       }
     }
 
-    static vk::VertexInputBindingDescription getBindingDescription()
+    static std::vector<vk::VertexInputBindingDescription> getBindingDescription()
     {
-      return {0, sizeof(Vertex), vk::VertexInputRate::eVertex};
+			std::vector<vk::VertexInputBindingDescription> bindings = 
+			{
+				{ 0, sizeof(Vertex), vk::VertexInputRate::eVertex },
+				{ 1, sizeof(glm::mat4x4), vk::VertexInputRate::eInstance }
+			};
+
+      return bindings;
     }
 
     static decltype(auto) getAttributeDescriptions()

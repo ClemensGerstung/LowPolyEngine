@@ -11,7 +11,7 @@
 
 int main()
 {
-  lpe::settings.EnableValidationLayer = true;
+  lpe::settings.EnableValidationLayer = false;
 
   lpe::Window window;
   try
