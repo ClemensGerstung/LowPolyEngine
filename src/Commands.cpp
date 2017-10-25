@@ -147,8 +147,10 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
 			commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineLayout(), 0, 1, pipeline.GetDescriptorSetRef(), dynOffsets.size(), dynOffsets.data());
 
 			VkDeviceSize offsets[1] = { 0 };
-      commandBuffers[i].bindVertexBuffers(0, 1, &renderer.GetVertexBuffer(), offsets);
-			commandBuffers[i].bindVertexBuffers(1, 1, &ubo.GetInstanceBuffer(), offsets);
+			vk::Buffer vertexBuffer = renderer.GetVertexBuffer();
+			vk::Buffer instanceBuffer = ubo.GetInstanceBuffer();
+      commandBuffers[i].bindVertexBuffers(0, 1, &vertexBuffer, offsets);
+			commandBuffers[i].bindVertexBuffers(1, 1, &instanceBuffer, offsets);
       commandBuffers[i].bindIndexBuffer(renderer.GetIndexBuffer(), 0, vk::IndexType::eUint32);
 
 			if (physicalDevice.getFeatures().multiDrawIndirect)
