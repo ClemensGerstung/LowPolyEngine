@@ -115,6 +115,28 @@ lpe::Device::~Device()
   }
 }
 
+vk::Format lpe::Device::FindDepthFormat() const
+{
+  vk::FormatFeatureFlags features = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
+
+  for (vk::Format format : {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint})
+  {
+    auto props = physicalDevice.getFormatProperties(format);
+
+    if ((props.linearTilingFeatures & features) == features)
+    {
+      return format;
+    }
+
+    if ((props.optimalTilingFeatures & features) == features)
+    {
+      return format;
+    }
+  }
+
+  throw std::runtime_error("failed to find supported format!");
+}
+
 lpe::SwapChain lpe::Device::CreateSwapChain(uint32_t width, uint32_t height)
 {
   return {physicalDevice, std::make_unique<vk::Device>(device), surface, indices, width, height};
@@ -128,6 +150,11 @@ lpe::Commands lpe::Device::CreateCommands()
 lpe::ModelsRenderer lpe::Device::CreateModelsRenderer(Commands* commands)
 {
   return { physicalDevice, &device, commands };
+}
+
+lpe::RenderPass lpe::Device::CreateRenderPass(vk::Format swapChainImageFormat)
+{
+  return { std::unique_ptr<vk::Device>(&device), swapChainImageFormat, FindDepthFormat() };
 }
 
 vk::SubmitInfo lpe::Device::PrepareFrame(const SwapChain& swapChain, uint32_t* imageIndex)
@@ -197,9 +224,9 @@ lpe::UniformBuffer lpe::Device::CreateUniformBuffer(ModelsRenderer& modelsRender
   return { physicalDevice, &device, modelsRenderer, camera };
 }
 
-lpe::Pipeline lpe::Device::CreatePipeline(const SwapChain& swapChain, UniformBuffer* ubo)
+lpe::Pipeline lpe::Device::CreatePipeline(const SwapChain& swapChain, RenderPass& renderPass, UniformBuffer* ubo)
 {
-  return {physicalDevice, &device, &pipelineCache, swapChain.GetImageFormat(), swapChain.GetExtent(), ubo};
+  return {physicalDevice, &device, pipelineCache, renderPass, swapChain.GetExtent(), ubo};
 }
 
 lpe::Device::operator bool() const

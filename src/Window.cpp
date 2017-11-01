@@ -25,10 +25,12 @@ void lpe::Window::Create()
 
   uniformBuffer = device.CreateUniformBuffer(modelsRenderer, defaultCamera);
   uniformBuffer.SetLightPosition({ 2, 2, 2 });
-  graphicsPipeline = device.CreatePipeline(swapChain, &uniformBuffer);
-  depthImage = commands.CreateDepthImage(swapChain.GetExtent(), graphicsPipeline.FindDepthFormat());
-  auto frameBuffers = swapChain.CreateFrameBuffers(graphicsPipeline.GetRenderPassRef(), &depthImage);
-  commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), graphicsPipeline, modelsRenderer, uniformBuffer);
+  renderPass = device.CreateRenderPass(swapChain.GetImageFormat());
+  graphicsPipeline = device.CreatePipeline(swapChain, renderPass, &uniformBuffer);
+  depthImage = commands.CreateDepthImage(swapChain.GetExtent(), device.FindDepthFormat());
+  
+  auto frameBuffers = swapChain.CreateFrameBuffers(renderPass, &depthImage);
+  commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
 }
 
 void lpe::Window::KeyInputCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -143,7 +145,7 @@ lpe::Model* lpe::Window::AddModel(std::string path)
   auto model = modelsRenderer.AddObject(path);
   uniformBuffer.Update(defaultCamera, modelsRenderer);
   commands.ResetCommandBuffers();
-  commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), graphicsPipeline, modelsRenderer, uniformBuffer);
+  commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
   
   return model;
 }

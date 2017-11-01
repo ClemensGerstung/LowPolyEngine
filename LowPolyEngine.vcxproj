@@ -22,13 +22,13 @@
     <ProjectGuid>{A1E50D46-0E66-4AC7-B5C4-440A0D45E1E2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>LowPolyEngine</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -41,7 +41,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -148,8 +148,10 @@
     <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\ModelsRenderer.cpp" />
     <ClCompile Include="src\Pipeline.cpp" />
+    <ClCompile Include="src\RenderPass.cpp" />
     <ClCompile Include="src\SwapChain.cpp" />
     <ClCompile Include="src\UniformBuffer.cpp" />
+    <ClCompile Include="src\Vertex.cpp" />
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -164,6 +166,7 @@
     <ClInclude Include="include\ModelsRenderer.h" />
     <ClInclude Include="include\Pipeline.h" />
     <ClInclude Include="include\QueueFamilyIndices.h" />
+    <ClInclude Include="include\RenderPass.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\SwapChain.h" />
     <ClInclude Include="include\SwapChainSupportDetails.h" />

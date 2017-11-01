@@ -19,52 +19,13 @@ BEGIN_LPE
     //glm::vec2 texCoord;
 
     Vertex() = default;
-    Vertex(std::initializer_list<glm::vec3> list)
-    {
-      if(list.size() == 3)
-      {
-        position = *list.begin();
-        color = *(list.begin() + 1);
-        normals = *(list.begin() + 2);
-      }
+    Vertex(std::initializer_list<glm::vec3> list);
 
-      if (list.size() == 2)
-      {
-        position = *list.begin();
-        color = *(list.begin() + 1);
-      }
-    }
+    static std::vector<vk::VertexInputBindingDescription> GetBindingDescription();
 
-    static std::vector<vk::VertexInputBindingDescription> getBindingDescription()
-    {
-			std::vector<vk::VertexInputBindingDescription> bindings = 
-			{
-				{ 0, sizeof(Vertex), vk::VertexInputRate::eVertex },
-				{ 1, sizeof(glm::mat4x4), vk::VertexInputRate::eInstance }
-			};
+    static std::array<vk::VertexInputAttributeDescription, 3> GetAttributeDescriptions();
 
-      return bindings;
-    }
-
-    static decltype(auto) getAttributeDescriptions()
-    {
-      std::array<vk::VertexInputAttributeDescription, 3> descriptions = {};
-      descriptions[0] = {0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position)};
-      descriptions[1] = {1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normals)};
-      descriptions[2] = {2, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)};
-      //descriptions[3] = {3, 0, vk::Format::eR32G32Sfloat, offsetof(Vertex, texCoord)};
-
-			//descriptions[3] = { 3, 1, vk::Format::eR32G32B32A32Sfloat, 0 };
-
-      return descriptions;
-    }
-
-    bool operator==(const Vertex& other) const
-    {
-      return position == other.position &&
-        normals == other.normals &&
-        color == other.color;
-    }
+    bool operator==(const Vertex& other) const;
   };
 
 END_LPE
@@ -76,7 +37,11 @@ namespace std
   {
     size_t operator()(lpe::Vertex const& vertex) const
     {
-      return ((hash<glm::vec3>()(vertex.position) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^ (hash<glm::vec3>()(vertex.normals) << 1);
+      auto hash1 = hash<glm::vec3>()(vertex.position);
+      auto hash2 = hash<glm::vec3>()(vertex.color);
+      auto hash3 = hash<glm::vec3>()(vertex.normals);
+
+      return ((hash1 ^ (hash2 << 1)) >> 1) ^ (hash3 << 1);
     }
   };
 }

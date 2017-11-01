@@ -1,77 +1,6 @@
 #include "../include/Pipeline.h"
 #include "../include/Vertex.h"
 
-void lpe::Pipeline::CreateRenderPass(vk::Format swapChainImageFormat)
-{
-  vk::AttachmentDescription colorAttachment =
-  {
-    {},
-    swapChainImageFormat,
-    vk::SampleCountFlagBits::e1,
-    vk::AttachmentLoadOp::eClear,
-    vk::AttachmentStoreOp::eStore,
-    vk::AttachmentLoadOp::eDontCare,
-    vk::AttachmentStoreOp::eDontCare,
-    vk::ImageLayout::eUndefined,
-    vk::ImageLayout::ePresentSrcKHR
-  };
-  vk::AttachmentDescription depthAttachment =
-  {
-    {},
-    FindDepthFormat(),
-    vk::SampleCountFlagBits::e1,
-    vk::AttachmentLoadOp::eClear,
-    vk::AttachmentStoreOp::eStore,
-    vk::AttachmentLoadOp::eClear,
-    vk::AttachmentStoreOp::eDontCare,
-    vk::ImageLayout::eUndefined,
-    vk::ImageLayout::eDepthStencilAttachmentOptimal
-  };
-
-  vk::AttachmentReference colorAttachmentRef =
-  {
-    0,
-    vk::ImageLayout::eColorAttachmentOptimal
-  };
-
-  vk::AttachmentReference depthAttachmentRef =
-  {
-    1,
-    vk::ImageLayout::eDepthStencilAttachmentOptimal
-  };
-
-  vk::SubpassDescription subpass = { {}, vk::PipelineBindPoint::eGraphics };
-  subpass.colorAttachmentCount = 1;
-  subpass.pColorAttachments = &colorAttachmentRef;
-  subpass.pDepthStencilAttachment = &depthAttachmentRef;
-
-  vk::SubpassDependency dependency =
-  {
-    VK_SUBPASS_EXTERNAL,
-    0,
-    vk::PipelineStageFlagBits::eColorAttachmentOutput,
-    vk::PipelineStageFlagBits::eColorAttachmentOutput,
-    {},
-    vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite
-  };
-
-  std::array<vk::AttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
-
-  vk::RenderPassCreateInfo renderPassInfo =
-  {
-    {},
-    (uint32_t)attachments.size(),
-    attachments.data(),
-    1,
-    &subpass,
-    1,
-    &dependency
-  };
-
-  auto result = device->createRenderPass(&renderPassInfo, nullptr, &renderPass);
-  helper::ThrowIfNotSuccess(result, "failed to create render pass!");
-}
-
 void lpe::Pipeline::CreateDescriptorPool()
 {
   std::vector<vk::DescriptorPoolSize> poolSizes =
@@ -112,33 +41,6 @@ vk::ShaderModule lpe::Pipeline::CreateShaderModule(const std::vector<char>& code
   return shaderModule;
 }
 
-vk::Format lpe::Pipeline::FindDepthFormat() const
-{
-  vk::FormatFeatureFlags features = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
-
-  for (vk::Format format : {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint})
-  {
-    auto props = physicalDevice.getFormatProperties(format);
-
-    if ((props.linearTilingFeatures & features) == features)
-    {
-      return format;
-    }
-
-    if ((props.optimalTilingFeatures & features) == features)
-    {
-      return format;
-    }
-  }
-
-  throw std::runtime_error("failed to find supported format!");
-}
-
-vk::RenderPass* lpe::Pipeline::GetRenderPassRef()
-{
-  return &renderPass;
-}
-
 vk::Pipeline* lpe::Pipeline::GetPipelineRef()
 {
   return &pipeline;
@@ -159,12 +61,7 @@ vk::DescriptorSet* lpe::Pipeline::GetDescriptorSetRef()
   return &descriptorSet;
 }
 
-vk::RenderPass lpe::Pipeline::GetRenderPass() const
-{
-  return renderPass;
-}
-
-void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
+void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent, vk::RenderPass renderPass)
 {
   auto vertexShaderCode = lpe::helper::ReadSPIRVFile("shaders/base.vert.spv");
   auto fragmentShaderCode = lpe::helper::ReadSPIRVFile("shaders/base.frag.spv");
@@ -175,8 +72,8 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
   vk::PipelineShaderStageCreateInfo vertexShaderStageInfo = { {}, vk::ShaderStageFlagBits::eVertex, vertexShaderModule, "main" };
   vk::PipelineShaderStageCreateInfo fragmentShaderStageInfo = { {}, vk::ShaderStageFlagBits::eFragment, fragmentShaderModule, "main" };
 
-  auto bindingDescriptions = Vertex::getBindingDescription();
-  auto attributeDescriptions = Vertex::getAttributeDescriptions();
+  auto bindingDescriptions = Vertex::GetBindingDescription();
+  auto attributeDescriptions = Vertex::GetAttributeDescriptions();
 
   std::array<vk::PipelineShaderStageCreateInfo, 2> shaderStages = { vertexShaderStageInfo, fragmentShaderStageInfo };
 
@@ -225,7 +122,7 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent)
 
   vk::GraphicsPipelineCreateInfo pipelineInfo = { {}, (uint32_t)shaderStages.size(), shaderStages.data(), &vertexInputInfo, &inputAssembly, nullptr, &viewportState, &rasterizer, &multisampling, &depthStencil, &colorBlending, &dynamicState, pipelineLayout, renderPass };
 
-  pipeline = device->createGraphicsPipeline(*cache, pipelineInfo);
+  pipeline = device->createGraphicsPipeline(cache, pipelineInfo);
 
   device->destroyShaderModule(vertexShaderModule);
   device->destroyShaderModule(fragmentShaderModule);
@@ -264,10 +161,9 @@ void lpe::Pipeline::Copy(const Pipeline& other)
 {
   this->physicalDevice = other.physicalDevice;
   this->device.reset(other.device.get());
-  this->cache.reset(other.cache.get());
   this->ubo.reset(other.ubo.get());
 
-  this->renderPass = other.renderPass;
+  this->cache = other.cache;
   this->descriptorSetLayout = other.descriptorSetLayout;
   this->pipelineLayout = other.pipelineLayout;
   this->pipeline = other.pipeline;
@@ -279,7 +175,6 @@ void lpe::Pipeline::Move(Pipeline& other)
 {
   Copy(other);
   other.device.release();
-  other.cache.release();
   other.ubo.release();
 }
 
@@ -307,21 +202,19 @@ lpe::Pipeline& lpe::Pipeline::operator=(Pipeline&& other)
 
 lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
                         vk::Device* device,
-                        vk::PipelineCache* cache,
-                        vk::Format swapChainImageFormat,
+                        vk::PipelineCache cache,
+                        vk::RenderPass renderPass,
                         vk::Extent2D swapChainExtent,
                         lpe::UniformBuffer* uniformBuffer)
-  : physicalDevice(physicalDevice)
+  : physicalDevice(physicalDevice),
+    cache(cache)
 {
   this->device.reset(device);
-  this->cache.reset(cache);
   this->ubo.reset(uniformBuffer);
-
-  CreateRenderPass(swapChainImageFormat);
 
   CreateDescriptorSetLayout();
 
-  CreatePipeline(swapChainExtent);
+  CreatePipeline(swapChainExtent, renderPass);
 
   CreateDescriptorPool();
 
@@ -335,18 +228,8 @@ lpe::Pipeline::~Pipeline()
     ubo.release();
   }
 
-  if(cache)
-  {
-    cache.release();
-  }
-
   if(device)
   {
-    if(renderPass)
-    {
-      device->destroyRenderPass(renderPass);
-    }
-
     if(descriptorSetLayout)
     {
       device->destroyDescriptorSetLayout(descriptorSetLayout);

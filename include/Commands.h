@@ -6,8 +6,8 @@
 #include "Pipeline.h"
 
 BEGIN_LPE
-
-class ModelsRenderer;
+  class RenderPass;
+  class ModelsRenderer;
 
 class Commands
 {
@@ -30,7 +30,7 @@ public:
   ~Commands();
 
   void ResetCommandBuffers();
-  void CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers, vk::Extent2D extent, lpe::Pipeline& pipeline, ModelsRenderer& renderer, lpe::UniformBuffer& ubo);
+  void CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers, vk::Extent2D extent, RenderPass& renderPass, lpe::Pipeline& pipeline, ModelsRenderer& renderer, lpe::UniformBuffer& ubo);
 
   vk::CommandBuffer BeginSingleTimeCommands() const;
   void EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const;

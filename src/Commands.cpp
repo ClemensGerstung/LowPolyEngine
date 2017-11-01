@@ -1,6 +1,7 @@
 #include "../include/Commands.h"
 #include "../include/ModelsRenderer.h"
 #include "../include/UniformBuffer.h"
+#include "../include/RenderPass.h"
 
 
 lpe::Commands::Commands(const Commands& other)
@@ -101,9 +102,10 @@ void lpe::Commands::ResetCommandBuffers()
 
 void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers,
                                          vk::Extent2D extent,
-                                         lpe::Pipeline& pipeline,
+                                         RenderPass& renderPass,
+                                         Pipeline& pipeline,
                                          ModelsRenderer& renderer, 
-																				 lpe::UniformBuffer& ubo)
+																				 UniformBuffer& ubo)
 {
   commandBuffers.resize(framebuffers.size());
 
@@ -125,14 +127,14 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
     result = commandBuffers[i].begin(&beginInfo);
     helper::ThrowIfNotSuccess(result, "failed to begin commandbuffer!");
 
-    vk::RenderPassBeginInfo renderPassInfo = { pipeline.GetRenderPass(), framebuffers[i], { { 0, 0 }, extent }, (uint32_t)clearValues.size(), clearValues.data() };
+    vk::RenderPassBeginInfo renderPassInfo = { renderPass, framebuffers[i], { { 0, 0 }, extent }, (uint32_t)clearValues.size(), clearValues.data() };
     commandBuffers[i].beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
 
     commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline.GetPipelineRef());
 
     if (renderer.GetVertexBuffer() && renderer.GetIndexBuffer())
     {
-      if (!*pipeline.GetDescriptorSetRef())
+      if (!pipeline.GetDescriptorSet())
       {
         pipeline.CreateDescriptorSet();
       }
