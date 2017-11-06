@@ -29,11 +29,11 @@ public:
   UniformBuffer& operator=(const UniformBuffer& other);
   UniformBuffer& operator=(UniformBuffer&& other);
 
-  UniformBuffer(vk::PhysicalDevice physicalDevice, vk::Device* device, ModelsRenderer& modelsRenderer, const Camera& camera);
+  UniformBuffer(vk::PhysicalDevice physicalDevice, vk::Device* device, ModelsRenderer& modelsRenderer, const Camera& camera, const Commands& commands);
 
   ~UniformBuffer();
 
-  void Update(const Camera& camera, ModelsRenderer& renderer);
+  void Update(const Camera& camera, ModelsRenderer& renderer, const Commands& commands);
 
   std::vector<vk::DescriptorBufferInfo> GetDescriptors();
 

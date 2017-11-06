@@ -219,9 +219,9 @@ void lpe::Device::SubmitFrame(const std::vector<vk::SwapchainKHR>& swapChains, u
   presentQueue.waitIdle();
 }
 
-lpe::UniformBuffer lpe::Device::CreateUniformBuffer(ModelsRenderer& modelsRenderer, const Camera& camera)
+lpe::UniformBuffer lpe::Device::CreateUniformBuffer(ModelsRenderer& modelsRenderer, const Camera& camera, const Commands& commands)
 {
-  return { physicalDevice, &device, modelsRenderer, camera };
+  return { physicalDevice, &device, modelsRenderer, camera, commands};
 }
 
 lpe::Pipeline lpe::Device::CreatePipeline(const SwapChain& swapChain, RenderPass& renderPass, UniformBuffer* ubo)

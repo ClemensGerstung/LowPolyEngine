@@ -48,7 +48,7 @@ public:
 
   void UpdateDescriptorSets();
 
-  vk::Pipeline* GetPipelineRef();
+  vk::Pipeline GetPipeline() const;
   vk::PipelineLayout GetPipelineLayout() const;
   vk::DescriptorSet GetDescriptorSet() const;
   vk::DescriptorSet* GetDescriptorSetRef();

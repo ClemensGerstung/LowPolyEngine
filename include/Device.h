@@ -42,7 +42,7 @@ public:
 
   SwapChain CreateSwapChain(uint32_t width, uint32_t height);
   Commands CreateCommands();
-  UniformBuffer CreateUniformBuffer(ModelsRenderer& modelsRenderer, const Camera& camera);
+  UniformBuffer CreateUniformBuffer(ModelsRenderer& modelsRenderer, const Camera& camera, const Commands& commands);
   Pipeline CreatePipeline(const SwapChain& swapChain, RenderPass& renderPass, UniformBuffer* ubo);
   ModelsRenderer CreateModelsRenderer(Commands* commands);
   RenderPass CreateRenderPass(vk::Format swapChainImageFormat);

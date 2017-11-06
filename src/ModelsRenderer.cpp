@@ -134,8 +134,8 @@ lpe::Model* lpe::ModelsRenderer::AddObject(std::string path)
 
 	e.verticesLength = (uint32_t)vertices.size();
 	e.verticesStartIndex = (uint32_t)this->vertices.size();
-	e.indicesStartIndex = (uint32_t)indices.size();
-  e.model.SetInstanceIndex((uint32_t)entries.size());
+	e.indicesStartIndex = (uint32_t)this->indices.size();
+  //e.model.SetInstanceIndex((uint32_t)entries.size());
 
 	entries.push_back(e);
 
@@ -177,7 +177,7 @@ void lpe::ModelsRenderer::UpdateBuffer()
   vertexBuffer.Create(*commands, vertexSize, vertices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
 	auto cmds = GetDrawIndexedIndirectCommands();
-	indirectBuffer.Create(*commands, cmds.size() * sizeof(vk::DrawIndexedIndirectCommand), cmds.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndirectBuffer | vk::BufferUsageFlagBits::eStorageBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+	indirectBuffer.Create(*commands, cmds.size() * sizeof(vk::DrawIndexedIndirectCommand), cmds.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndirectBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 }
 
 std::vector<lpe::Model> lpe::ModelsRenderer::GetModels()

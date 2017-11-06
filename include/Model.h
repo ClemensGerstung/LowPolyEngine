@@ -8,7 +8,10 @@ BEGIN_LPE
 
 struct InstanceData
 {
-  glm::mat4 modelMatrix;
+  glm::vec4 row1;
+  glm::vec4 row2;
+  glm::vec4 row3;
+  glm::vec4 row4;
 };
 
 class Model

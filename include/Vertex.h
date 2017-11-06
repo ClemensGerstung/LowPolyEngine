@@ -16,7 +16,6 @@ BEGIN_LPE
     glm::vec3 position;
     glm::vec3 color;
     glm::vec3 normals;
-    uint32_t instanceIndex;
     //glm::vec2 texCoord;
 
     Vertex() = default;
@@ -24,7 +23,7 @@ BEGIN_LPE
 
     static std::vector<vk::VertexInputBindingDescription> GetBindingDescription();
 
-    static std::array<vk::VertexInputAttributeDescription, 4> GetAttributeDescriptions();
+    static std::vector<vk::VertexInputAttributeDescription> GetAttributeDescriptions();
 
     bool operator==(const Vertex& other) const;
   };

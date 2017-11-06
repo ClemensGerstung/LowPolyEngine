@@ -23,7 +23,7 @@ void lpe::Window::Create()
   commands = device.CreateCommands();
   modelsRenderer = device.CreateModelsRenderer(&commands);
 
-  uniformBuffer = device.CreateUniformBuffer(modelsRenderer, defaultCamera);
+  uniformBuffer = device.CreateUniformBuffer(modelsRenderer, defaultCamera, commands);
   uniformBuffer.SetLightPosition({ 2, 2, 2 });
   renderPass = device.CreateRenderPass(swapChain.GetImageFormat());
   graphicsPipeline = device.CreatePipeline(swapChain, renderPass, &uniformBuffer);
@@ -143,8 +143,8 @@ lpe::Model* lpe::Window::AddModel(std::string path)
     throw std::runtime_error("Cannot add model if the window wasn't created successfull. Call Create(...) before AddModel(...)!");
 
   auto model = modelsRenderer.AddObject(path);
-  uniformBuffer.Update(defaultCamera, modelsRenderer);
-  commands.ResetCommandBuffers();
+  uniformBuffer.Update(defaultCamera, modelsRenderer, commands);
+  //commands.ResetCommandBuffers();
   commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
   
   return model;
@@ -165,7 +165,7 @@ void lpe::Window::Render()
 
 	glfwPollEvents();
 
-  uniformBuffer.Update(defaultCamera, modelsRenderer);
+  uniformBuffer.Update(defaultCamera, modelsRenderer, commands);
 
   uint32_t imageIndex = -1;
   vk::SubmitInfo submitInfo = device.PrepareFrame(swapChain, &imageIndex);

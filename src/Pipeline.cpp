@@ -5,8 +5,7 @@ void lpe::Pipeline::CreateDescriptorPool()
 {
   std::vector<vk::DescriptorPoolSize> poolSizes =
   {
-    {vk::DescriptorType::eUniformBuffer, 1},
-    {vk::DescriptorType::eStorageBuffer, 1}
+    {vk::DescriptorType::eUniformBuffer, 1}
   };
 
   vk::DescriptorPoolCreateInfo poolInfo = { {}, 2, (uint32_t)poolSizes.size(), poolSizes.data() };
@@ -19,8 +18,7 @@ void lpe::Pipeline::CreateDescriptorSetLayout()
 {
   std::vector<vk::DescriptorSetLayoutBinding> bindings = 
   {
-    { 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex },
-    { 1, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex },
+    { 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex }
   };
 
   vk::DescriptorSetLayoutCreateInfo layoutInfo = { {}, (uint32_t)bindings.size(), bindings.data() };
@@ -41,9 +39,9 @@ vk::ShaderModule lpe::Pipeline::CreateShaderModule(const std::vector<char>& code
   return shaderModule;
 }
 
-vk::Pipeline* lpe::Pipeline::GetPipelineRef()
+vk::Pipeline lpe::Pipeline::GetPipeline() const
 {
-  return &pipeline;
+  return pipeline;
 }
 
 vk::PipelineLayout lpe::Pipeline::GetPipelineLayout() const
@@ -148,19 +146,8 @@ void lpe::Pipeline::UpdateDescriptorSets()
   uboWriteDescriptorSet.descriptorType = vk::DescriptorType::eUniformBuffer;
   uboWriteDescriptorSet.pBufferInfo = &descriptors[0];
 
-  vk::WriteDescriptorSet instanceDataWriteDescriptorSet = { descriptorSet };
-  instanceDataWriteDescriptorSet.dstBinding = 0;
-  instanceDataWriteDescriptorSet.descriptorCount = 1;
-  instanceDataWriteDescriptorSet.descriptorType = vk::DescriptorType::eStorageBuffer;
-  instanceDataWriteDescriptorSet.pBufferInfo = &descriptors[1];
-
   std::vector<vk::WriteDescriptorSet> descriptorWrites = { uboWriteDescriptorSet };
-  
-  if(descriptors[1].buffer)
-  {
-    descriptorWrites.push_back(instanceDataWriteDescriptorSet);
-  }
-
+ 
   device->updateDescriptorSets((uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
 

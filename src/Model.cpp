@@ -221,15 +221,20 @@ lpe::InstanceData lpe::Model::GetInstanceData()
 {
   InstanceData instanceData;
 
-  instanceData.modelMatrix = glm::translate(glm::mat4(1.0f), position);
-  instanceData.modelMatrix = instanceData.modelMatrix * matrix;
+  glm::mat4 matrix = glm::translate(glm::mat4(1.0f), position);
+  matrix = matrix * matrix;
+
+  instanceData.row1 = matrix[0];
+  instanceData.row2 = matrix[1];
+  instanceData.row3 = matrix[2];
+  instanceData.row4 = matrix[3];
 
   return instanceData;
 }
 
 void lpe::Model::SetInstanceIndex(uint32_t instanceIndex)
 {
-  std::for_each(vertices.begin(), vertices.end(), [index = instanceIndex](Vertex& vertex) { vertex.instanceIndex = index; });
+  //std::for_each(vertices.begin(), vertices.end(), [index = instanceIndex](Vertex& vertex) { vertex.instanceIndex = index; });
 }
 
 bool lpe::Model::operator==(const Model& model)

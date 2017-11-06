@@ -49,16 +49,17 @@ lpe::UniformBuffer& lpe::UniformBuffer::operator=(UniformBuffer&& other)
 lpe::UniformBuffer::UniformBuffer(vk::PhysicalDevice physicalDevice,
                                   vk::Device* device,
                                   ModelsRenderer& modelsRenderer,
-                                  const Camera& camera)
+                                  const Camera& camera, 
+                                  const Commands& commands)
   : physicalDevice(physicalDevice)
 {
   this->device.reset(device);
 
   viewBuffer = {physicalDevice, device, sizeof(ubo)};
-  instanceBuffer = { physicalDevice, device, 1 };
+  instanceBuffer = { physicalDevice, device };
 	
   
-  Update(camera, modelsRenderer);
+  Update(camera, modelsRenderer, commands);
 }
 
 lpe::UniformBuffer::~UniformBuffer()
@@ -69,7 +70,7 @@ lpe::UniformBuffer::~UniformBuffer()
   }
 }
 
-void lpe::UniformBuffer::Update(const Camera& camera, ModelsRenderer& renderer)
+void lpe::UniformBuffer::Update(const Camera& camera, ModelsRenderer& renderer, const Commands& commands)
 {
   ubo.view = camera.GetView();
   ubo.projection = camera.GetPerspective();
@@ -84,12 +85,7 @@ void lpe::UniformBuffer::Update(const Camera& camera, ModelsRenderer& renderer)
 		vk::DeviceSize size = instanceData.size() * sizeof(InstanceData);
 
 		// totally dump and inefficient
-		instanceBuffer = { physicalDevice, device.get(), size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer };
-	}
-
-	if (instanceData.size() > 0)
-	{
-		instanceBuffer.CopyToBufferMemory(instanceData.data());
+    instanceBuffer.Create(commands, size, instanceData.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 	}
 }
 
