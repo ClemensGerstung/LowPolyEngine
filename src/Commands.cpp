@@ -134,11 +134,8 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
 
     if (renderer.GetVertexBuffer() && renderer.GetIndexBuffer())
     {
-      if (!pipeline.GetDescriptorSet())
-      {
-        pipeline.CreateDescriptorSet();
-      }
-
+      pipeline.UpdateDescriptorSets();
+      
       vk::Viewport viewport = { 0, 0, (float)extent.width, (float)extent.height, 0.0, 1.0f };
       commandBuffers[i].setViewport(0, 1, &viewport);
 

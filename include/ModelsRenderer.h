@@ -71,6 +71,8 @@ public:
 	Model operator[](uint32_t index) const;
 
 	std::vector<vk::DrawIndexedIndirectCommand> GetDrawIndexedIndirectCommands();
+
+  std::vector<InstanceData> GetInstanceData() const;
 };
 
 END_LPE

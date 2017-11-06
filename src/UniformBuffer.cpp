@@ -8,6 +8,7 @@ lpe::UniformBuffer::UniformBuffer(const UniformBuffer& other)
   this->physicalDevice = other.physicalDevice;
   this->ubo = other.ubo;
   this->viewBuffer = other.viewBuffer;
+  this->instanceBuffer = other.instanceBuffer;
 }
 
 lpe::UniformBuffer::UniformBuffer(UniformBuffer&& other)
@@ -18,6 +19,7 @@ lpe::UniformBuffer::UniformBuffer(UniformBuffer&& other)
   this->physicalDevice = other.physicalDevice;
   this->ubo = other.ubo;
   this->viewBuffer = std::move(other.viewBuffer);
+  this->instanceBuffer = std::move(other.instanceBuffer);
 }
 
 lpe::UniformBuffer& lpe::UniformBuffer::operator=(const UniformBuffer& other)
@@ -26,6 +28,7 @@ lpe::UniformBuffer& lpe::UniformBuffer::operator=(const UniformBuffer& other)
   this->physicalDevice = other.physicalDevice;
   this->ubo = other.ubo;
   this->viewBuffer = other.viewBuffer;
+  this->instanceBuffer = other.instanceBuffer;
 
   return *this;
 }
@@ -38,6 +41,7 @@ lpe::UniformBuffer& lpe::UniformBuffer::operator=(UniformBuffer&& other)
   this->physicalDevice = other.physicalDevice;
   this->ubo = other.ubo;
   this->viewBuffer = std::move(other.viewBuffer);
+  this->instanceBuffer = std::move(other.instanceBuffer);
 
   return *this;
 }
@@ -51,6 +55,7 @@ lpe::UniformBuffer::UniformBuffer(vk::PhysicalDevice physicalDevice,
   this->device.reset(device);
 
   viewBuffer = {physicalDevice, device, sizeof(ubo)};
+  instanceBuffer = { physicalDevice, device, 1 };
 	
   
   Update(camera, modelsRenderer);
@@ -72,23 +77,14 @@ void lpe::UniformBuffer::Update(const Camera& camera, ModelsRenderer& renderer)
 
   viewBuffer.CopyToBufferMemory(&ubo, sizeof(ubo));
 
-	std::vector<glm::mat4x4> instanceData = {};
-	auto models = renderer.GetModels();
-
-	for (const auto& model : models)
-	{
-		glm::mat4x4 data = glm::translate(glm::mat4(1.0f), model.GetPosition());
-		data = data * model.GetModelMatrix();
-
-		instanceData.push_back(data);
-	}
+  std::vector<InstanceData> instanceData = renderer.GetInstanceData();
 
 	if (instanceData.size() > 0 && instanceData.size() * sizeof(glm::mat4x4) != instanceBuffer.GetSize())
 	{
-		vk::DeviceSize size = instanceData.size() * sizeof(glm::mat4x4);
+		vk::DeviceSize size = instanceData.size() * sizeof(InstanceData);
 
 		// totally dump and inefficient
-		instanceBuffer = { physicalDevice, device.get(), size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eStorageBuffer };
+		instanceBuffer = { physicalDevice, device.get(), size, vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eVertexBuffer };
 	}
 
 	if (instanceData.size() > 0)
@@ -99,7 +95,7 @@ void lpe::UniformBuffer::Update(const Camera& camera, ModelsRenderer& renderer)
 
 std::vector<vk::DescriptorBufferInfo> lpe::UniformBuffer::GetDescriptors()
 {
-  return { viewBuffer.GetDescriptor() };
+  return { viewBuffer.GetDescriptor(), instanceBuffer.GetDescriptor() };
 }
 
 void lpe::UniformBuffer::SetLightPosition(glm::vec3 light)

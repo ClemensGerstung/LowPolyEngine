@@ -6,6 +6,11 @@
 
 BEGIN_LPE
 
+struct InstanceData
+{
+  glm::mat4 modelMatrix;
+};
+
 class Model
 {
 private:
@@ -43,6 +48,10 @@ public:
   glm::mat4 GetModelMatrix() const;
   std::vector<lpe::Vertex> GetVertices() const;
   std::vector<uint32_t> GetIndices(uint32_t offset = 0);
+
+  InstanceData GetInstanceData();
+
+  void SetInstanceIndex(uint32_t instanceIndex);
 
   bool operator==(const Model& model);
 };

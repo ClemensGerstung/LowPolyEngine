@@ -27,12 +27,13 @@ std::vector<vk::VertexInputBindingDescription> lpe::Vertex::GetBindingDescriptio
   return bindings;
 }
 
-std::array<vk::VertexInputAttributeDescription, 3> lpe::Vertex::GetAttributeDescriptions()
+std::array<vk::VertexInputAttributeDescription, 4> lpe::Vertex::GetAttributeDescriptions()
 {
-  std::array<vk::VertexInputAttributeDescription, 3> descriptions = {};
+  std::array<vk::VertexInputAttributeDescription, 4> descriptions = {};
   descriptions[0] = {0, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, position)};
   descriptions[1] = {1, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, normals)};
   descriptions[2] = {2, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)};
+  descriptions[3] = {3, 0, vk::Format::eR32Uint, offsetof(Vertex, instanceIndex)};
 
   return descriptions;
 }

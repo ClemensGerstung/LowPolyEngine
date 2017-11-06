@@ -6,6 +6,7 @@
 layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec3 inColor;
+layout (location = 3) in uint inInstanceIndex;
 
 //layout (location = 3) in mat4 inMatrix;
 
@@ -15,6 +16,16 @@ layout (binding = 0) uniform UboView
 	mat4 view;
 	vec3 lightPos;
 } uboView;
+
+struct InstanceData
+{
+	mat4 modelMat;
+};
+
+layout (binding = 1) buffer Instances 
+{
+	InstanceData instances[ ];
+};
 
 layout (location = 0) out vec3 outColor;
 layout (location = 1) out vec3 outNormal;
@@ -28,15 +39,13 @@ out gl_PerVertex
 
 void main() 
 {
-	//vec4 worldPos = inMatrix * vec4(inPos, 1.0);
-	vec4 worldPos = vec4(inPos, 1.0);
+	mat4 inMatrix = instances[inInstanceIndex].modelMat;
+	vec4 worldPos = inMatrix * vec4(inPos, 1.0);
 
 	outColor = inColor;
-	//outNormal = mat3(inMatrix) * inNormal;
-	outNormal = inNormal;
+	outNormal = mat3(inMatrix) * inNormal;
 	light = uboView.lightPos - worldPos.xyz;
 	view = (uboView.view * worldPos).xyz;
 
-	//gl_Position = uboView.projection * uboView.view * inMatrix * vec4(inPos, 1.0);
-	gl_Position = uboView.projection * uboView.view * vec4(inPos, 1.0);
+	gl_Position = uboView.projection * uboView.view * inMatrix * vec4(inPos, 1.0);
 }

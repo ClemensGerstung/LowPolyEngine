@@ -1,6 +1,7 @@
 #include "../include/Model.h"
 #include <fstream>
 #include <sstream>
+#include <glm/gtc/matrix_transform.hpp>
 
 void lpe::Model::Copy(const Model& other)
 {
@@ -214,6 +215,21 @@ std::vector<uint32_t> lpe::Model::GetIndices(uint32_t offset)
 	std::for_each(copy.begin(), copy.end(), [offset = offset](uint32_t& index) { index += offset; });
 
 	return copy;
+}
+
+lpe::InstanceData lpe::Model::GetInstanceData()
+{
+  InstanceData instanceData;
+
+  instanceData.modelMatrix = glm::translate(glm::mat4(1.0f), position);
+  instanceData.modelMatrix = instanceData.modelMatrix * matrix;
+
+  return instanceData;
+}
+
+void lpe::Model::SetInstanceIndex(uint32_t instanceIndex)
+{
+  std::for_each(vertices.begin(), vertices.end(), [index = instanceIndex](Vertex& vertex) { vertex.instanceIndex = index; });
 }
 
 bool lpe::Model::operator==(const Model& model)

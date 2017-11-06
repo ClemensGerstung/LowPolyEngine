@@ -6,7 +6,7 @@ void lpe::Pipeline::CreateDescriptorPool()
   std::vector<vk::DescriptorPoolSize> poolSizes =
   {
     {vk::DescriptorType::eUniformBuffer, 1},
-    {vk::DescriptorType::eCombinedImageSampler, 1}
+    {vk::DescriptorType::eStorageBuffer, 1}
   };
 
   vk::DescriptorPoolCreateInfo poolInfo = { {}, 2, (uint32_t)poolSizes.size(), poolSizes.data() };
@@ -20,7 +20,7 @@ void lpe::Pipeline::CreateDescriptorSetLayout()
   std::vector<vk::DescriptorSetLayoutBinding> bindings = 
   {
     { 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex },
-    { 1, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment }
+    { 1, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex },
   };
 
   vk::DescriptorSetLayoutCreateInfo layoutInfo = { {}, (uint32_t)bindings.size(), bindings.data() };
@@ -128,31 +128,38 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent, vk::RenderPass 
   device->destroyShaderModule(fragmentShaderModule);
 }
 
-void lpe::Pipeline::CreateDescriptorSet()
+void lpe::Pipeline::UpdateDescriptorSets()
 {
   auto descriptors = ubo->GetDescriptors();
 
-  // TODO: not quite nice but works for now!
-  if (std::any_of(descriptors.begin(), descriptors.end(), [](const vk::DescriptorBufferInfo info) { return !info.buffer; }))
+  if (!descriptorSet)
   {
-    return;
+    std::array<vk::DescriptorSetLayout, 1> layouts = { descriptorSetLayout };
+
+    vk::DescriptorSetAllocateInfo allocInfo = { descriptorPool, (uint32_t)layouts.size(), layouts.data() };
+
+    auto result = device->allocateDescriptorSets(&allocInfo, &descriptorSet);
+    helper::ThrowIfNotSuccess(result, "failed to allocate descriptor set!");
   }
 
-  std::array<vk::DescriptorSetLayout, 1> layouts = { descriptorSetLayout };
+  vk::WriteDescriptorSet uboWriteDescriptorSet = { descriptorSet };
+  uboWriteDescriptorSet.dstBinding = 0;
+  uboWriteDescriptorSet.descriptorCount = 1;
+  uboWriteDescriptorSet.descriptorType = vk::DescriptorType::eUniformBuffer;
+  uboWriteDescriptorSet.pBufferInfo = &descriptors[0];
 
-  vk::DescriptorSetAllocateInfo allocInfo = { descriptorPool, (uint32_t)layouts.size(), layouts.data() };
+  vk::WriteDescriptorSet instanceDataWriteDescriptorSet = { descriptorSet };
+  instanceDataWriteDescriptorSet.dstBinding = 0;
+  instanceDataWriteDescriptorSet.descriptorCount = 1;
+  instanceDataWriteDescriptorSet.descriptorType = vk::DescriptorType::eStorageBuffer;
+  instanceDataWriteDescriptorSet.pBufferInfo = &descriptors[1];
 
-  auto result = device->allocateDescriptorSets(&allocInfo, &descriptorSet);
-  helper::ThrowIfNotSuccess(result, "failed to allocate descriptor set!");
-
-
-  vk::WriteDescriptorSet uboVSwds = { descriptorSet };
-  uboVSwds.dstBinding = 0;
-  uboVSwds.descriptorCount = 1;
-  uboVSwds.descriptorType = vk::DescriptorType::eUniformBuffer;
-  uboVSwds.pBufferInfo = &descriptors[0];
-
-  std::vector<vk::WriteDescriptorSet> descriptorWrites = { uboVSwds };
+  std::vector<vk::WriteDescriptorSet> descriptorWrites = { uboWriteDescriptorSet };
+  
+  if(descriptors[1].buffer)
+  {
+    descriptorWrites.push_back(instanceDataWriteDescriptorSet);
+  }
 
   device->updateDescriptorSets((uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
 }
@@ -218,7 +225,7 @@ lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
 
   CreateDescriptorPool();
 
-  CreateDescriptorSet();
+  UpdateDescriptorSets();
 }
 
 lpe::Pipeline::~Pipeline()
