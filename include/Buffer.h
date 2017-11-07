@@ -43,9 +43,11 @@ public:
 
   ~Buffer();
 
-  void Create(const Commands& commands, vk::DeviceSize size, void* data, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties);
+  void CreateHostVisible(vk::DeviceSize size, void* data, vk::BufferUsageFlags usage);
+  void CreateStaged(const Commands& commands, vk::DeviceSize size, void* data, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties);
 
   void Copy(lpe::Buffer& src, vk::CommandBuffer& commandBuffer) const;
+  void CopyStaged(vk::CommandBuffer& commandBuffer, void* data);
 
   void CopyToBufferMemory(void* data, size_t size);
   void CopyToBufferMemory(void* data);

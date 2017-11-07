@@ -80,13 +80,20 @@ void lpe::UniformBuffer::Update(const Camera& camera, ModelsRenderer& renderer, 
 
   std::vector<InstanceData> instanceData = renderer.GetInstanceData();
 
-	if (instanceData.size() > 0 && instanceData.size() * sizeof(glm::mat4x4) != instanceBuffer.GetSize())
+  if (instanceData.empty())
+    return;
+
+	if (instanceData.size() * sizeof(glm::mat4x4) != instanceBuffer.GetSize())
 	{
 		vk::DeviceSize size = instanceData.size() * sizeof(InstanceData);
 
 		// totally dump and inefficient
-    instanceBuffer.Create(commands, size, instanceData.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+    instanceBuffer.CreateHostVisible(size, instanceData.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
 	}
+  else
+  {
+    instanceBuffer.CopyToBufferMemory(instanceData.data());
+  }
 }
 
 std::vector<vk::DescriptorBufferInfo> lpe::UniformBuffer::GetDescriptors()

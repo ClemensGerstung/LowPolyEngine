@@ -141,7 +141,16 @@ lpe::Buffer::~Buffer()
   }
 }
 
-void lpe::Buffer::Create(const Commands& commands, vk::DeviceSize size, void* data, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties)
+void lpe::Buffer::CreateHostVisible(vk::DeviceSize size, void* data, vk::BufferUsageFlags usage)
+{
+  CreateBuffer(size, usage, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+
+  this->device->mapMemory(memory, 0, size, {}, &mapped);
+  memcpy(mapped, data, (size_t)size);
+  this->device->unmapMemory(memory);
+}
+
+void lpe::Buffer::CreateStaged(const Commands& commands, vk::DeviceSize size, void* data, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties)
 {
   Buffer staging = { physicalDevice, device.get(), data, size };
 
@@ -165,6 +174,13 @@ void lpe::Buffer::Copy(lpe::Buffer& src, vk::CommandBuffer& commandBuffer) const
   vk::BufferCopy copyRegion = { 0, 0, size };
 
   commandBuffer.copyBuffer(src.buffer, buffer, 1, &copyRegion);
+}
+
+void lpe::Buffer::CopyStaged(vk::CommandBuffer& commandBuffer, void* data)
+{
+  Buffer staging = { physicalDevice, device.get(), data, size };
+
+  Copy(staging, commandBuffer);
 }
 
 void lpe::Buffer::CopyToBufferMemory(void* data, size_t size)
