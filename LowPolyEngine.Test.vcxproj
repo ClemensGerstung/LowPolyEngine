@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -22,32 +22,32 @@
     <ProjectGuid>{A39D9C10-C89E-4E8C-AEED-EBCCA7993766}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>LowPolyEngineTest</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -97,6 +97,35 @@
       <AdditionalDependencies>vulkan-1.lib;LowPolyEngine.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
     </Link>
+    <PostBuildEvent>
+      <Command>@echo off
+
+if [%VULKAN_SDK%] == [] goto ERROR_NO_VULKAN
+
+
+
+for %%f in (shaders/*.vert, shaders/*.frag) do (
+
+	%VULKAN_SDK%/Bin/glslangValidator.exe -V shaders/%%f -o shaders/%%f.spv
+
+)
+
+
+
+goto END
+
+
+
+:ERROR_NO_VULKAN
+
+echo VULKAN_SDK path not found
+echo please define variable!
+
+
+
+:END
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -110,10 +139,39 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\Projekte\LowPolyEngine\x64\Debug;D:\Libraries\Vulkan\Source\lib;D:\Libraries\Vulkan\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>x64\Debug;D:\Libraries\Vulkan\Source\lib;D:\Libraries\Vulkan\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;LowPolyEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
     </Link>
+    <PostBuildEvent>
+      <Command>@echo off
+
+if [%VULKAN_SDK%] == [] goto ERROR_NO_VULKAN
+
+
+
+for %%f in (shaders/*.vert, shaders/*.frag) do (
+
+	%VULKAN_SDK%/Bin/glslangValidator.exe -V shaders/%%f -o shaders/%%f.spv
+
+)
+
+
+
+goto END
+
+
+
+:ERROR_NO_VULKAN
+
+echo VULKAN_SDK path not found
+echo please define variable!
+
+
+
+:END
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -162,6 +220,14 @@
     <None Include="models\tree.ply" />
     <None Include="shaders\base.frag" />
     <None Include="shaders\base.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="external\glfw\src\glfw.vcxproj">
+      <Project>{eb7a010e-cfa2-332d-9a20-e6f5eb80fee0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="LowPolyEngine.vcxproj">
+      <Project>{a1e50d46-0e66-4ac7-b5c4-440a0d45e1e2}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,7 @@
 #include "../include/Commands.h"
 #include "../include/ModelsRenderer.h"
+#include "../include/UniformBuffer.h"
+#include "../include/RenderPass.h"
 
 
 lpe::Commands::Commands(const Commands& other)
@@ -100,9 +102,10 @@ void lpe::Commands::ResetCommandBuffers()
 
 void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers,
                                          vk::Extent2D extent,
-                                         size_t dynamicAlignment,
-                                         lpe::Pipeline* pipeline,
-                                         ModelsRenderer* renderer)
+                                         RenderPass& renderPass,
+                                         Pipeline& pipeline,
+                                         ModelsRenderer& renderer, 
+																				 UniformBuffer& ubo)
 {
   commandBuffers.resize(framebuffers.size());
 
@@ -124,46 +127,46 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
     result = commandBuffers[i].begin(&beginInfo);
     helper::ThrowIfNotSuccess(result, "failed to begin commandbuffer!");
 
-    vk::RenderPassBeginInfo renderPassInfo = { pipeline->GetRenderPass(), framebuffers[i], { { 0, 0 }, extent }, (uint32_t)clearValues.size(), clearValues.data() };
+    vk::RenderPassBeginInfo renderPassInfo = { renderPass, framebuffers[i], { { 0, 0 }, extent }, (uint32_t)clearValues.size(), clearValues.data() };
     commandBuffers[i].beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
 
-    commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline->GetPipelineRef());
-
-    if (*renderer->GetVertexBuffer() && *renderer->GetIndexBuffer())
+    if (renderer.GetVertexBuffer() && renderer.GetIndexBuffer())
     {
-      if (!*pipeline->GetDescriptorSetRef())
-      {
-        pipeline->CreateDescriptorSet();
-      }
-
+      if(!pipeline.GetDescriptorSet())
+        pipeline.UpdateDescriptorSets();
+      
       vk::Viewport viewport = { 0, 0, (float)extent.width, (float)extent.height, 0.0, 1.0f };
       commandBuffers[i].setViewport(0, 1, &viewport);
 
       vk::Rect2D scissor = { {0, 0}, extent };
       commandBuffers[i].setScissor(0, 1, &scissor);
 
-      VkDeviceSize offsets[1] = {0};
-      commandBuffers[i].bindVertexBuffers(0, 1, renderer->GetVertexBuffer(), offsets);
-      commandBuffers[i].bindIndexBuffer(*renderer->GetIndexBuffer(), 0, vk::IndexType::eUint32);
+			std::array<uint32_t, 1> dynOffsets = { 0 };
+			commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineLayout(), 0, 1, pipeline.GetDescriptorSetRef(), dynOffsets.size(), dynOffsets.data());
 
-      for (uint32_t j = 0; j < renderer->GetCount(); j++)
-      {
-        // One dynamic offset per dynamic descriptor to offset into the ubo containing all model matrices
-        uint32_t dynamicOffset = j * static_cast<uint32_t>(dynamicAlignment);
-        // Bind the descriptor set for rendering a mesh using the dynamic offset
-        commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-                                             pipeline->GetPipelineLayout(),
-                                             0,
-                                             1,
-                                             pipeline->GetDescriptorSetRef(),
-                                             1,
-                                             &dynamicOffset);
-        
-        //commandBuffers[i].drawIndexedIndirect(*renderer->GetIndexBuffer(), 0, (uint32_t)renderer->GetIndices().size(), 0);
-        commandBuffers[i].drawIndexed((uint32_t)renderer->GetIndices().size(), 1, 0, 0, 0);
-      }
+      //commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipeline());
 
-      
+			VkDeviceSize offsets[1] = { 0 };
+			vk::Buffer vertexBuffer = renderer.GetVertexBuffer();
+			vk::Buffer instanceBuffer = ubo.GetInstanceBuffer();
+      commandBuffers[i].bindVertexBuffers(0, 1, &vertexBuffer, offsets);
+			commandBuffers[i].bindVertexBuffers(1, 1, &instanceBuffer, offsets);
+      commandBuffers[i].bindIndexBuffer(renderer.GetIndexBuffer(), 0, vk::IndexType::eUint32);
+
+			if (physicalDevice.getFeatures().multiDrawIndirect)
+			{
+				commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(), 0, renderer.GetCount(), sizeof(vk::DrawIndexedIndirectCommand));
+			}
+			else
+			{
+				auto cmds = renderer.GetDrawIndexedIndirectCommands();
+
+				for (auto j = 0; j < cmds.size(); j++)
+				{
+					commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(), j * sizeof(vk::DrawIndexedIndirectCommand), 1, sizeof(vk::DrawIndexedIndirectCommand));
+				}
+			}
+
     }
 
     commandBuffers[i].endRenderPass();
@@ -194,8 +197,19 @@ void lpe::Commands::EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const
 
   vk::SubmitInfo submitInfo = { 0, nullptr, nullptr, 1, &commandBuffer };
 
-  graphicsQueue->submit(1, &submitInfo, nullptr);
-  graphicsQueue->waitIdle();
+  vk::FenceCreateInfo fenceCreateInfo = { };
+  vk::Fence fence;
+
+  auto result = device->createFence(&fenceCreateInfo, nullptr, &fence);
+  helper::ThrowIfNotSuccess(result, "Failed to create fence");
+
+  graphicsQueue->submit(1, &submitInfo, fence);
+  //graphicsQueue->waitIdle();
+
+  result = device->waitForFences(1, &fence, VK_TRUE, 1000000);
+  helper::ThrowIfNotSuccess(result, "Failed to wait for fence");
+
+  device->destroyFence(fence);
 
   device->freeCommandBuffers(commandPool, 1, &commandBuffer);
 }

@@ -7,6 +7,7 @@
 #include "Commands.h"
 #include "Pipeline.h"
 #include "ModelsRenderer.h"
+#include "RenderPass.h"
 
 BEGIN_LPE
 
@@ -37,11 +38,14 @@ public:
   Device(vk::Instance* instance, vk::PhysicalDevice physicalDevice, const vk::SurfaceKHR& surface);
   ~Device();
 
+  vk::Format FindDepthFormat() const;
+
   SwapChain CreateSwapChain(uint32_t width, uint32_t height);
   Commands CreateCommands();
-  UniformBuffer CreateUniformBuffer(const ModelsRenderer& modelsRenderer, const Camera& camera);
-  Pipeline CreatePipeline(const SwapChain& swapChain, UniformBuffer* ubo);
+  UniformBuffer CreateUniformBuffer(ModelsRenderer& modelsRenderer, const Camera& camera, const Commands& commands);
+  Pipeline CreatePipeline(const SwapChain& swapChain, RenderPass& renderPass, UniformBuffer* ubo);
   ModelsRenderer CreateModelsRenderer(Commands* commands);
+  RenderPass CreateRenderPass(vk::Format swapChainImageFormat);
 
   vk::SubmitInfo PrepareFrame(const SwapChain& swapChain, uint32_t* imageIndex);
   void SubmitQueue(uint32_t submitCount, const vk::SubmitInfo* infos);

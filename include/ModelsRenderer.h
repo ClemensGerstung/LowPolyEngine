@@ -12,60 +12,67 @@ BEGIN_LPE
 class ModelsRenderer
 {
 private:
-  struct Entry
-  {
-    lpe::Model model;
-    uint32_t verticesStartIndex;
-    uint32_t indicesStartIndex;
-    uint32_t verticesLength;
-    uint32_t indicesLength;
+	struct Entry
+	{
+		lpe::Model model;
+		uint32_t verticesStartIndex;
+		uint32_t indicesStartIndex;
+		uint32_t verticesLength;
+		uint32_t indicesLength;
 
-	bool operator==(const Entry& e);
-  };
+		bool operator==(const Entry& e);
+	};
 
-  vk::PhysicalDevice physicalDevice;
-  std::unique_ptr<vk::Device> device;
-  std::unique_ptr<Commands> commands;
-  std::vector<Entry> entries;
-  std::vector<Model> models;
+	vk::PhysicalDevice physicalDevice;
+	std::unique_ptr<vk::Device> device;
+	std::unique_ptr<Commands> commands;
+	std::vector<Entry> entries;
+	std::vector<Model> models;
 
-  std::vector<lpe::Vertex> vertices;
-  std::vector<uint32_t> indices;
+	std::vector<lpe::Vertex> vertices;
+	std::vector<uint32_t> indices;
 
-  lpe::Buffer vertexBuffer;
-  lpe::Buffer indexBuffer;
+	lpe::Buffer vertexBuffer;
+	lpe::Buffer indexBuffer;
+	Buffer indirectBuffer;
 
-  void Copy(const ModelsRenderer& other);
-  void Move(ModelsRenderer& other);
+	void Copy(const ModelsRenderer& other);
+	void Move(ModelsRenderer& other);
 
 public:
-  ModelsRenderer() = default;
-  ModelsRenderer(const ModelsRenderer& other);
-  ModelsRenderer(ModelsRenderer&& other);
-  ModelsRenderer& operator=(const ModelsRenderer& other);
-  ModelsRenderer& operator=(ModelsRenderer&& other);
+	ModelsRenderer() = default;
+	ModelsRenderer(const ModelsRenderer& other);
+	ModelsRenderer(ModelsRenderer&& other);
+	ModelsRenderer& operator=(const ModelsRenderer& other);
+	ModelsRenderer& operator=(ModelsRenderer&& other);
 
-  ModelsRenderer(vk::PhysicalDevice physicalDevice, vk::Device* device, Commands* commands);
+	ModelsRenderer(vk::PhysicalDevice physicalDevice, vk::Device* device, Commands* commands);
 
-  ~ModelsRenderer();
+	~ModelsRenderer();
 
-  void AddObject(std::vector<lpe::Vertex> vertices, std::vector<uint32_t> indices);
-  Model* AddObject(std::string path);
-  void RemoveObject(Model* model);
-  
-  void UpdateBuffer();
+	void AddObject(std::vector<lpe::Vertex> vertices, std::vector<uint32_t> indices);
+	Model* AddObject(std::string path);
+	void RemoveObject(Model* model);
 
-  std::vector<Model> GetModels();
-  uint32_t GetCount() const;
-  std::vector<lpe::Vertex> GetVertices() const;
-  std::vector<uint32_t> GetIndices() const;
-  vk::Buffer* GetVertexBuffer();
-  vk::Buffer* GetIndexBuffer();
+	void UpdateBuffer();
 
-  bool Empty() const;
-  uint32_t EntriesCount() const;
+	std::vector<Model> GetModels();
+	uint32_t GetCount() const;
+	std::vector<lpe::Vertex> GetVertices() const;
+	std::vector<uint32_t> GetIndices() const;
+	vk::Buffer GetVertexBuffer();
+	vk::Buffer GetIndexBuffer();
 
-  Model operator[](uint32_t index) const;
+	vk::Buffer GetIndirectBuffer();
+
+	bool Empty() const;
+	uint32_t EntriesCount() const;
+
+	Model operator[](uint32_t index) const;
+
+	std::vector<vk::DrawIndexedIndirectCommand> GetDrawIndexedIndirectCommands();
+
+  std::vector<InstanceData> GetInstanceData() const;
 };
 
 END_LPE

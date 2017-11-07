@@ -10,10 +10,10 @@ class Pipeline
 private:
   vk::PhysicalDevice physicalDevice;
   std::unique_ptr<vk::Device> device;
-  std::unique_ptr<vk::PipelineCache> cache;
   std::unique_ptr<lpe::UniformBuffer> ubo;
 
-  vk::RenderPass renderPass;
+  vk::PipelineCache cache;
+
   vk::DescriptorSetLayout descriptorSetLayout;
   vk::PipelineLayout pipelineLayout;
   vk::Pipeline pipeline;
@@ -22,10 +22,9 @@ private:
 
   vk::ShaderModule CreateShaderModule(const std::vector<char>& code);
 
-  void CreateRenderPass(vk::Format swapChainImageFormat);
   void CreateDescriptorPool();
   void CreateDescriptorSetLayout();
-  void CreatePipeline(vk::Extent2D swapChainExtent);
+  void CreatePipeline(vk::Extent2D swapChainExtent, vk::RenderPass renderPass);
   
   void Copy(const Pipeline& other);
   void Move(Pipeline& other);
@@ -38,21 +37,21 @@ public:
   Pipeline& operator=(Pipeline&& other);
 
   // TODO: enhance to create compute pipeline or pipelines with other layout (e.g. wireframe only)
-  Pipeline(vk::PhysicalDevice physicalDevice, vk::Device* device, vk::PipelineCache* cache, vk::Format swapChainImageFormat, vk::Extent2D swapChainExtent, lpe::UniformBuffer* uniformBuffer);
+  Pipeline(vk::PhysicalDevice physicalDevice, 
+           vk::Device* device,
+           vk::PipelineCache cache,
+           vk::RenderPass renderPass,
+           vk::Extent2D swapChainExtent, 
+           lpe::UniformBuffer* uniformBuffer);
 
   ~Pipeline();
 
-  void CreateDescriptorSet();
+  void UpdateDescriptorSets();
 
-  vk::Format FindDepthFormat() const;
-
-  vk::RenderPass* GetRenderPassRef();
-  vk::Pipeline* GetPipelineRef();
+  vk::Pipeline GetPipeline() const;
   vk::PipelineLayout GetPipelineLayout() const;
   vk::DescriptorSet GetDescriptorSet() const;
   vk::DescriptorSet* GetDescriptorSetRef();
-
-  vk::RenderPass GetRenderPass() const;
 };
 
 END_LPE

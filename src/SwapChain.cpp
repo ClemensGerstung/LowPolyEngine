@@ -195,7 +195,7 @@ lpe::SwapChain::~SwapChain()
   }
 }
 
-std::vector<vk::Framebuffer> lpe::SwapChain::CreateFrameBuffers(vk::RenderPass* renderPass, lpe::ImageView* depthImage)
+std::vector<vk::Framebuffer> lpe::SwapChain::CreateFrameBuffers(const vk::RenderPass& renderPass, lpe::ImageView* depthImage)
 {
   framebuffers.resize(imageViews.size());
 
@@ -203,7 +203,7 @@ std::vector<vk::Framebuffer> lpe::SwapChain::CreateFrameBuffers(vk::RenderPass* 
   {
     std::array<vk::ImageView, 2> attachments = { imageViews[i].GetImageView(), depthImage->GetImageView() };
 
-    vk::FramebufferCreateInfo framebufferInfo = { {}, *renderPass, (uint32_t)attachments.size(), attachments.data(), extent.width, extent.height, 1 };
+    vk::FramebufferCreateInfo framebufferInfo = { {}, renderPass, (uint32_t)attachments.size(), attachments.data(), extent.width, extent.height, 1 };
 
     auto result = device->createFramebuffer(&framebufferInfo, nullptr, &framebuffers[i]);
     helper::ThrowIfNotSuccess(result, "failed to create framebuffer!");

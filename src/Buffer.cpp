@@ -179,9 +179,9 @@ void lpe::Buffer::CopyToBufferMemory(void* data)
   CopyToBufferMemory(data, size);
 }
 
-vk::Buffer* lpe::Buffer::GetBuffer()
+vk::Buffer lpe::Buffer::GetBuffer()
 {
-  return &buffer;
+  return buffer;
 }
 
 vk::DeviceMemory* lpe::Buffer::GetMemory()
@@ -189,9 +189,9 @@ vk::DeviceMemory* lpe::Buffer::GetMemory()
   return &memory;
 }
 
-vk::DescriptorBufferInfo* lpe::Buffer::GetDescriptor()
+vk::DescriptorBufferInfo lpe::Buffer::GetDescriptor()
 {
-  return &descriptor;
+  return descriptor;
 }
 
 vk::DeviceSize lpe::Buffer::GetSize()

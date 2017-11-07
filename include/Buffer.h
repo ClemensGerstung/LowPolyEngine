@@ -50,9 +50,9 @@ public:
   void CopyToBufferMemory(void* data, size_t size);
   void CopyToBufferMemory(void* data);
 
-  vk::Buffer* GetBuffer();
+  vk::Buffer GetBuffer();
   vk::DeviceMemory* GetMemory();
-  vk::DescriptorBufferInfo* GetDescriptor();
+  vk::DescriptorBufferInfo GetDescriptor();
   vk::DeviceSize GetSize();
 };
 

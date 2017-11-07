@@ -19,21 +19,33 @@ void lpe::Window::Create()
   instance.Create(title);
   device = instance.CreateDevice(window);
   swapChain = device.CreateSwapChain(width, height);
-  defaultCamera = { {3,0,0}, {0,0,0}, swapChain.GetExtent(), 45, 0.1f, 256 };
+  defaultCamera = { {3,0,0}, {0,0,0}, swapChain.GetExtent(), 110, 0.1f, 256 };
   commands = device.CreateCommands();
   modelsRenderer = device.CreateModelsRenderer(&commands);
 
-  uniformBuffer = device.CreateUniformBuffer(modelsRenderer, defaultCamera);
+  uniformBuffer = device.CreateUniformBuffer(modelsRenderer, defaultCamera, commands);
   uniformBuffer.SetLightPosition({ 2, 2, 2 });
-  graphicsPipeline = device.CreatePipeline(swapChain, &uniformBuffer);
-  depthImage = commands.CreateDepthImage(swapChain.GetExtent(), graphicsPipeline.FindDepthFormat());
-  auto frameBuffers = swapChain.CreateFrameBuffers(graphicsPipeline.GetRenderPassRef(), &depthImage);
-  commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), uniformBuffer.GetDynamicAlignment(), &graphicsPipeline, &modelsRenderer);
+  renderPass = device.CreateRenderPass(swapChain.GetImageFormat());
+  graphicsPipeline = device.CreatePipeline(swapChain, renderPass, &uniformBuffer);
+  depthImage = commands.CreateDepthImage(swapChain.GetExtent(), device.FindDepthFormat());
+  
+  auto frameBuffers = swapChain.CreateFrameBuffers(renderPass, &depthImage);
+  commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
 }
 
 void lpe::Window::KeyInputCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
   lpe::Window* pointer = reinterpret_cast<lpe::Window*>(glfwGetWindowUserPointer(window));
+
+	if (key == GLFW_KEY_KP_ADD && action == GLFW_PRESS)
+	{
+		pointer->defaultCamera.ChangeFoV(-5);
+	}
+	if (key == GLFW_KEY_KP_SUBTRACT && action == GLFW_PRESS)
+	{
+		pointer->defaultCamera.ChangeFoV(5);
+	}
+
 
   if(key == GLFW_KEY_W && action == GLFW_PRESS)
   {
@@ -85,8 +97,8 @@ void lpe::Window::KeyInputCallback(GLFWwindow* window, int key, int scancode, in
     pointer->defaultCamera.Rotate(15, { 0, 1, 0 });
   }
 
-  std::cout << glm::to_string(pointer->defaultCamera.GetPosition()) << " -> " << glm::to_string(pointer->defaultCamera.GetLookAt()) << std::endl;
-}
+  std::cout << glm::to_string(pointer->defaultCamera.GetPosition()) << " -> " << glm::to_string(pointer->defaultCamera.GetLookAt()) << " -> " << pointer->defaultCamera.GetFoV() << std::endl;
+} 
 
 
 lpe::Window::Window(uint32_t width, uint32_t height, std::string title, bool resizeable)
@@ -131,9 +143,9 @@ lpe::Model* lpe::Window::AddModel(std::string path)
     throw std::runtime_error("Cannot add model if the window wasn't created successfull. Call Create(...) before AddModel(...)!");
 
   auto model = modelsRenderer.AddObject(path);
-  uniformBuffer.Update(defaultCamera, modelsRenderer);
-  commands.ResetCommandBuffers();
-  commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), uniformBuffer.GetDynamicAlignment(), &graphicsPipeline, &modelsRenderer);
+  uniformBuffer.Update(defaultCamera, modelsRenderer, commands);
+  //commands.ResetCommandBuffers();
+  commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
   
   return model;
 }
@@ -153,7 +165,7 @@ void lpe::Window::Render()
 
 	glfwPollEvents();
 
-  uniformBuffer.Update(defaultCamera, modelsRenderer);
+  uniformBuffer.Update(defaultCamera, modelsRenderer, commands);
 
   uint32_t imageIndex = -1;
   vk::SubmitInfo submitInfo = device.PrepareFrame(swapChain, &imageIndex);

@@ -26,6 +26,7 @@ BEGIN_LPE
 		lpe::Pipeline graphicsPipeline;
 		lpe::ImageView depthImage;
 		lpe::ModelsRenderer modelsRenderer;
+    lpe::RenderPass renderPass;
 
 	protected:
 		virtual void Create();

@@ -41,7 +41,7 @@ public:
 
   ~SwapChain();
 
-  std::vector<vk::Framebuffer> CreateFrameBuffers(vk::RenderPass* renderPass, lpe::ImageView* depthImage);
+  std::vector<vk::Framebuffer> CreateFrameBuffers(const vk::RenderPass& renderPass, lpe::ImageView* depthImage);
 
   vk::Extent2D GetExtent() const;
   vk::Format GetImageFormat() const;
