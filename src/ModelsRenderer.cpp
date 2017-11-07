@@ -103,7 +103,7 @@ std::vector<vk::DrawIndexedIndirectCommand> lpe::ModelsRenderer::GetDrawIndexedI
 	uint32_t i = 0;
 	for (auto& entry : entries)
 	{
-		vk::DrawIndexedIndirectCommand cmd = { entry.verticesLength, 1, entry.indicesStartIndex, (int32_t)entry.verticesStartIndex, i++ };
+		vk::DrawIndexedIndirectCommand cmd = { entry.indicesLength, 1, entry.indicesStartIndex, (int32_t)entry.verticesStartIndex, i++ };
 		commands.push_back(cmd);
 	}
 
@@ -167,17 +167,19 @@ void lpe::ModelsRenderer::RemoveObject(Model* model)
 
 void lpe::ModelsRenderer::UpdateBuffer()
 {
+  auto cmds = GetDrawIndexedIndirectCommands();
+
   vk::DeviceSize indexSize = sizeof(indices[0]) * indices.size();
   vk::DeviceSize vertexSize = sizeof(vertices[0]) * vertices.size();
+  vk::DeviceSize indirectSize = cmds.size() * sizeof(vk::DrawIndexedIndirectCommand);
 
   /*indexBuffer = commands->CreateBuffer(indices.data(), indexSize);
   vertexBuffer = commands->CreateBuffer(vertices.data(), vertexSize);*/
 
-  indexBuffer.Create(*commands, indexSize, indices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
   vertexBuffer.Create(*commands, vertexSize, vertices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-
-	auto cmds = GetDrawIndexedIndirectCommands();
-	indirectBuffer.Create(*commands, cmds.size() * sizeof(vk::DrawIndexedIndirectCommand), cmds.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndirectBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+  indexBuffer.Create(*commands, indexSize, indices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+  
+	indirectBuffer.Create(*commands, indirectSize, cmds.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndirectBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 }
 
 std::vector<lpe::Model> lpe::ModelsRenderer::GetModels()

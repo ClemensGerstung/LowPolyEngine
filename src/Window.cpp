@@ -30,7 +30,7 @@ void lpe::Window::Create()
   depthImage = commands.CreateDepthImage(swapChain.GetExtent(), device.FindDepthFormat());
   
   auto frameBuffers = swapChain.CreateFrameBuffers(renderPass, &depthImage);
-  commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
+  //commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
 }
 
 void lpe::Window::KeyInputCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

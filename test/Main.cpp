@@ -26,8 +26,8 @@ int main()
     //{ 0, 1, 2, 2, 3, 0 });
 
     //window.AddModel("models/tree.ply")->SetPosition({2, 0, 0});
-    lpe::Model* m = window.AddModel("models/tree.ply");
-    //lpe::Model* m = window.AddModel("models/cube.ply");
+    //lpe::Model* m = window.AddModel("models/tree.ply");
+    lpe::Model* m = window.AddModel("models/cube.ply");
     //lpe::Model* m = window.AddModel("models/monkey.ply");
     //m->SetPosition({ 2, 0, 0 });
     //m->SetPosition({ 1, 1, 1 });

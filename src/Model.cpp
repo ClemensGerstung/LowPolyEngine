@@ -237,7 +237,7 @@ void lpe::Model::SetInstanceIndex(uint32_t instanceIndex)
   //std::for_each(vertices.begin(), vertices.end(), [index = instanceIndex](Vertex& vertex) { vertex.instanceIndex = index; });
 }
 
-bool lpe::Model::operator==(const Model& model)
+bool lpe::Model::operator==(const Model& model) const
 {
 	return position == model.position && matrix == model.matrix && vertices == model.vertices && indices == model.indices;
 }
