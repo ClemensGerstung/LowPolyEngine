@@ -2,5 +2,5 @@
 
 mkdir build
 cd build
-cmake ./
+cmake ../
 make -j $(getconf _NPROCESSORS_ONLN)
