@@ -140,7 +140,7 @@ lpe::Camera lpe::Window::CreateCamera(glm::vec3 position, glm::vec3 lookAt, floa
 lpe::Model* lpe::Window::AddModel(std::string path)
 {
   if (!window)
-    throw std::runtime_error("Cannot add model if the window wasn't created successfull. Call Create(...) before AddModel(...)!");
+    throw std::runtime_error("Cannot add model if the window wasn't created successfully. Call Create(...) before AddModel(...)!");
 
   auto model = modelsRenderer.AddObject(path);
   uniformBuffer.Update(defaultCamera, modelsRenderer, commands);

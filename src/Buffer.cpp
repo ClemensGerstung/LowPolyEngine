@@ -10,7 +10,7 @@ void lpe::Buffer::CreateBuffer(vk::DeviceSize size,
   auto result = device->createBuffer(&createInfo, nullptr, &buffer);
   if (result != vk::Result::eSuccess)
   {
-    throw std::runtime_error("failed to create buffer!" + vk::to_string(result) + "");
+    throw std::runtime_error("Failed to create buffer!" + vk::to_string(result) + "");
   }
 
   vk::MemoryRequirements requirements = device->getBufferMemoryRequirements(buffer);
@@ -21,7 +21,7 @@ void lpe::Buffer::CreateBuffer(vk::DeviceSize size,
   
   if (result != vk::Result::eSuccess)
   {
-    throw std::runtime_error("failed to allocate buffer memory!" + vk::to_string(result) + "");
+    throw std::runtime_error("Failed to allocate buffer memory!" + vk::to_string(result) + "");
   }
 
   device->bindBufferMemory(buffer, memory, 0);
@@ -38,7 +38,7 @@ lpe::Buffer::Buffer(const Buffer& other)
   this->mapped = other.mapped;
 }
 
-lpe::Buffer::Buffer(Buffer&& other)
+lpe::Buffer::Buffer(Buffer&& other) noexcept
 {
   this->device = std::move(other.device);
 
@@ -63,7 +63,7 @@ lpe::Buffer& lpe::Buffer::operator=(const Buffer& other)
   return *this;
 }
 
-lpe::Buffer& lpe::Buffer::operator=(Buffer&& other)
+lpe::Buffer& lpe::Buffer::operator=(Buffer&& other) noexcept
 {
   this->device.swap(other.device);
   other.device.release();
@@ -159,7 +159,7 @@ void lpe::Buffer::Copy(lpe::Buffer& src, vk::CommandBuffer& commandBuffer) const
 {
   if(src.size != size)
   {
-    throw std::runtime_error("copying a buffer to another buffer with another size is not possible");
+    throw std::runtime_error("Copying a buffer to a buffer with a different size is not possible");
   }
 
   vk::BufferCopy copyRegion = { 0, 0, size };

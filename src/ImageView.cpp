@@ -8,7 +8,7 @@ lpe::ImageView::ImageView(const ImageView& other)
   this->memory = other.memory;
 }
 
-lpe::ImageView::ImageView(ImageView&& other)
+lpe::ImageView::ImageView(ImageView&& other) noexcept
 {
   this->device = std::move(other.device);
   this->image = other.image;
@@ -26,7 +26,7 @@ lpe::ImageView& lpe::ImageView::operator=(const ImageView& other)
   return *this;
 }
 
-lpe::ImageView& lpe::ImageView::operator=(ImageView&& other)
+lpe::ImageView& lpe::ImageView::operator=(ImageView&& other) noexcept
 {
   this->device = std::move(other.device);
   this->image = other.image;
@@ -45,7 +45,7 @@ lpe::ImageView::ImageView(vk::Device* device,
 
   vk::ImageViewCreateInfo createInfo = { {}, image, vk::ImageViewType::e2D, format,{},{ flags, 0, 1, 0, 1 } };
   auto result = device->createImageView(&createInfo, nullptr, &imageView);
-  helper::ThrowIfNotSuccess(result, "failed to create texture image view!");
+  helper::ThrowIfNotSuccess(result, "Failed to create texture image view!");
 }
 
 lpe::ImageView::ImageView(vk::PhysicalDevice physicalDevice,
@@ -74,20 +74,20 @@ lpe::ImageView::ImageView(vk::PhysicalDevice physicalDevice,
   };
 
   auto result = this->device->createImage(&createInfo, nullptr, &image);
-  helper::ThrowIfNotSuccess(result, "failed to create image!");
+  helper::ThrowIfNotSuccess(result, "Failed to create image!");
 
   vk::MemoryRequirements requirements = this->device->getImageMemoryRequirements(image);
 
   vk::MemoryAllocateInfo allocInfo = { requirements.size, helper::FindMemoryTypeIndex(requirements.memoryTypeBits, properties, physicalDevice.getMemoryProperties()) };
 
   result = this->device->allocateMemory(&allocInfo, nullptr, &memory);
-  helper::ThrowIfNotSuccess(result, "failed to allocate image memory!");
+  helper::ThrowIfNotSuccess(result, "Failed to allocate image memory!");
 
   this->device->bindImageMemory(image, memory, 0);
 
   vk::ImageViewCreateInfo viewCreateInfo = { {}, image, vk::ImageViewType::e2D, format, {}, { flags, 0, 1, 0, 1 } };
   result = this->device->createImageView(&viewCreateInfo, nullptr, &imageView);
-  helper::ThrowIfNotSuccess(result, "failed to create texture image view!");
+  helper::ThrowIfNotSuccess(result, "Failed to create texture image view!");
 }
 
 lpe::ImageView::~ImageView()

@@ -1,6 +1,5 @@
 #include "../include/Commands.h"
 #include "../include/ModelsRenderer.h"
-#include "../include/UniformBuffer.h"
 #include "../include/RenderPass.h"
 
 
@@ -14,7 +13,7 @@ lpe::Commands::Commands(const Commands& other)
   this->commandBuffers = { other.commandBuffers };
 }
 
-lpe::Commands::Commands(Commands&& other)
+lpe::Commands::Commands(Commands&& other) noexcept
 {
   this->device.reset(other.device.get());
   this->graphicsQueue.reset(other.graphicsQueue.get());
@@ -39,7 +38,7 @@ lpe::Commands& lpe::Commands::operator=(const Commands& other)
   return *this;
 }
 
-lpe::Commands& lpe::Commands::operator=(Commands&& other)
+lpe::Commands& lpe::Commands::operator=(Commands&& other) noexcept
 {
   this->device.reset(other.device.get());
   this->graphicsQueue.reset(other.graphicsQueue.get());
@@ -63,7 +62,7 @@ lpe::Commands::Commands(vk::PhysicalDevice physicalDevice, vk::Device* device, v
   vk::CommandPoolCreateInfo createInfo = { vk::CommandPoolCreateFlagBits::eResetCommandBuffer, graphicsFamilyIndex };
 
   auto result = this->device->createCommandPool(&createInfo, nullptr, &commandPool);
-  helper::ThrowIfNotSuccess(result, "failed to create graphics command pool!");
+  helper::ThrowIfNotSuccess(result, "Failed to create graphics CommandPool!");
 }
 
 lpe::Commands::~Commands()
@@ -75,7 +74,7 @@ lpe::Commands::~Commands()
 
   if(device)
   {
-    if (commandBuffers.size() > 0)
+    if (!commandBuffers.empty())
     {
       device->freeCommandBuffers(commandPool, static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
     }
@@ -91,7 +90,7 @@ lpe::Commands::~Commands()
 
 void lpe::Commands::ResetCommandBuffers()
 {
-  if (commandBuffers.size() > 0)
+  if (!commandBuffers.empty())
   {
     for (const auto& cmdBuffer : commandBuffers)
     {
@@ -112,7 +111,7 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
   vk::CommandBufferAllocateInfo allocInfo = { commandPool, vk::CommandBufferLevel::ePrimary, (uint32_t)commandBuffers.size() };
 
   auto result = device->allocateCommandBuffers(&allocInfo, commandBuffers.data());
-  helper::ThrowIfNotSuccess(result, "failed to allocate command buffers!");
+  helper::ThrowIfNotSuccess(result, "Failed to allocate command buffers!");
 
   std::array<float, 4> color = { { 0, 0, 0, 1 } };
 
@@ -125,7 +124,7 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
     vk::CommandBufferBeginInfo beginInfo = { vk::CommandBufferUsageFlagBits::eSimultaneousUse };
 
     result = commandBuffers[i].begin(&beginInfo);
-    helper::ThrowIfNotSuccess(result, "failed to begin commandbuffer!");
+    helper::ThrowIfNotSuccess(result, "Failed to begin CommandBuffer!");
 
     vk::RenderPassBeginInfo renderPassInfo = { renderPass, framebuffers[i], { { 0, 0 }, extent }, (uint32_t)clearValues.size(), clearValues.data() };
     commandBuffers[i].beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
@@ -201,13 +200,13 @@ void lpe::Commands::EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const
   vk::Fence fence;
 
   auto result = device->createFence(&fenceCreateInfo, nullptr, &fence);
-  helper::ThrowIfNotSuccess(result, "Failed to create fence");
+  helper::ThrowIfNotSuccess(result, "Failed to create Fence");
 
   graphicsQueue->submit(1, &submitInfo, fence);
   //graphicsQueue->waitIdle();
 
   result = device->waitForFences(1, &fence, VK_TRUE, 1000000);
-  helper::ThrowIfNotSuccess(result, "Failed to wait for fence");
+  helper::ThrowIfNotSuccess(result, "Failed to wait for Fences");
 
   device->destroyFence(fence);
 
