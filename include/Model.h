@@ -56,7 +56,7 @@ public:
 
   void SetInstanceIndex(uint32_t instanceIndex);
 
-  bool operator==(const Model& model);
+  bool operator==(const Model& model) const;
 };
 
 END_LPE

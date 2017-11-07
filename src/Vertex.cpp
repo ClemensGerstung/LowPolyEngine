@@ -38,10 +38,10 @@ std::vector<vk::VertexInputAttributeDescription> lpe::Vertex::GetAttributeDescri
   descriptions[2] = {2, 0, vk::Format::eR32G32B32Sfloat, offsetof(Vertex, color)};
   
   // Per-Instance attributes
-  descriptions[0] = { 3, 1, vk::Format::eR32G32B32A32Sfloat, offsetof(InstanceData, row1) };
-  descriptions[0] = { 4, 1, vk::Format::eR32G32B32A32Sfloat, offsetof(InstanceData, row2) };
-  descriptions[0] = { 5, 1, vk::Format::eR32G32B32A32Sfloat, offsetof(InstanceData, row3) };
-  descriptions[0] = { 6, 1, vk::Format::eR32G32B32A32Sfloat, offsetof(InstanceData, row4) };
+  descriptions[3] = { 3, 1, vk::Format::eR32G32B32A32Sfloat, offsetof(InstanceData, row1) };
+  descriptions[4] = { 4, 1, vk::Format::eR32G32B32A32Sfloat, offsetof(InstanceData, row2) };
+  descriptions[5] = { 5, 1, vk::Format::eR32G32B32A32Sfloat, offsetof(InstanceData, row3) };
+  descriptions[6] = { 6, 1, vk::Format::eR32G32B32A32Sfloat, offsetof(InstanceData, row4) };
 
   return descriptions;
 }
