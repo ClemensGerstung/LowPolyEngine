@@ -24,9 +24,9 @@ protected:
 public:
   Buffer() = default;
   Buffer(const Buffer& other);
-  Buffer(Buffer&& other);
+  Buffer(Buffer&& other) noexcept;
   Buffer& operator=(const Buffer& other);
-  Buffer& operator=(Buffer&& other);
+  Buffer& operator=(Buffer&& other) noexcept;
 
   Buffer(vk::PhysicalDevice physicalDevice, vk::Device* device);
   Buffer(vk::PhysicalDevice physicalDevice,

@@ -32,9 +32,9 @@ private:
 public:
   Pipeline() = default;
   Pipeline(const Pipeline& other);
-  Pipeline(Pipeline&& other);
+  Pipeline(Pipeline&& other) noexcept;
   Pipeline& operator=(const Pipeline& other);
-  Pipeline& operator=(Pipeline&& other);
+  Pipeline& operator=(Pipeline&& other) noexcept;
 
   // TODO: enhance to create compute pipeline or pipelines with other layout (e.g. wireframe only)
   Pipeline(vk::PhysicalDevice physicalDevice, 

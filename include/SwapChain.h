@@ -33,9 +33,9 @@ private:
 public:
   SwapChain() = default;
   SwapChain(const SwapChain& other);
-  SwapChain(SwapChain&& other);
+  SwapChain(SwapChain&& other) noexcept;
   SwapChain& operator=(const SwapChain& other);
-  SwapChain& operator=(SwapChain&& other);
+  SwapChain& operator=(SwapChain&& other) noexcept;
 
   SwapChain(vk::PhysicalDevice physicalDevice, std::unique_ptr<vk::Device> device, const vk::SurfaceKHR& surface, QueueFamilyIndices indices, uint32_t width, uint32_t height);
 

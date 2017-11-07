@@ -31,9 +31,9 @@ private:
 public:
   Device() = default;
   Device(const Device&);
-  Device(Device&&);
+  Device(Device&&) noexcept;
   Device & operator =(const Device&);
-  Device & operator =(Device&&);
+  Device & operator =(Device&&) noexcept;
 
   Device(vk::Instance* instance, vk::PhysicalDevice physicalDevice, const vk::SurfaceKHR& surface);
   ~Device();
