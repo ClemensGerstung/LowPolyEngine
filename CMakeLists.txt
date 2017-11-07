@@ -10,10 +10,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 
-# Static Library Link to make .exe copyable under Windows
-if (WIN32)
+# Static Library Link to be able to independable install
 set(CMAKE_EXE_LINKER_FLAGS -static)
-endif()
 
 # Only necessary under Windows
 include_directories("$ENV{VULKAN_SDK}/Include")
