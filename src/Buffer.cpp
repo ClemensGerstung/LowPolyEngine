@@ -143,6 +143,8 @@ lpe::Buffer::~Buffer()
 
 void lpe::Buffer::CreateHostVisible(vk::DeviceSize size, void* data, vk::BufferUsageFlags usage)
 {
+  this->size = size;
+
   CreateBuffer(size, usage, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 
   this->device->mapMemory(memory, 0, size, {}, &mapped);

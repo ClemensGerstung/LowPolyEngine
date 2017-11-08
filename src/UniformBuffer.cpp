@@ -83,7 +83,7 @@ void lpe::UniformBuffer::Update(const Camera& camera, ModelsRenderer& renderer, 
   if (instanceData.empty())
     return;
 
-	if (instanceData.size() * sizeof(glm::mat4x4) != instanceBuffer.GetSize())
+	if (instanceData.size() * sizeof(InstanceData) != instanceBuffer.GetSize())
 	{
 		vk::DeviceSize size = instanceData.size() * sizeof(InstanceData);
 

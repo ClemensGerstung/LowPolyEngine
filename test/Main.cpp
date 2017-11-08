@@ -25,12 +25,19 @@ int main()
     //},
     //{ 0, 1, 2, 2, 3, 0 });
 
-    //window.AddModel("models/tree.ply")->SetPosition({2, 0, 0});
-    //lpe::Model* m = window.AddModel("models/tree.ply");
-    //lpe::Model* m = window.AddModel("models/cube.ply");
-    lpe::Model* m = window.AddModel("models/monkey.ply");
-    //m->SetPosition({ 2, 0, 0 });
-    //m->SetPosition({ 1, 1, 1 });
+   
+    window.AddModel("models/cube.ply");
+    window.AddModel("models/tree.ply");
+    window.AddModel("models/monkey.ply");
+    
+
+    std::unique_ptr<lpe::Model> tree = window.GetElement(1);
+    std::unique_ptr<lpe::Model> cube = window.GetElement(0);
+    std::unique_ptr<lpe::Model> mnky = window.GetElement(2);
+
+    tree->SetPosition({ 2, 0, 0 });
+    mnky->SetPosition({ -3, 0, 0 });
+
     auto startTime = std::chrono::high_resolution_clock::now();
     
     while (window.IsOpen())
@@ -38,13 +45,21 @@ int main()
       auto currentTime = std::chrono::high_resolution_clock::now();
       float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 2500.0f;
 
-      auto transform = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-      m->SetTransform(transform);
-      //m->SetTransform(glm::mat4(1.0f));
-      m->Transform(glm::scale(glm::mat4(1.0), { 0.75, 0.75, 0.75 }));
+      tree->SetTransform(glm::rotate(glm::mat4(1.0f), time * glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+      //tree->Transform(glm::scale(glm::mat4(1.0), { 0.75, 0.75, 0.75 }));
+
+      cube->SetTransform(glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+      cube->Transform(glm::scale(glm::mat4(1.0), { 0.5, 0.5, 0.5 }));
+
+      mnky->SetTransform(glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+      mnky->Transform(glm::scale(glm::mat4(1.0), { 0.5, 0.5, 0.5 }));
 
       window.Render();
     }
+
+    tree.release();
+    cube.release();
+    mnky.release();
   }
   catch (std::runtime_error e)
   {

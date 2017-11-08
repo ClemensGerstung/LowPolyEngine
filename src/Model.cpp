@@ -222,7 +222,7 @@ lpe::InstanceData lpe::Model::GetInstanceData()
   InstanceData instanceData;
 
   glm::mat4 matrix = glm::translate(glm::mat4(1.0f), position);
-  matrix = matrix * matrix;
+  matrix = matrix * this->matrix;
 
   instanceData.row1 = matrix[0];
   instanceData.row2 = matrix[1];

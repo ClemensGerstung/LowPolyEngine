@@ -137,17 +137,15 @@ lpe::Camera lpe::Window::CreateCamera(glm::vec3 position, glm::vec3 lookAt, floa
   return Camera(position, lookAt, swapChain.GetExtent(), fov, near, far);
 }
 
-lpe::Model* lpe::Window::AddModel(std::string path)
+void lpe::Window::AddModel(std::string path)
 {
   if (!window)
     throw std::runtime_error("Cannot add model if the window wasn't created successfull. Call Create(...) before AddModel(...)!");
 
-  auto model = modelsRenderer.AddObject(path);
+  modelsRenderer.AddObject(path);
   uniformBuffer.Update(defaultCamera, modelsRenderer, commands);
-  //commands.ResetCommandBuffers();
+  commands.ResetCommandBuffers();
   commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
-  
-  return model;
 }
 
 bool lpe::Window::IsOpen() const
@@ -181,6 +179,11 @@ void lpe::Window::Render()
 
   std::vector<vk::SwapchainKHR> swapchains = { swapChain.GetSwapchain() };
   device.SubmitFrame(swapchains, &imageIndex);
+}
+
+std::unique_ptr<lpe::Model> lpe::Window::GetElement(uint32_t index)
+{
+  return std::unique_ptr<lpe::Model>(modelsRenderer.GetModelRef(index));
 }
 
 

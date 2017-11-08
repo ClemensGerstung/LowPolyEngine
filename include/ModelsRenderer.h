@@ -51,7 +51,7 @@ public:
 	~ModelsRenderer();
 
 	void AddObject(std::vector<lpe::Vertex> vertices, std::vector<uint32_t> indices);
-	Model* AddObject(std::string path);
+  void AddObject(std::string path);
 	void RemoveObject(Model* model);
 
 	void UpdateBuffer();
@@ -73,6 +73,8 @@ public:
 	std::vector<vk::DrawIndexedIndirectCommand> GetDrawIndexedIndirectCommands();
 
   std::vector<InstanceData> GetInstanceData() const;
+
+  Model* GetModelRef(int index);
 };
 
 END_LPE

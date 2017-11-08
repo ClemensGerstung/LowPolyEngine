@@ -123,14 +123,19 @@ std::vector<lpe::InstanceData> lpe::ModelsRenderer::GetInstanceData() const
   return instances;
 }
 
-lpe::Model* lpe::ModelsRenderer::AddObject(std::string path)
+lpe::Model* lpe::ModelsRenderer::GetModelRef(int index)
+{
+  return &entries[index].model;
+}
+
+void lpe::ModelsRenderer::AddObject(std::string path)
 {
 	Entry e = {};
 	e.model.Load(path);
 	e.indicesLength = (uint32_t)e.model.GetIndices().size();
 
-	std::vector<Vertex> vertices = e.model.GetVertices();
-	auto indices = e.model.GetIndices((uint32_t)this->vertices.size());
+  std::vector<Vertex> vertices = e.model.GetVertices();
+	auto indices = e.model.GetIndices();
 
 	e.verticesLength = (uint32_t)vertices.size();
 	e.verticesStartIndex = (uint32_t)this->vertices.size();
@@ -143,8 +148,6 @@ lpe::Model* lpe::ModelsRenderer::AddObject(std::string path)
 	this->indices.insert(std::end(this->indices), std::begin(indices), std::end(indices));
 
 	UpdateBuffer();
-
-	return &(*(entries.end() - 1)).model;
 }
 
 void lpe::ModelsRenderer::RemoveObject(Model* model)
