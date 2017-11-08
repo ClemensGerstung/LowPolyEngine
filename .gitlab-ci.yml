@@ -1,0 +1,7 @@
+image: kradxn/vulkan-cmake-c14:latest
+
+build:
+  script:
+    - git submodule init
+    - git submodule update
+    - sh build.sh
