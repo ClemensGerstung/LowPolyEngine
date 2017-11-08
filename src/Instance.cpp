@@ -1,12 +1,11 @@
 #include "../include/Instance.h"
-#include <set>
 
 lpe::QueueFamilyIndices lpe::Instance::FindQueueFamilies(vk::PhysicalDevice device, const vk::SurfaceKHR& surface)
 {
   lpe::QueueFamilyIndices indices;
   auto queueFamilies = device.getQueueFamilyProperties();
 
-  int index = 0;
+  uint32_t index = 0;
 
   for (const auto& queueFamily : queueFamilies)
   {
@@ -164,7 +163,7 @@ void lpe::Instance::Create(const std::string& appName)
   }
 
   auto result = vk::createInstance(&createInfo, nullptr, &instance);
-  helper::ThrowIfNotSuccess(result, "Couldn't create Vulkan instance");
+  helper::ThrowIfNotSuccess(result, "Failed to create Vulkan instance");
 
   if (settings.EnableValidationLayer)
   {
@@ -187,7 +186,7 @@ lpe::Device lpe::Instance::CreateDevice(GLFWwindow* window, const uint32_t physi
   if (glfwCreateWindowSurface(static_cast<VkInstance>(instance), window, nullptr,
                               reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS)
   {
-    throw std::runtime_error("failed to create window surface!");
+    throw std::runtime_error("Failed to create window surface!");
   }
 
   vk::PhysicalDevice physicalDevice = PickPhysicalDevice(physicalDeviceIndex, surface);

@@ -1,11 +1,7 @@
-variables:
-  GIT_SUBMODULE_STRATEGY: recursive
-  #Because Gitlab is stupid and doesnt load certs (and their workaround is broken atm)
-  GIT_SSL_NO_VERIFY: "true"
-
-
 image: kradxn/vulkan-cmake-c14:latest
 
 build:
   script:
+    - git submodule init
+    - git submodule update
     - sh build.sh

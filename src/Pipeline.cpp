@@ -11,7 +11,7 @@ void lpe::Pipeline::CreateDescriptorPool()
   vk::DescriptorPoolCreateInfo poolInfo = { {}, 2, (uint32_t)poolSizes.size(), poolSizes.data() };
 
   auto result = device->createDescriptorPool(&poolInfo, nullptr, &descriptorPool);
-  helper::ThrowIfNotSuccess(result, "failed to create descriptor pool!");
+  helper::ThrowIfNotSuccess(result, "Failed to create DescriptorPool!");
 }
 
 void lpe::Pipeline::CreateDescriptorSetLayout()
@@ -24,7 +24,7 @@ void lpe::Pipeline::CreateDescriptorSetLayout()
   vk::DescriptorSetLayoutCreateInfo layoutInfo = { {}, (uint32_t)bindings.size(), bindings.data() };
 
   auto result = device->createDescriptorSetLayout(&layoutInfo, nullptr, &descriptorSetLayout);
-  helper::ThrowIfNotSuccess(result, "failed to create descriptor set layout!");
+  helper::ThrowIfNotSuccess(result, "Failed to create DescriptorSetLayout!");
 }
 
 vk::ShaderModule lpe::Pipeline::CreateShaderModule(const std::vector<char>& code)
@@ -34,7 +34,7 @@ vk::ShaderModule lpe::Pipeline::CreateShaderModule(const std::vector<char>& code
   vk::ShaderModule shaderModule;
 
   auto result = device->createShaderModule(&createInfo, nullptr, &shaderModule);
-  helper::ThrowIfNotSuccess(result, "failed to create shader module!");
+  helper::ThrowIfNotSuccess(result, "Failed to create ShaderModule!");
 
   return shaderModule;
 }
@@ -116,7 +116,7 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent, vk::RenderPass 
   vk::PipelineLayoutCreateInfo pipelineLayoutInfo = { {}, 1, &descriptorSetLayout };
 
   auto result = device->createPipelineLayout(&pipelineLayoutInfo, nullptr, &pipelineLayout);
-  helper::ThrowIfNotSuccess(result, "failed to create pipeline layout!");
+  helper::ThrowIfNotSuccess(result, "Failed to create PipelineLayout!");
 
   vk::GraphicsPipelineCreateInfo pipelineInfo = { {}, (uint32_t)shaderStages.size(), shaderStages.data(), &vertexInputInfo, &inputAssembly, nullptr, &viewportState, &rasterizer, &multisampling, &depthStencil, &colorBlending, &dynamicState, pipelineLayout, renderPass };
 
@@ -137,7 +137,7 @@ void lpe::Pipeline::UpdateDescriptorSets()
     vk::DescriptorSetAllocateInfo allocInfo = { descriptorPool, (uint32_t)layouts.size(), layouts.data() };
 
     auto result = device->allocateDescriptorSets(&allocInfo, &descriptorSet);
-    helper::ThrowIfNotSuccess(result, "failed to allocate descriptor set!");
+    helper::ThrowIfNotSuccess(result, "Failed to allocate DescriptorSets!");
   }
 
   vk::WriteDescriptorSet uboWriteDescriptorSet = { descriptorSet };
@@ -177,7 +177,7 @@ lpe::Pipeline::Pipeline(const Pipeline& other)
   Copy(other);
 }
 
-lpe::Pipeline::Pipeline(Pipeline&& other)
+lpe::Pipeline::Pipeline(Pipeline&& other) noexcept
 {
   Move(other);
 }
@@ -188,7 +188,7 @@ lpe::Pipeline& lpe::Pipeline::operator=(const Pipeline& other)
   return *this;
 }
 
-lpe::Pipeline& lpe::Pipeline::operator=(Pipeline&& other)
+lpe::Pipeline& lpe::Pipeline::operator=(Pipeline&& other) noexcept
 {
   Move(other);
   return *this;

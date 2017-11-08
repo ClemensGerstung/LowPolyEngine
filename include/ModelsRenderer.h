@@ -42,9 +42,9 @@ private:
 public:
 	ModelsRenderer() = default;
 	ModelsRenderer(const ModelsRenderer& other);
-	ModelsRenderer(ModelsRenderer&& other);
+	ModelsRenderer(ModelsRenderer&& other) noexcept;
 	ModelsRenderer& operator=(const ModelsRenderer& other);
-	ModelsRenderer& operator=(ModelsRenderer&& other);
+	ModelsRenderer& operator=(ModelsRenderer&& other) noexcept;
 
 	ModelsRenderer(vk::PhysicalDevice physicalDevice, vk::Device* device, Commands* commands);
 

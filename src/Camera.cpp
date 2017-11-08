@@ -17,7 +17,7 @@ lpe::Camera::Camera(const Camera& other)
   Copy(other);
 }
 
-lpe::Camera::Camera(Camera&& other)
+lpe::Camera::Camera(Camera&& other) noexcept
 {
   Copy(other);
 }
@@ -28,7 +28,7 @@ lpe::Camera& lpe::Camera::operator=(const Camera& other)
   return *this;
 }
 
-lpe::Camera& lpe::Camera::operator=(Camera&& other)
+lpe::Camera& lpe::Camera::operator=(Camera&& other) noexcept
 {
   Copy(other);
   return *this;

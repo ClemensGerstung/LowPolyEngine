@@ -16,9 +16,9 @@ private:
 public:
   RenderPass() = default;
   RenderPass(const RenderPass& other);
-  RenderPass(RenderPass&& other);
+  RenderPass(RenderPass&& other) noexcept;
   RenderPass& operator=(const RenderPass& other);
-  RenderPass& operator=(RenderPass&& other);
+  RenderPass& operator=(RenderPass&& other) noexcept;
 
   RenderPass(std::unique_ptr<vk::Device> device, vk::Format swapChainImageFormat, vk::Format depthFormat);
   RenderPass(std::unique_ptr<vk::Device> device, vk::Format swapChainImageFormat);
