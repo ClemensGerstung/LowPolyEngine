@@ -85,7 +85,7 @@ lpe::RenderPass::RenderPass(const RenderPass& other)
   renderPass = other.renderPass;
 }
 
-lpe::RenderPass::RenderPass(RenderPass&& other)
+lpe::RenderPass::RenderPass(RenderPass&& other) noexcept
 {
   device = std::move(other.device);
   renderPass = other.renderPass;
@@ -99,7 +99,7 @@ lpe::RenderPass& lpe::RenderPass::operator=(const RenderPass& other)
   return *this;
 }
 
-lpe::RenderPass& lpe::RenderPass::operator=(RenderPass&& other)
+lpe::RenderPass& lpe::RenderPass::operator=(RenderPass&& other) noexcept
 {
   device = std::move(other.device);
   renderPass = other.renderPass;

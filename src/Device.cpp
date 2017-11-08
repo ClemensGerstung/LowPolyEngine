@@ -12,7 +12,7 @@ lpe::Device::Device(const Device& device)
   this->indices = device.indices;
 }
 
-lpe::Device::Device(Device&& device)
+lpe::Device::Device(Device&& device) noexcept
 {
   instance.reset(device.instance.get());
   device.instance.release();
@@ -36,7 +36,7 @@ lpe::Device& lpe::Device::operator=(const Device& device)
   return *this;
 }
 
-lpe::Device& lpe::Device::operator=(Device&& device)
+lpe::Device& lpe::Device::operator=(Device&& device) noexcept
 {
   instance.reset(device.instance.get());
   device.instance.release();
@@ -89,7 +89,7 @@ lpe::Device::Device(vk::Instance* instance, vk::PhysicalDevice physicalDevice, c
 
   vk::PipelineCacheCreateInfo cacheCreateInfo = {};
   auto result = device.createPipelineCache(&cacheCreateInfo, nullptr, &pipelineCache);
-  helper::ThrowIfNotSuccess(result, "Couldn't create pipelinecache");
+  helper::ThrowIfNotSuccess(result, "Failed to create PipelineCache");
 }
 
 lpe::Device::~Device()
@@ -134,7 +134,7 @@ vk::Format lpe::Device::FindDepthFormat() const
     }
   }
 
-  throw std::runtime_error("failed to find supported format!");
+  throw std::runtime_error("Failed to find supported format!");
 }
 
 lpe::SwapChain lpe::Device::CreateSwapChain(uint32_t width, uint32_t height)
@@ -164,7 +164,7 @@ vk::SubmitInfo lpe::Device::PrepareFrame(const SwapChain& swapChain, uint32_t* i
     vk::SemaphoreCreateInfo semaphoreInfo = {};
 
     auto result = device.createSemaphore(&semaphoreInfo, nullptr, &imageAvailableSemaphore);
-    helper::ThrowIfNotSuccess(result, "failed to create imageAvailableSemaphore!");
+    helper::ThrowIfNotSuccess(result, "Failed to create imageAvailableSemaphore!");
   }
 
   if(!renderAvailableSemaphore)
@@ -172,7 +172,7 @@ vk::SubmitInfo lpe::Device::PrepareFrame(const SwapChain& swapChain, uint32_t* i
     vk::SemaphoreCreateInfo semaphoreInfo = {};
 
     auto result = device.createSemaphore(&semaphoreInfo, nullptr, &renderAvailableSemaphore);
-    helper::ThrowIfNotSuccess(result, "failed to create renderAvailableSemaphore!");
+    helper::ThrowIfNotSuccess(result, "Failed to create renderAvailableSemaphore!");
   }
 
   auto result = device.acquireNextImageKHR(swapChain.GetSwapchain(), std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, {}, imageIndex);
@@ -184,7 +184,7 @@ vk::SubmitInfo lpe::Device::PrepareFrame(const SwapChain& swapChain, uint32_t* i
   }
   else if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
   {
-    throw std::runtime_error("failed to acquire swap chain image! (" + vk::to_string(result) + ")");
+    throw std::runtime_error("Failed to acquire swap chain image! (" + vk::to_string(result) + ")");
   }
 
   vk::SubmitInfo submitInfo = { 1, &imageAvailableSemaphore, waitFlags, 0, nullptr, 1, &renderAvailableSemaphore };
@@ -195,7 +195,7 @@ vk::SubmitInfo lpe::Device::PrepareFrame(const SwapChain& swapChain, uint32_t* i
 void lpe::Device::SubmitQueue(uint32_t submitCount, const vk::SubmitInfo* infos)
 {
   auto result = graphicsQueue.submit(submitCount, infos, nullptr);
-  helper::ThrowIfNotSuccess(result, "failed to submit draw command buffer!");
+  helper::ThrowIfNotSuccess(result, "Failed to submit draw command buffer!");
 }
 
 void lpe::Device::SubmitFrame(const std::vector<vk::SwapchainKHR>& swapChains, uint32_t* imageIndex)
@@ -213,7 +213,7 @@ void lpe::Device::SubmitFrame(const std::vector<vk::SwapchainKHR>& swapChains, u
   }
   else if (result != vk::Result::eSuccess)
   {
-    throw std::runtime_error("failed to present swap chain image! (" + vk::to_string(result) + ")");
+    throw std::runtime_error("Failed to present swap chain image! (Result: " + vk::to_string(result) + ")");
   }
 
   presentQueue.waitIdle();

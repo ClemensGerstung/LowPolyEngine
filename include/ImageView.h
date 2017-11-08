@@ -15,9 +15,9 @@ private:
 public:
   ImageView() = default;
   ImageView(const ImageView& other);
-  ImageView(ImageView&& other);
+  ImageView(ImageView&& other) noexcept;
   ImageView& operator=(const ImageView& other);
-  ImageView& operator=(ImageView&& other);
+  ImageView& operator=(ImageView&& other) noexcept;
 
   ImageView(vk::Device* device, const vk::Image& image, vk::Format format, vk::ImageAspectFlags flags);
   ImageView(vk::PhysicalDevice physicalDevice, vk::Device* device, uint32_t width, uint32_t height, vk::Format format, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::MemoryPropertyFlags properties, vk::ImageAspectFlags flags);

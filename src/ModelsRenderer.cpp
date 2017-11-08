@@ -31,7 +31,7 @@ lpe::ModelsRenderer::ModelsRenderer(const ModelsRenderer& other)
   Copy(other);
 }
 
-lpe::ModelsRenderer::ModelsRenderer(ModelsRenderer&& other)
+lpe::ModelsRenderer::ModelsRenderer(ModelsRenderer&& other) noexcept
 {
   Move(other);
 }
@@ -42,7 +42,7 @@ lpe::ModelsRenderer& lpe::ModelsRenderer::operator=(const ModelsRenderer& other)
   return *this;
 }
 
-lpe::ModelsRenderer& lpe::ModelsRenderer::operator=(ModelsRenderer&& other)
+lpe::ModelsRenderer& lpe::ModelsRenderer::operator=(ModelsRenderer&& other) noexcept
 {
   Move(other);
   return *this;

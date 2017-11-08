@@ -141,7 +141,7 @@ lpe::SwapChain::SwapChain(const SwapChain& other)
   Copy(other);
 }
 
-lpe::SwapChain::SwapChain(SwapChain&& other)
+lpe::SwapChain::SwapChain(SwapChain&& other) noexcept
 {
   Move(other);
 }
@@ -153,7 +153,7 @@ lpe::SwapChain& lpe::SwapChain::operator=(const SwapChain& other)
   return *this;
 }
 
-lpe::SwapChain& lpe::SwapChain::operator=(SwapChain&& other)
+lpe::SwapChain& lpe::SwapChain::operator=(SwapChain&& other) noexcept
 {
   Move(other);
 
@@ -206,7 +206,7 @@ std::vector<vk::Framebuffer> lpe::SwapChain::CreateFrameBuffers(const vk::Render
     vk::FramebufferCreateInfo framebufferInfo = { {}, renderPass, (uint32_t)attachments.size(), attachments.data(), extent.width, extent.height, 1 };
 
     auto result = device->createFramebuffer(&framebufferInfo, nullptr, &framebuffers[i]);
-    helper::ThrowIfNotSuccess(result, "failed to create framebuffer!");
+    helper::ThrowIfNotSuccess(result, "Failed to create Framebuffer!");
   }
 
   return framebuffers;

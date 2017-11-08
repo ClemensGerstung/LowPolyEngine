@@ -1,5 +1,4 @@
 #include "../include/Model.h"
-#include <fstream>
 #include <sstream>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -57,13 +56,13 @@ void lpe::Model::Load(std::string fileName)
 
 	if (!file)
 	{
-		std::runtime_error("could not open model " + fileName);
+		std::runtime_error("Failed to open model " + fileName);
 	}
 
 	std::string line;
 	bool header = true;
-	uint32_t countVertices = -1;
-	uint32_t countFaces = -1;
+	uint32_t countVertices = ~0u;
+	uint32_t countFaces = ~0u;
 
 	while (std::getline(file, line))
 	{

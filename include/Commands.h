@@ -21,9 +21,9 @@ private:
 public:
   Commands() = default;
   Commands(const Commands& other);
-  Commands(Commands&& other);
+  Commands(Commands&& other) noexcept;
   Commands& operator=(const Commands& other);
-  Commands& operator=(Commands&& other);
+  Commands& operator=(Commands&& other) noexcept;
 
   Commands(vk::PhysicalDevice physicalDevice, vk::Device* device, vk::Queue* graphicsQueue, uint32_t graphicsFamilyIndex);
 

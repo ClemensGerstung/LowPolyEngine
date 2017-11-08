@@ -20,9 +20,9 @@ private:
 public:
   Camera() = default;
   Camera(const Camera& other);
-  Camera(Camera&& other);
+  Camera(Camera&& other) noexcept;
   Camera& operator=(const Camera& other);
-  Camera& operator=(Camera&& other);
+  Camera& operator=(Camera&& other) noexcept;
 
   Camera(glm::vec3 position, glm::vec3 lookAt, vk::Extent2D swapChainExtent, float fov = 60, float near = 0.0, float far = 10);
 
