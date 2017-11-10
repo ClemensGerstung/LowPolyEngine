@@ -28,9 +28,21 @@ BEGIN_LPE
 		lpe::ModelsRenderer modelsRenderer;
     lpe::RenderPass renderPass;
 
+    glm::vec2 mousepos;
+
+    enum class MouseState
+    {
+      released,
+      rightButtonPressed,
+      middleButtonPressed,
+      leftButtonPressed
+    } mouseState;
+
 	protected:
 		virtual void Create();
     static void KeyInputCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void MouseInputCallback(GLFWwindow* window, int button, int action, int mods);
+    static void MouseMoveCallback(GLFWwindow* window, double xpos, double ypos);
 
 	public:
 		Window() = default;

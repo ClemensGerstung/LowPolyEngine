@@ -35,8 +35,8 @@ int main()
     std::unique_ptr<lpe::Model> cube = window.GetElement(0);
     std::unique_ptr<lpe::Model> mnky = window.GetElement(2);
 
-    tree->SetPosition({ 2, 0, 0 });
-    mnky->SetPosition({ -3, 0, 0 });
+    tree->SetPosition({ 0, 2, 0 });
+    mnky->SetPosition({ 0, -2, 0 });
 
     auto startTime = std::chrono::high_resolution_clock::now();
     
@@ -48,10 +48,10 @@ int main()
       tree->SetTransform(glm::rotate(glm::mat4(1.0f), time * glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
       //tree->Transform(glm::scale(glm::mat4(1.0), { 0.75, 0.75, 0.75 }));
 
-      cube->SetTransform(glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+      cube->SetTransform(glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
       cube->Transform(glm::scale(glm::mat4(1.0), { 0.5, 0.5, 0.5 }));
 
-      mnky->SetTransform(glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+      mnky->SetTransform(glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
       mnky->Transform(glm::scale(glm::mat4(1.0), { 0.5, 0.5, 0.5 }));
 
       window.Render();
