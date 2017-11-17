@@ -140,7 +140,6 @@ void lpe::ModelsRenderer::AddObject(std::string path)
 	e.verticesLength = (uint32_t)vertices.size();
 	e.verticesStartIndex = (uint32_t)this->vertices.size();
 	e.indicesStartIndex = (uint32_t)this->indices.size();
-  //e.model.SetInstanceIndex((uint32_t)entries.size());
 
 	entries.push_back(e);
 

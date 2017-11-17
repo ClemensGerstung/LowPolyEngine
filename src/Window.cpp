@@ -144,14 +144,14 @@ void lpe::Window::MouseMoveCallback(GLFWwindow* window, double xpos, double ypos
 
   switch (pointer->mouseState)
   {
-  case MouseState::rightButtonPressed:
+  case MouseState::rightButtonPressed:  // zoom
     pointer->defaultCamera.Move({ -delta.y / 50, 0, 0 });
     break;
   case MouseState::middleButtonPressed: // rotate
     pointer->defaultCamera.Rotate(delta.x, { 0, 0, 1 });
     pointer->defaultCamera.Rotate(-delta.y, { 0, 1, 0 });
     break;
-  case MouseState::leftButtonPressed:
+  case MouseState::leftButtonPressed: // move
     pointer->defaultCamera.Move({ 0, delta.x / 50, -delta.y / 50 });  // z is up
     break;
   case MouseState::released:

@@ -20,6 +20,8 @@ private:
 		uint32_t verticesLength;
 		uint32_t indicesLength;
 
+    uint32_t instanceCount;
+
 		bool operator==(const Entry& e);
 	};
 
