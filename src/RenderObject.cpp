@@ -286,8 +286,8 @@ lpe::InstanceRef lpe::RenderObject::GetInstance(uint32_t id)
 
   if (result == instances.end())
   {
-    auto insert = instances.insert_or_assign(id, RenderInstance{});
-    references.insert_or_assign(id, InstanceRef(&(*insert.first).second));
+    auto insert = instances.insert(std::make_pair(id, RenderInstance{}));
+    references.insert(std::make_pair(id, InstanceRef(&(*insert.first).second)));
 
     for (auto& instance : instances)
     {
