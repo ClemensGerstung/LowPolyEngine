@@ -26,12 +26,8 @@
 
 BEGIN_LPE
 
-class RenderInstance;
-
 namespace helper
 {
-  static auto deleter = [](RenderInstance* instance) {};
-
   VULKAN_HPP_INLINE LPE void ThrowIfNotSuccess(vk::Result result, std::string message)
   {
     if (result != vk::Result::eSuccess)

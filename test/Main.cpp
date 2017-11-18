@@ -15,12 +15,17 @@ int main()
   lpe::settings.EnableValidationLayer = true;
 
   lpe::RenderObject object = { "models/tree.ply", 0 };
-  auto instance1 = object.GetInstance(0);
-  auto instance2 = object.GetInstance(1);
-  auto instance3 = object.GetInstance(2);
 
-  instance1->SetPosition({ 1, 0, 0 });
-  instance3->SetPosition({ -1, 0, 0 });
+  uint32_t instances = 20;
+
+  for (uint32_t i = 0; i < instances; ++i)
+  {
+    for (uint32_t j = 0; j < instances; ++j)
+    {
+      object.GetInstance(i * instances + j)->SetPosition({ i, j, 0 });
+    }
+  }
+
 
   lpe::Window window;
   try
@@ -35,14 +40,10 @@ int main()
       auto currentTime = std::chrono::high_resolution_clock::now();
       float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 2500.0f;
 
-      instance1->SetTransform(glm::rotate(glm::mat4(1.0), glm::radians(90.0f) * time, { 0, 0, 1 }));
+      
 
       window.Render();
     }
-
-    instance1.release();
-    instance2.release();
-    instance3.release();
   }
   catch (std::runtime_error e)
   {

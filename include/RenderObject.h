@@ -43,8 +43,13 @@ public:
   glm::mat4 GetTransform() const;
 };
 
+class Deleter
+{
+public:
+  void operator()(RenderInstance* instance) const {}
+};
 
-using InstanceRef = std::unique_ptr<RenderInstance>;
+using InstanceRef = std::unique_ptr<RenderInstance, Deleter>;
 
 class RenderObject
 {
