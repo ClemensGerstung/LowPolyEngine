@@ -6,6 +6,7 @@
 #include "Commands.h"
 #include <glm/detail/type_vec3.hpp>
 #include "Camera.h"
+#include "RenderObject.h"
 
 BEGIN_LPE
 	class Window
@@ -59,13 +60,11 @@ BEGIN_LPE
 
 		lpe::Camera CreateCamera(glm::vec3 position, glm::vec3 lookAt = {0, 0, 0}, float fov = 60, float near = 0.0, float far = 10) const;
 
-	  void AddModel(std::string path);
+    void AddRenderObject(RenderObject* obj);
 
 		bool IsOpen() const;
 
 		void Render();
-
-    std::unique_ptr<lpe::Model> GetElement(uint32_t index);
 	};
 
 END_LPE

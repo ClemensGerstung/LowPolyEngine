@@ -223,7 +223,6 @@ lpe::RenderObject::RenderObject(const RenderObject& other)
   indexOffset = other.indexOffset;
 
   instances = { other.instances };
-  references = { other.references };
   indices = { other.indices };
   vertices = { other.vertices };
 }
@@ -235,7 +234,6 @@ lpe::RenderObject::RenderObject(RenderObject&& other) noexcept
   indexOffset = other.indexOffset;
 
   instances = std::move(other.instances);
-  references = std::move(other.references);
   indices = std::move(other.indices);
   vertices = std::move(other.vertices);
 }
@@ -247,7 +245,6 @@ lpe::RenderObject& lpe::RenderObject::operator=(const RenderObject& other)
   indexOffset = other.indexOffset;
 
   instances = { other.instances };
-  references = { other.references };
   indices = { other.indices };
   vertices = { other.vertices };
 
@@ -261,7 +258,6 @@ lpe::RenderObject& lpe::RenderObject::operator=(RenderObject&& other) noexcept
   indexOffset = other.indexOffset;
 
   instances = std::move(other.instances);
-  references = std::move(other.references);
   indices = std::move(other.indices);
   vertices = std::move(other.vertices);
 
@@ -282,25 +278,21 @@ void lpe::RenderObject::SetOffsets(uint32_t indexOffset, int32_t vertexOffset)
 
 lpe::InstanceRef lpe::RenderObject::GetInstance(uint32_t id)
 {
-  std::map<uint32_t, RenderInstance>::iterator result = instances.find(id);
+  auto result = instances.find(id);
 
   if (result == instances.end())
   {
-    auto insert = instances.insert(std::make_pair(id, RenderInstance{}));
-    references.insert(std::make_pair(id, InstanceRef(&(*insert.first).second)));
-
-    for (auto& instance : instances)
-    {
-      if(references[instance.first].get() != &instance.second)
-      {
-        references[instance.first].reset(&instance.second);
-      }
-    }
+    instances.insert(std::make_pair(id, RenderInstance{}));
   }
 
-  InstanceRef returnRef = references.at(id);
+  auto returnRef = InstanceRef(&instances.at(id));
   
   return returnRef;
+}
+
+void lpe::RenderObject::EreaseInstance(uint32_t id)
+{
+  instances.erase(id);
 }
 
 vk::DrawIndexedIndirectCommand lpe::RenderObject::GetIndirectCommand(uint32_t existingInstances) const
@@ -327,4 +319,29 @@ std::vector<lpe::InstanceData> lpe::RenderObject::GetInstanceData()
   }
 
   return data;
+}
+
+uint32_t lpe::RenderObject::GetInstanceCount() const
+{
+  return  (uint32_t)instances.size();
+}
+
+std::vector<lpe::Vertex>::iterator lpe::RenderObject::GetVertexBegin()
+{
+  return std::begin(vertices);
+}
+
+std::vector<lpe::Vertex>::iterator lpe::RenderObject::GetVertexEnd()
+{
+  return std::end(vertices);
+}
+
+std::vector<uint32_t>::iterator lpe::RenderObject::GetIndexBegin()
+{
+  return std::begin(indices);
+}
+
+std::vector<uint32_t>::iterator lpe::RenderObject::GetIndexEnd()
+{
+  return std::end(indices);
 }

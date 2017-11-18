@@ -32,7 +32,7 @@ void lpe::Window::Create()
   depthImage = commands.CreateDepthImage(swapChain.GetExtent(), device.FindDepthFormat());
   
   auto frameBuffers = swapChain.CreateFrameBuffers(renderPass, &depthImage);
-  //commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
+  commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
 }
 
 void lpe::Window::KeyInputCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -199,12 +199,12 @@ lpe::Camera lpe::Window::CreateCamera(glm::vec3 position, glm::vec3 lookAt, floa
   return Camera(position, lookAt, swapChain.GetExtent(), fov, near, far);
 }
 
-void lpe::Window::AddModel(std::string path)
+void lpe::Window::AddRenderObject(RenderObject* obj)
 {
   if (!window)
-    throw std::runtime_error("Cannot add model if the window wasn't created successfully. Call Create(...) before AddModel(...)!");
+    throw std::runtime_error("Cannot add model if the window wasn't created successfully. Call Create(...) before AddRenderObject(...)!");
 
-  modelsRenderer.AddObject(path);
+  modelsRenderer.AddObject(obj);
   uniformBuffer.Update(defaultCamera, modelsRenderer, commands);
   commands.ResetCommandBuffers();
   commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
@@ -242,10 +242,3 @@ void lpe::Window::Render()
   std::vector<vk::SwapchainKHR> swapchains = { swapChain.GetSwapchain() };
   device.SubmitFrame(swapchains, &imageIndex);
 }
-
-std::unique_ptr<lpe::Model> lpe::Window::GetElement(uint32_t index)
-{
-  return std::unique_ptr<lpe::Model>(modelsRenderer.GetModelRef(index));
-}
-
-

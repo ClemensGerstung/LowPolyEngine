@@ -4,7 +4,7 @@
 #include "lpe.h"
 #include "Model.h"
 #include <stack>
-#include <map>
+#include <unordered_map>
 
 BEGIN_LPE
 
@@ -25,6 +25,8 @@ public:
   RenderInstance& operator=(const RenderInstance& other);
   RenderInstance& operator=(RenderInstance&& other);
 
+  ~RenderInstance() = default;
+
   InstanceData ToInstanceData();
 
   void ResetTransform();
@@ -41,7 +43,8 @@ public:
   glm::mat4 GetTransform() const;
 };
 
-using InstanceRef = std::shared_ptr<RenderInstance>;
+
+using InstanceRef = std::unique_ptr<RenderInstance>;
 
 class RenderObject
 {
@@ -50,8 +53,7 @@ private:
   int32_t vertexOffset;
   uint32_t indexOffset;
 
-  std::map<uint32_t, RenderInstance> instances;
-  std::map<uint32_t, InstanceRef> references;
+  std::unordered_map<uint32_t, RenderInstance> instances;
   std::vector<uint32_t> indices;
   std::vector<lpe::Vertex> vertices;
 
@@ -69,9 +71,17 @@ public:
   void SetOffsets(uint32_t indexOffset, int32_t vertexOffset);
 
   InstanceRef GetInstance(uint32_t id = 0);
+  void EreaseInstance(uint32_t id);
 
   vk::DrawIndexedIndirectCommand GetIndirectCommand(uint32_t existingInstances) const;
   std::vector<InstanceData> GetInstanceData();
+
+  uint32_t GetInstanceCount() const;
+
+  std::vector<Vertex>::iterator GetVertexBegin();
+  std::vector<Vertex>::iterator GetVertexEnd();
+  std::vector<uint32_t>::iterator GetIndexBegin();
+  std::vector<uint32_t>::iterator GetIndexEnd();
 };
 
 END_LPE
