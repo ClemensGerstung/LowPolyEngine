@@ -6,34 +6,27 @@
 #include "Model.h"
 #include <set>
 #include "Commands.h"
+#include "RenderObject.h"
 
 BEGIN_LPE
+
+using ObjectRef = RenderObject*;
 
 class ModelsRenderer
 {
 private:
-	struct Entry
-	{
-		lpe::Model model;
-		uint32_t verticesStartIndex;
-		uint32_t indicesStartIndex;
-		uint32_t verticesLength;
-		uint32_t indicesLength;
 
-		bool operator==(const Entry& e);
-	};
 
 	vk::PhysicalDevice physicalDevice;
 	std::unique_ptr<vk::Device> device;
 	std::unique_ptr<Commands> commands;
-	std::vector<Entry> entries;
-	std::vector<Model> models;
+	std::vector<ObjectRef> objects;
 
 	std::vector<lpe::Vertex> vertices;
 	std::vector<uint32_t> indices;
 
-	lpe::Buffer vertexBuffer;
-	lpe::Buffer indexBuffer;
+	Buffer vertexBuffer;
+	Buffer indexBuffer;
 	Buffer indirectBuffer;
 
 	void Copy(const ModelsRenderer& other);
@@ -50,13 +43,10 @@ public:
 
 	~ModelsRenderer();
 
-	void AddObject(std::vector<lpe::Vertex> vertices, std::vector<uint32_t> indices);
-  void AddObject(std::string path);
-	void RemoveObject(Model* model);
+  void AddObject(ObjectRef obj);
 
 	void UpdateBuffer();
 
-	std::vector<Model> GetModels();
 	uint32_t GetCount() const;
 	std::vector<lpe::Vertex> GetVertices() const;
 	std::vector<uint32_t> GetIndices() const;
@@ -68,13 +58,9 @@ public:
 	bool Empty() const;
 	uint32_t EntriesCount() const;
 
-	Model operator[](uint32_t index) const;
-
 	std::vector<vk::DrawIndexedIndirectCommand> GetDrawIndexedIndirectCommands();
 
   std::vector<InstanceData> GetInstanceData() const;
-
-  Model* GetModelRef(int index);
 };
 
 END_LPE

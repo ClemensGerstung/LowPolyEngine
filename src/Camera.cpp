@@ -1,6 +1,7 @@
 #include "../include/Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/quaternion.hpp> 
 
 void lpe::Camera::Copy(const Camera& other)
 {
@@ -47,17 +48,12 @@ lpe::Camera::Camera(glm::vec3 position, glm::vec3 lookAt, vk::Extent2D swapChain
 void lpe::Camera::Move(glm::vec3 move)
 {
   position += move;
-  //lookAt += move;
+  lookAt += move;
 }
 
 void lpe::Camera::Rotate(float degree, glm::vec3 axis)
 {
   position = glm::rotate(position, glm::radians(degree), axis);
-}
-
-void lpe::Camera::Rotate(float degree)
-{
-  position = glm::rotate(position, glm::radians(degree), lookAt);
 }
 
 glm::mat4 lpe::Camera::GetView() const

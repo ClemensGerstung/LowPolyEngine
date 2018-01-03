@@ -126,10 +126,8 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent, vk::RenderPass 
   device->destroyShaderModule(fragmentShaderModule);
 }
 
-void lpe::Pipeline::UpdateDescriptorSets()
+void lpe::Pipeline::UpdateDescriptorSets(std::vector<vk::DescriptorBufferInfo> descriptors)
 {
-  auto descriptors = ubo->GetDescriptors();
-
   if (!descriptorSet)
   {
     std::array<vk::DescriptorSetLayout, 1> layouts = { descriptorSetLayout };
@@ -155,7 +153,6 @@ void lpe::Pipeline::Copy(const Pipeline& other)
 {
   this->physicalDevice = other.physicalDevice;
   this->device.reset(other.device.get());
-  this->ubo.reset(other.ubo.get());
 
   this->cache = other.cache;
   this->descriptorSetLayout = other.descriptorSetLayout;
@@ -169,7 +166,6 @@ void lpe::Pipeline::Move(Pipeline& other)
 {
   Copy(other);
   other.device.release();
-  other.ubo.release();
 }
 
 lpe::Pipeline::Pipeline(const Pipeline& other)
@@ -204,7 +200,6 @@ lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
     cache(cache)
 {
   this->device.reset(device);
-  this->ubo.reset(uniformBuffer);
 
   CreateDescriptorSetLayout();
 
@@ -212,16 +207,11 @@ lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
 
   CreateDescriptorPool();
 
-  UpdateDescriptorSets();
+  UpdateDescriptorSets(uniformBuffer->GetDescriptors());
 }
 
 lpe::Pipeline::~Pipeline()
 {
-  if(ubo)
-  {
-    ubo.release();
-  }
-
   if(device)
   {
     if(descriptorSetLayout)

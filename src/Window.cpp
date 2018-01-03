@@ -15,13 +15,16 @@ void lpe::Window::Create()
 
   glfwSetWindowUserPointer(window, this);
   glfwSetKeyCallback(window, KeyInputCallback);
+  glfwSetMouseButtonCallback(window, MouseInputCallback);
+  glfwSetCursorPosCallback(window, MouseMoveCallback);
 
   instance.Create(title);
   device = instance.CreateDevice(window);
-  swapChain = device.CreateSwapChain(width, height);
-  defaultCamera = { {3,0,0}, {0,0,0}, swapChain.GetExtent(), 110, 0.1f, 256 };
   commands = device.CreateCommands();
   modelsRenderer = device.CreateModelsRenderer(&commands);
+
+  swapChain = device.CreateSwapChain(width, height);
+  defaultCamera = { {3,0,0}, {0,0,0}, swapChain.GetExtent(), 110, 0.1f, 256 };
 
   uniformBuffer = device.CreateUniformBuffer(modelsRenderer, defaultCamera, commands);
   uniformBuffer.SetLightPosition({ 2, 2, 2 });
@@ -30,7 +33,7 @@ void lpe::Window::Create()
   depthImage = commands.CreateDepthImage(swapChain.GetExtent(), device.FindDepthFormat());
   
   auto frameBuffers = swapChain.CreateFrameBuffers(renderPass, &depthImage);
-  //commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
+  commands.CreateCommandBuffers(frameBuffers, swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
 }
 
 void lpe::Window::KeyInputCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -98,7 +101,67 @@ void lpe::Window::KeyInputCallback(GLFWwindow* window, int key, int scancode, in
   }
 
   std::cout << glm::to_string(pointer->defaultCamera.GetPosition()) << " -> " << glm::to_string(pointer->defaultCamera.GetLookAt()) << " -> " << pointer->defaultCamera.GetFoV() << std::endl;
-} 
+}
+
+void lpe::Window::MouseInputCallback(GLFWwindow* window, int button, int action, int mods)
+{
+  lpe::Window* pointer = reinterpret_cast<lpe::Window*>(glfwGetWindowUserPointer(window));
+
+  if (action == GLFW_PRESS)
+  {
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+
+    pointer->mousepos = { xpos, ypos };
+
+    switch (button)
+    {
+    case GLFW_MOUSE_BUTTON_RIGHT:
+      pointer->mouseState = MouseState::rightButtonPressed;
+      break;
+    case GLFW_MOUSE_BUTTON_MIDDLE:
+      pointer->mouseState = MouseState::middleButtonPressed;
+      break;
+    case GLFW_MOUSE_BUTTON_LEFT:
+      pointer->mouseState = MouseState::leftButtonPressed;
+      break;
+    default: 
+      // TODO: do something?
+      break;
+    }
+  }
+  
+  if (action == GLFW_RELEASE)
+  {
+    pointer->mouseState = MouseState::released;
+  }
+}
+
+void lpe::Window::MouseMoveCallback(GLFWwindow* window, double xpos, double ypos)
+{
+  lpe::Window* pointer = reinterpret_cast<lpe::Window*>(glfwGetWindowUserPointer(window));
+
+  auto delta = (pointer->mousepos - glm::vec2(xpos, ypos)) / 2.5f;
+
+  switch (pointer->mouseState)
+  {
+  case MouseState::rightButtonPressed:  // zoom
+    pointer->defaultCamera.Move({ -delta.y / 50, 0, 0 });
+    break;
+  case MouseState::middleButtonPressed: // rotate
+    pointer->defaultCamera.Rotate(delta.x, { 0, 0, 1 });
+    pointer->defaultCamera.Rotate(-delta.y, { 0, 1, 0 });
+    break;
+  case MouseState::leftButtonPressed: // move
+    pointer->defaultCamera.Move({ 0, delta.x / 50, -delta.y / 50 });  // z is up
+    break;
+  case MouseState::released:
+  default: 
+    break;
+  }
+
+  pointer->mousepos = glm::vec2((float)xpos, (float)ypos);
+}
 
 
 lpe::Window::Window(uint32_t width, uint32_t height, std::string title, bool resizeable)
@@ -137,12 +200,12 @@ lpe::Camera lpe::Window::CreateCamera(glm::vec3 position, glm::vec3 lookAt, floa
   return Camera(position, lookAt, swapChain.GetExtent(), fov, near, far);
 }
 
-void lpe::Window::AddModel(std::string path)
+void lpe::Window::AddRenderObject(RenderObject* obj)
 {
   if (!window)
-    throw std::runtime_error("Cannot add model if the window wasn't created successfully. Call Create(...) before AddModel(...)!");
+    throw std::runtime_error("Cannot add model if the window wasn't created successfully. Call Create(...) before AddRenderObject(...)!");
 
-  modelsRenderer.AddObject(path);
+  modelsRenderer.AddObject(obj);
   uniformBuffer.Update(defaultCamera, modelsRenderer, commands);
   commands.ResetCommandBuffers();
   commands.CreateCommandBuffers(swapChain.GetFramebuffers(), swapChain.GetExtent(), renderPass, graphicsPipeline, modelsRenderer, uniformBuffer);
@@ -180,10 +243,3 @@ void lpe::Window::Render()
   std::vector<vk::SwapchainKHR> swapchains = { swapChain.GetSwapchain() };
   device.SubmitFrame(swapchains, &imageIndex);
 }
-
-std::unique_ptr<lpe::Model> lpe::Window::GetElement(uint32_t index)
-{
-  return std::unique_ptr<lpe::Model>(modelsRenderer.GetModelRef(index));
-}
-
-

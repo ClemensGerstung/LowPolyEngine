@@ -148,6 +148,7 @@
     <ClCompile Include="src\Model.cpp" />
     <ClCompile Include="src\ModelsRenderer.cpp" />
     <ClCompile Include="src\Pipeline.cpp" />
+    <ClCompile Include="src\RenderObject.cpp" />
     <ClCompile Include="src\RenderPass.cpp" />
     <ClCompile Include="src\SwapChain.cpp" />
     <ClCompile Include="src\UniformBuffer.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="include\ModelsRenderer.h" />
     <ClInclude Include="include\Pipeline.h" />
     <ClInclude Include="include\QueueFamilyIndices.h" />
+    <ClInclude Include="include\RenderObject.h" />
     <ClInclude Include="include\RenderPass.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\SwapChain.h" />

@@ -1,4 +1,4 @@
-In this file I'll describe my thoughts about this engine, what it's supposed to be and what it may be become.
+In this file I'll describe my thoughts about this engine, what it's supposed to be and what it may be become. (for now 03.01.2018 deprecated)
 
 ## Wanted features
 
@@ -73,7 +73,7 @@ public:
 ```
 
 This should also handle inputs of a gamepad.  
-This calls will be forewarded to GLFW which has such a simple input handler.
+This calls will be forwarded to GLFW which has such a simple input handler.
 
 ### Technical features
 
