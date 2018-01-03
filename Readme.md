@@ -4,47 +4,153 @@ Simple render engine written in C++ and Vulkan as graphics API.
 Will be optimized to render low poly games like this:  
 https://twitter.com/HumpaLumpa007/status/683763245493137408
 
-## Wanted features
+Always feel free to complete the feature lists!
 
-Fell free to complete this list
+See [my thoughts](somethoughts.md) about this engine (might be outdated).
 
-1. Simple API to create a window and add items to render
-2. API to handle user inputs
+## Wanted Main Features
+
+### 1. Simple API to create a window and add items to render
+
+You can create a ```lpe::Window``` and add some ```lpe::RenderObjects``` to it.  
+These Objects can have several instances which are rendered separately (see [instancing](https://en.wikipedia.org/wiki/Geometry_instancing)).
+
+#### Example:
+```
+#include "lpe.h"
+
+int main()
+{
+    lpe::settings.EnableValidationLayer = false;    // enable if you want to see Vulkan messages which may accur
+    
+    lpe::RenderObject object = { "models/cube.ply", 0 };    // create a lpe::RenderObject with a renderprio set to 0. 
+                                                            // the renderprio will be used later
+                                                            
+    uint32_t instances = 5;
+    
+    // create 25 instances of this object which are rendered in a 5x5 grid
+    for (uint32_t x = 0; x < instances; ++x)
+    {
+      for (uint32_t y = 0; y < instances; ++y)
+      {
+        auto instance = object.GetInstance(x * instances + y);
+        instance->SetPosition({ x, y, 0 });
+        instance->SetTransform(glm::scale(glm::mat4(1), { 0.75f, 0.75f, 0.75f }));
+      }
+    }
+
+    lpe::Window window;
+    
+    try
+    {
+        window.Create(1920, 1080, "LowPolyEngine Sample", false);   // you could also use the second ctor to create a window
+                                                                    // params: width, height, title, resizeable
+        window.AddRenderObject(&object);    // add RenderObject so each instance will be rendered
+        
+        auto startTime = std::chrono::high_resolution_clock::now();
+        
+        while (window.IsOpen())
+        {
+          auto currentTime = std::chrono::high_resolution_clock::now();
+          float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 2500.0f;
+        
+          for (uint32_t x = 0; x < instances; ++x)
+          {
+            for (uint32_t y = 0; y < instances; ++y)
+            {
+              // rotate all instances
+              // you can access each instance on it's own and rotate with different speed for example
+              auto instance = object.GetInstance(x * instances + y);
+              instance->SetPosition({ x, y, 0 });
+              instance->SetTransform(glm::scale(glm::mat4(1), { 0.75f, 0.75f, 0.75f }));
+              instance->Transform(glm::rotate(glm::mat4(1), glm::radians(90.0f) * time, { 0, 0, 1 }));
+            }
+          }
+        
+          window.Render();  // render...
+        }
+    }
+    catch (std::runtime_error e)
+    {
+        std::cerr << e.what() << std::endl; // if there is any error
+    
+        return EXIT_FAILURE;
+    }
+    
+    return EXIT_SUCCESS;
+}
+```
+
+### 2. API to handle user inputs
+
+##### I'm not sure about this at all.
+
+One way is to create for every input it's own handler. Like this:
+```
+window.HandleInput(lpe::Key::W, [](KeyInputEvent e)
+{
+    // move camera forward
+});
+```
+
+Other way is to create a own class which inherits from something like ```InputHandlerBase```. This would look like:
+```
+class SimpleInputHandler : public InputHandlerBase 
+{
+public:
+    void HandleInput(KeyInputEvent e) override
+    {
+        if(e.Key == lpe::Key::W && e.Type == lpe::InputType::KeyDown)
+        {
+            // move camera forward
+        }
+    }
+}
+```
+
+This should also handle inputs of a gamepad.  
+This calls will be forwarded to GLFW which has such a simple input handler, but needs to be wrapped.
+
+### Your Ideas
+
+... tbd
 
 ## Wanted technical features
 
-Feel free to complete this list either
+### 1. Use SLI/Crossfire
 
-1. Use SLI/Crossfire (why not?)
-2. Render in HDR10 (because fuck myself but it may be worth it)
-3. Global illumination (...)
-4. High contrast (my be included in HDR10, but not all monitors have this feature yet)
-5. Multi-Core CPU usage (because it's awesome)
+Nope! [See](https://www.lunarg.com/faqs/scalable-link-interface-sli-vulkan/)
 
-See [my thoughts](https://gitlab.hopul.net/Clemens/LowPolyEngine/blob/master/somethoughts.md) about this engine.
+### 2. Render in HDR10 
+
+Might be a nice feature for those 1% who have a monitor which supports HDR10. But it seems that they get more common this year (2018)
+
+### 3. Global illumination 
+
+I have no idea how to do this. I want this feature because the test renders in Cinema4D look awesome with GI enabled.  
+More on that in the future...
+
+### 4. High contrast 
+
+This should be a "simple" shader which will be applied during rendering. This is only needed if the monitor doesn't have HDR10.
+
+### 5. Multi-Core CPU usage
+
+Because quadcore CPUs seem to be the most used CPU types for now it makes sense to use (almost) all cores.  
+Even Intel's newest mainstream CPUs (80XX Series) have six cores. 
+I don't know yet how to accomplish this but maybe the *boost* lib can help here.
+
+### 6. Your Ideas
+
+... tbd
 
 ## Setup project
 
 You may need this section because VisualStudio can fuck you up during setup:
 
-### Libraries
+If you want to do all of this manually see here: [manual_install.md]
 
-You need at least:
-
-1. Vulkan
-2. GLFW
-3. glm
-
-Additional libraries (not needed yet, and may be replaced):
-
-4. stb_lib
-5. ~~tinyobjloader~~
-
-It's recommended to create a *Libraries* folder where you put all of the needed libraries.  
-So you can find them easily. I use *D:\Libraries* where **ALL** external libraries are.  
-But in the end it's up to you.
-
-#### Vulkan
+#### Install Vulkan
 
 Vulkan is a new graphics API deveoped by the Khronos Grp.
 
@@ -54,99 +160,52 @@ Select your system, download the newest version and install it whereever you wan
 
 Open your file explorer, navigate to %vulkan%/Bin and execute *Cube.exe* (or whatever it is called on your system if it's not Windows)
 
-If it opens a window and displays a spinning cube you're good to go. Otherwise check Vulkan compatibility of your graphicscard and install if needed the neede drivers.
+If it opens a window and displays a spinning cube you're good to go. Otherwise check Vulkan compatibility of your graphicscard and install if needed the drivers.
 
-#### GLFW
+#### Load Project
 
-GLFW is a C API to create and display windows cross plattform. It also has Vulkan support by default, which is pretty nice.
+Clone this project to your local disk:  
+```git clone https://github.com/HumpaLumpa007/LowPolyEngine.git```
 
-**Download**: http://www.glfw.org/download.html
+#### Load Subdependencies
 
-If you're on Windows, you may want to download the prebuild libs for you target platform (x86, x64).
+```git submodule init```  
+```git submodule update```
 
-Extract the zip file into your libraries folder and your good to go.
+### Open Project
 
-#### glm
+Because I'm lazy af, there is just this *.sln file to open.  
+**This is a Visual Studio 2017 solution!** 
+ 
+If needed: You may also check in **General** the options **Target Platform Version** and **Platform Toolset** if they're set correctly for your VisualStudio version.
 
-glm is a math library, because you don't want to write the whole stuff on your own. And it's also well tested and works fine.
+#### Link libraries
 
-**Download**: https://github.com/g-truc/glm/tags
+If you're using Clion (or cmake to be clear) you're done! **(under Windows check the CLion Setup below!)**
 
-Download the latest version from their git repo and extract it into your libraries folder.
+If you're using Visual Studio:
+1. navigate to %project-dir%\external\glfw
+2. run ```cmake .```, this will create the needed Visual Studio C++ Project File [see official GLFW](http://www.glfw.org/docs/latest/compile_guide.html#compile_generate)
+3. Check if the GLFW Project is linked in the LowPolyEngine Project
+4. If not: link ```%project-dir%\external\glfw\src\glfw.vcxproj```
+5. Check the build paths are set to the correct folder (your output)
+6. Build the project and good luck by fixing all the errors which may occur (I'm sorry, but as I said I'm to lazy to check how to generate the project files with cmake)
 
-glm is a "header-only" library, so there are only .h files and no .lib or .dll to link to. Keep that in mind for later.
+### CLion Setup (under Windows)
 
-#### stb_lib
-
-stb_lib is a large collection of "single header" libaries to do various things.
-
-**Download**: https://github.com/nothings/stb
-
-Download the zip from the git repo and extract it into your libraries folder.
-
-Like glm stb_lib is a "header-only" library
-
-#### ~~tinyobjloader~~
-
-~~tinyobjloader is a libary to load .obj files (3D models).~~
-
-~~**Download**: https://github.com/syoyo/tinyobjloader~~
-
-~~Download the zip from the git repo and extract it into your libraries folder.~~
-
-~~Like glm and stb_lib tinyobjloader is a "header-only" library~~
-
-**Won't need this anymore because I'm using the [ply](https://de.wikipedia.org/wiki/Polygon_File_Format) format now and have written a simple parser on my own!**
-
-### Installation
-
-**I use VisualStudio 2017 Community Edition to develop this library.**
-
-Clone this repository into your projects folder and open the .sln file.
-
-Now setup the paths to include and link directories. But first set **LowPolyEngine.Test** as *startup project* and run the project.
-
-This may fail but is needed to enable a option in the properties window of the project (thx VS).
-
-For **LowPolyEngine** just do Step 1 and for **LowPolyEngine.Test** do all steps.  
-Also don't forget to link LowPolyEngine to LowPolyEngine.Test so you can use the lib itself.
-
-1. In **C/C++**|**General** check **Additional Include Directories**
-  1. You must at least link **Vulkan**, **GLFW** and **glm**
-  2. You may also link **stb_lib** and **tinyobjloader**. Though they're not needed yet
-  3. Open the "Edit" Window of the "Include directories" and add new lines and select the include dir of the lib.  
-     In my case it looks like this:
-      * D:\Libraries\Vulkan\Include
-      * D:\Libraries\glm
-      * D:\Libraries\glfw\include
-      * D:\Libraries\stb_lib
-2. In **Linker**|**General** check **Additional Libraries Directories**
-  1. You must link **Vulkan** and **GLFW**
-    1. For Vulkan you have to link the ~~**Bin** (or **Bin32** if x86)~~ **Source\lib** (or **Source\lib32** if x86) and the **Lib** (or **Lib32** if x86) folder (because of some validation layer stuff)
-    2. For GLVFW select your VS (or other compiler) prebuild folder and select this (if you're using VS17 like me, just link the VS15 folder, works fine)
-  2. Open the "Edit" Window of the "Libraries directories" and add new lines and select the library dir of the lib.
-     In my case it lools like this:
-      * D:\Libraries\Vulkan\Lib
-      * ~~D:\Libraries\Vulkan\Bin~~ D:\Libraries\Vulkan\Source\lib
-      * D:\Libraries\glfw\lib-vc2015
-3. In **Linker**|**Input** check **Additional Dependencies**
-  1. You must link the static libraries of Vulkan and GLFW
-  2. Open the "Edit" Window and enter:
-      * vulkan-1.lib
-      * glfw3.lib
-
-**Congrats your done with the setup!**
-
-You may also check in **General** the options **Target Platform Version** and **Platform Toolset** if they're set correctly for your VisualStudio version.
-
-
-## Clion Setup
-
-### Under Windows
-
-1. Install Vulkan SDK see [Vulkan](https://gitlab.hopul.net/Clemens/LowPolyEngine#vulkan)
-2. Install MSys2 http://www.msys2.org/
+1. Install Vulkan SDK see [Install Vulkan](#vulkan)
+2. Install MSys2 ([http://www.msys2.org/])
 3. Install a toolchain: ```pacman -S mingw-w64-x86_64-toolchain```
 4. Select the mingw installation in CLion:
     * File | Settings | Build ,Execution... | Toolchains
     * Set MinGW Home to {MSys2 installation dir}\mingw64
+    
+## What's next?
+
+My current schedule is:
+1. Implement multi pipeline rendering (use the ```lpe::RenderObject::prio```, the objects will be rendered on different pipelines by their priority)
+2. Add [ImGUI](https://github.com/ocornut/imgui) support - [see](https://github.com/SaschaWillems/Vulkan/tree/master/examples/imgui)
+2. Implement frustum culling and lod - [see](https://github.com/SaschaWillems/Vulkan/tree/master/examples/computecullandlod)
+3. Tessellation - [see](https://github.com/SaschaWillems/Vulkan/tree/master/examples/terraintessellation)
+4. Shadows - [see](https://github.com/SaschaWillems/Vulkan/tree/master/examples/shadowmappingcascade)
+5. Begin with wanted technical features

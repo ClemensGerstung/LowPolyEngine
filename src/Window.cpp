@@ -20,10 +20,11 @@ void lpe::Window::Create()
 
   instance.Create(title);
   device = instance.CreateDevice(window);
-  swapChain = device.CreateSwapChain(width, height);
-  defaultCamera = { {3,0,0}, {0,0,0}, swapChain.GetExtent(), 110, 0.1f, 256 };
   commands = device.CreateCommands();
   modelsRenderer = device.CreateModelsRenderer(&commands);
+
+  swapChain = device.CreateSwapChain(width, height);
+  defaultCamera = { {3,0,0}, {0,0,0}, swapChain.GetExtent(), 110, 0.1f, 256 };
 
   uniformBuffer = device.CreateUniformBuffer(modelsRenderer, defaultCamera, commands);
   uniformBuffer.SetLightPosition({ 2, 2, 2 });

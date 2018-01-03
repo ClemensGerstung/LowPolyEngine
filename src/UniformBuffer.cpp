@@ -88,11 +88,13 @@ void lpe::UniformBuffer::Update(const Camera& camera, ModelsRenderer& renderer, 
 		vk::DeviceSize size = instanceData.size() * sizeof(InstanceData);
 
 		// totally dump and inefficient
-    instanceBuffer.CreateHostVisible(size, instanceData.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer);
+    instanceBuffer.CreateStaged(commands, size, instanceData.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 	}
   else
   {
-    instanceBuffer.CopyToBufferMemory(instanceData.data());
+    auto cmdBuffer = commands.BeginSingleTimeCommands();
+    instanceBuffer.CopyStaged(cmdBuffer, instanceData.data());
+    commands.EndSingleTimeCommands(cmdBuffer);
   }
 }
 
