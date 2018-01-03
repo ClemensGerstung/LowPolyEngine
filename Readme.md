@@ -199,7 +199,7 @@ If you're using Visual Studio:
 4. Select the mingw installation in CLion:
     * File | Settings | Build ,Execution... | Toolchains
     * Set MinGW Home to {MSys2 installation dir}\mingw64
-    
+
 ## What's next?
 
 My current schedule is:
