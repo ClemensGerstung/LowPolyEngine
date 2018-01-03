@@ -10,7 +10,6 @@ class Pipeline
 private:
   vk::PhysicalDevice physicalDevice;
   std::unique_ptr<vk::Device> device;
-  std::unique_ptr<lpe::UniformBuffer> ubo;
 
   vk::PipelineCache cache;
 
@@ -46,7 +45,7 @@ public:
 
   ~Pipeline();
 
-  void UpdateDescriptorSets();
+  void UpdateDescriptorSets(std::vector<vk::DescriptorBufferInfo> descriptors);
 
   vk::Pipeline GetPipeline() const;
   vk::PipelineLayout GetPipelineLayout() const;

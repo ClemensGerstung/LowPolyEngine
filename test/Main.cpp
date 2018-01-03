@@ -8,58 +8,59 @@
 #include "Model.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
+#include "RenderObject.h"
 
 int main()
 {
   lpe::settings.EnableValidationLayer = true;
 
+  lpe::RenderObject object = { "models/tree.ply", 0 };
+  lpe::RenderObject monkey = { "models/monkey.ply", 0 };
+
+  uint32_t instances = 5;
+
+  for (uint32_t x = 0; x < instances; ++x)
+  {
+    for (uint32_t y = 0; y < instances; ++y)
+    {
+      auto instance = object.GetInstance(x * instances + y);
+      instance->SetPosition({ x, y, 0 });
+      instance->SetTransform(glm::scale(glm::mat4(1), { 0.75f, 0.75f, 0.75f }));
+
+      instance = monkey.GetInstance(x * instances + y);
+      instance->SetPosition({ x, y, 1 });
+      instance->SetTransform(glm::scale(glm::mat4(1), { 0.5f, 0.5f, 0.5f }));
+    }
+  }
+
+
   lpe::Window window;
   try
   {
-    window.Create(1280, 720, "LowPolyEngine", false);
-    //modelsRenderer.AddObject({
-    //  { { 0.5, 0.5, 0.5 },{ 1, 0, 0 } },
-    //  { { -0.5, 0.5, 0.5 },{ 0, 1, 0 } },
-    //  { { -0.5, -0.5, 0.5 },{ 0, 0, 1 } },
-    //  { { 0.5, -0.5, 0.5 },{ 1, 1, 1 } }
-    //},
-    //{ 0, 1, 2, 2, 3, 0 });
-
-   
-    window.AddModel("models/cube.ply");
-    window.AddModel("models/tree.ply");
-    window.AddModel("models/monkey.ply");
-    
-
-    std::unique_ptr<lpe::Model> tree = window.GetElement(1);
-    std::unique_ptr<lpe::Model> cube = window.GetElement(0);
-    std::unique_ptr<lpe::Model> mnky = window.GetElement(2);
-
-    tree->SetPosition({ 2, 0, 0 });
-    mnky->SetPosition({ -3, 0, 0 });
+    window.Create(1920, 1080, "LowPolyEngine", false);
+    window.AddRenderObject(&object);
+    window.AddRenderObject(&monkey);
 
     auto startTime = std::chrono::high_resolution_clock::now();
-    
+
     while (window.IsOpen())
     {
       auto currentTime = std::chrono::high_resolution_clock::now();
       float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 2500.0f;
 
-      tree->SetTransform(glm::rotate(glm::mat4(1.0f), time * glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-      //tree->Transform(glm::scale(glm::mat4(1.0), { 0.75, 0.75, 0.75 }));
-
-      cube->SetTransform(glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-      cube->Transform(glm::scale(glm::mat4(1.0), { 0.5, 0.5, 0.5 }));
-
-      mnky->SetTransform(glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-      mnky->Transform(glm::scale(glm::mat4(1.0), { 0.5, 0.5, 0.5 }));
+      for (uint32_t x = 0; x < instances; ++x)
+      {
+        for (uint32_t y = 0; y < instances; ++y)
+        {
+          auto instance = object.GetInstance(x * instances + y);
+          instance->SetPosition({ x, y, 0 });
+          instance->SetTransform(glm::scale(glm::mat4(1), { 0.75f, 0.75f, 0.75f }));
+          instance->Transform(glm::rotate(glm::mat4(1), glm::radians(90.0f) * time, { 0, 0, 1 }));
+        }
+      }
 
       window.Render();
     }
-
-    tree.release();
-    cube.release();
-    mnky.release();
   }
   catch (std::runtime_error e)
   {
@@ -70,4 +71,3 @@ int main()
 
   return 0;
 }
-

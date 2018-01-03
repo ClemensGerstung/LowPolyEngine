@@ -18,152 +18,153 @@
 #define BEGIN_LPE namespace lpe {
 #define END_LPE }
 
+#define ENGINE_NAME "LowPolyEngine"
+#define ENGINE_VERSION VK_MAKE_VERSION(0, 1, 1)
+
 #define LPE // this is a simple static lib but if somebody want to turn this into a dynamic lib consider defining this as "__declspec" or "__attribute__"!
 // also only needed if any (namespace) standalone methods...
 
 BEGIN_LPE
-	namespace helper
-	{
-#define ENGINE_NAME "LowPolyEngine"
-#define ENGINE_VERSION VK_MAKE_VERSION(0, 1, 1)
 
-		VULKAN_HPP_INLINE LPE void ThrowIfNotSuccess(vk::Result result, std::string message)
-		{
-			if (result != vk::Result::eSuccess)
-			{
-				throw std::runtime_error(message + " (Result: " + vk::to_string(result) + ")");
-			}
-		}
-
-		const std::vector<const char*> ValidationLayer = {
-			"VK_LAYER_LUNARG_core_validation"
-		};
-
-		const std::vector<const char*> DeviceExtensions = {
-			VK_KHR_SWAPCHAIN_EXTENSION_NAME
-		};
-
-    VULKAN_HPP_INLINE LPE uint32_t FindMemoryTypeIndex(uint32_t typeFilter, vk::MemoryPropertyFlags property, const vk::PhysicalDeviceMemoryProperties& properties)
+namespace helper
+{
+  VULKAN_HPP_INLINE LPE void ThrowIfNotSuccess(vk::Result result, std::string message)
+  {
+    if (result != vk::Result::eSuccess)
     {
-      for (uint32_t i = 0; i < properties.memoryTypeCount; i++)
+      throw std::runtime_error(message + " (Result: " + vk::to_string(result) + ")");
+    }
+  }
+
+  const std::vector<const char*> ValidationLayer = {
+    "VK_LAYER_LUNARG_core_validation"
+  };
+
+  const std::vector<const char*> DeviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+  };
+
+  VULKAN_HPP_INLINE LPE uint32_t FindMemoryTypeIndex(uint32_t typeFilter, vk::MemoryPropertyFlags property, const vk::PhysicalDeviceMemoryProperties& properties)
+  {
+    for (uint32_t i = 0; i < properties.memoryTypeCount; i++)
+    {
+      if ((typeFilter & (1 << i)) && (properties.memoryTypes[i].propertyFlags & property) == property)
       {
-        if ((typeFilter & (1 << i)) && (properties.memoryTypes[i].propertyFlags & property) == property)
+        return i;
+      }
+    }
+
+    throw std::runtime_error("failed to find suitable memory type!");
+  }
+
+  VULKAN_HPP_INLINE LPE bool CheckValidationLayerSupport()
+  {
+    auto availableLayers = vk::enumerateInstanceLayerProperties();
+
+    for (const auto& layerName : ValidationLayer)
+    {
+      bool found = false;
+
+      for (const auto& layerProp : availableLayers)
+      {
+        if (strcmp(layerName, layerProp.layerName) == 0)
         {
-          return i;
+          found = true;
+          break;
         }
       }
 
-      throw std::runtime_error("failed to find suitable memory type!");
+      if (!found)
+      {
+        return false;
+      }
     }
 
-		VULKAN_HPP_INLINE LPE bool CheckValidationLayerSupport()
-		{
-			auto availableLayers = vk::enumerateInstanceLayerProperties();
+    return true;
+  }
 
-			for (const auto& layerName : ValidationLayer)
-			{
-				bool found = false;
+  VULKAN_HPP_INLINE LPE VkResult CreateDebugReportCallbackEXT(vk::Instance instance,
+    const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
+    const VkAllocationCallbacks* pAllocator,
+    vk::DebugReportCallbackEXT* pCallback)
+  {
+    auto func = (PFN_vkCreateDebugReportCallbackEXT)instance.getProcAddr("vkCreateDebugReportCallbackEXT");
+    if (func != nullptr)
+    {
+      return func(static_cast<VkInstance_T*>(instance), pCreateInfo, pAllocator,
+        reinterpret_cast<VkDebugReportCallbackEXT*>(pCallback));
+    }
 
-				for (const auto& layerProp : availableLayers)
-				{
-					if (strcmp(layerName, layerProp.layerName) == 0)
-					{
-						found = true;
-						break;
-					}
-				}
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+  }
 
-				if (!found)
-				{
-					return false;
-				}
-			}
+  inline void DestroyDebugReportCallbackEXT(vk::Instance instance,
+    vk::DebugReportCallbackEXT callback,
+    const VkAllocationCallbacks* pAllocator)
+  {
+    auto func = (PFN_vkDestroyDebugReportCallbackEXT)instance.getProcAddr("vkDestroyDebugReportCallbackEXT");
+    if (func != nullptr)
+    {
+      func(static_cast<VkInstance>(instance), static_cast<VkDebugReportCallbackEXT>(callback), pAllocator);
+    }
+  }
 
-			return true;
-		}
+  VULKAN_HPP_INLINE LPE VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags,
+    VkDebugReportObjectTypeEXT objType,
+    uint64_t obj,
+    size_t location,
+    int32_t code,
+    const char* layerPrefix,
+    const char* msg,
+    void* userData)
+  {
+    std::cerr << "validation layer: " << msg << std::endl;
 
-		VULKAN_HPP_INLINE LPE VkResult CreateDebugReportCallbackEXT(vk::Instance instance,
-		                                                            const VkDebugReportCallbackCreateInfoEXT* pCreateInfo,
-		                                                            const VkAllocationCallbacks* pAllocator,
-		                                                            vk::DebugReportCallbackEXT* pCallback)
-		{
-			auto func = (PFN_vkCreateDebugReportCallbackEXT)instance.getProcAddr("vkCreateDebugReportCallbackEXT");
-			if (func != nullptr)
-			{
-				return func(static_cast<VkInstance_T*>(instance), pCreateInfo, pAllocator,
-				            reinterpret_cast<VkDebugReportCallbackEXT*>(pCallback));
-			}
+    return VK_FALSE;
+  }
 
-			return VK_ERROR_EXTENSION_NOT_PRESENT;
-		}
+  VULKAN_HPP_INLINE LPE std::vector<char> ReadSPIRVFile(std::string fileName)
+  {
+    std::ifstream file(fileName, std::ios::ate | std::ios::binary);
 
-		inline void DestroyDebugReportCallbackEXT(vk::Instance instance,
-		                                          vk::DebugReportCallbackEXT callback,
-		                                          const VkAllocationCallbacks* pAllocator)
-		{
-			auto func = (PFN_vkDestroyDebugReportCallbackEXT)instance.getProcAddr("vkDestroyDebugReportCallbackEXT");
-			if (func != nullptr)
-			{
-				func(static_cast<VkInstance>(instance), static_cast<VkDebugReportCallbackEXT>(callback), pAllocator);
-			}
-		}
+    if (!file.is_open())
+    {
+      throw std::runtime_error("failed to open file \"" + fileName + "\"!");
+    }
 
-		VULKAN_HPP_INLINE LPE VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugReportFlagsEXT flags,
-		                                                                   VkDebugReportObjectTypeEXT objType,
-		                                                                   uint64_t obj,
-		                                                                   size_t location,
-		                                                                   int32_t code,
-		                                                                   const char* layerPrefix,
-		                                                                   const char* msg,
-		                                                                   void* userData)
-		{
-			std::cerr << "validation layer: " << msg << std::endl;
+    size_t fileSize = (size_t)file.tellg();
+    std::vector<char> buffer(fileSize);
 
-			return VK_FALSE;
-		}
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
 
-		VULKAN_HPP_INLINE LPE std::vector<char> ReadSPIRVFile(std::string fileName)
-		{
-			std::ifstream file(fileName, std::ios::ate | std::ios::binary);
+    file.close();
 
-			if (!file.is_open())
-			{
-				throw std::runtime_error("failed to open file \"" + fileName + "\"!");
-			}
+    return buffer;
+  }
 
-			size_t fileSize = (size_t)file.tellg();
-			std::vector<char> buffer(fileSize);
-
-			file.seekg(0);
-			file.read(buffer.data(), fileSize);
-
-			file.close();
-
-			return buffer;
-		}
-
-	  VULKAN_HPP_INLINE LPE void* AlignedAlloc(size_t size, size_t alignment)
-	  {
-	    void* data = nullptr;
+  VULKAN_HPP_INLINE LPE void* AlignedAlloc(size_t size, size_t alignment)
+  {
+    void* data = nullptr;
 #if defined(_MSC_VER) || defined(__MINGW32__)
-	    data = _aligned_malloc(size, alignment);
+    data = _aligned_malloc(size, alignment);
 #else
-      int res = posix_memalign(&data, alignment, size);
-      if (res != 0)
-        data = nullptr;
+    int res = posix_memalign(&data, alignment, size);
+    if (res != 0)
+      data = nullptr;
 #endif
-	    return data;
-	  }
+    return data;
+  }
 
-	  VULKAN_HPP_INLINE LPE void AlignedFree(void* data)
-	  {
+  VULKAN_HPP_INLINE LPE void AlignedFree(void* data)
+  {
 #if	defined(_MSC_VER) || defined(__MINGW32__)
-	    _aligned_free(data);
+    _aligned_free(data);
 #else
-      free(data);
+    free(data);
 #endif
-	  }
-	}
+  }
+}
 
 END_LPE
 

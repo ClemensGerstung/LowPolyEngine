@@ -30,7 +30,6 @@ public:
 
   void Move(glm::vec3 move);
   void Rotate(float degree, glm::vec3 axis);
-  void Rotate(float degree);
 
   glm::mat4 GetView() const;
   glm::mat4 GetPerspective() const;
@@ -60,6 +59,11 @@ public:
 	{
 		return fov;
 	}
+
+  void SetRotation(float angle, glm::vec3 axis)
+  {
+    
+  }
 };
 
 END_LPE

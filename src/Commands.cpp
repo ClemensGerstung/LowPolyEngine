@@ -129,8 +129,8 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
     vk::RenderPassBeginInfo renderPassInfo = { renderPass, framebuffers[i], { { 0, 0 }, extent }, (uint32_t)clearValues.size(), clearValues.data() };
     commandBuffers[i].beginRenderPass(&renderPassInfo, vk::SubpassContents::eInline);
 
-    //if (renderer.GetVertexBuffer() && renderer.GetIndexBuffer())
-   // {
+    if (renderer.GetVertexBuffer() && renderer.GetIndexBuffer())
+    {
       vk::Viewport viewport = { 0, 0, (float)extent.width, (float)extent.height, 0.0, 1.0f };
       commandBuffers[i].setViewport(0, 1, &viewport);
 
@@ -162,7 +162,7 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
 					commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(), j * sizeof(vk::DrawIndexedIndirectCommand), 1, sizeof(vk::DrawIndexedIndirectCommand));
 				}
 			}
-   // }
+    }
 
     commandBuffers[i].endRenderPass();
     commandBuffers[i].end();
