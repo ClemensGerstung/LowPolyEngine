@@ -162,7 +162,7 @@ Open your file explorer, navigate to %vulkan%/Bin and execute *Cube.exe* (or wha
 
 If it opens a window and displays a spinning cube you're good to go. Otherwise check Vulkan compatibility of your graphicscard and install if needed the drivers.
 
-#### Load Project
+#### Download Project
 
 Clone this project to your local disk:  
 ```git clone https://github.com/HumpaLumpa007/LowPolyEngine.git```
@@ -172,26 +172,17 @@ Clone this project to your local disk:
 ```git submodule init```  
 ```git submodule update```
 
-### Open Project
+#### Setup
 
-Because I'm lazy af, there is just this *.sln file to open.  
-**This is a Visual Studio 2017 solution!** 
- 
-If needed: You may also check in **General** the options **Target Platform Version** and **Platform Toolset** if they're set correctly for your VisualStudio version.
+##### Visual Studio
 
-#### Link libraries
+Create the solution file with:  
+```cmake -G "Visual Studio 15 Win64"```
 
-If you're using Clion (or cmake to be clear) you're done! **(under Windows check the CLion Setup below!)**
+This will link all libraries (vulkan, glfw, glm).
+Make sure you use the correct Visual Studio version in the cmake command (15 = Visual Studio 2017)
 
-If you're using Visual Studio:
-1. navigate to %project-dir%\external\glfw
-2. run ```cmake .```, this will create the needed Visual Studio C++ Project File [see official GLFW](http://www.glfw.org/docs/latest/compile_guide.html#compile_generate)
-3. Check if the GLFW Project is linked in the LowPolyEngine Project
-4. If not: link ```%project-dir%\external\glfw\src\glfw.vcxproj```
-5. Check the build paths are set to the correct folder (your output)
-6. Build the project and good luck by fixing all the errors which may occur (I'm sorry, but as I said I'm to lazy to check how to generate the project files with cmake)
-
-### CLion Setup (under Windows)
+##### CLion (under Windows)
 
 1. Install Vulkan SDK see [Install Vulkan](#vulkan)
 2. Install MSys2 ([http://www.msys2.org/])
@@ -199,6 +190,13 @@ If you're using Visual Studio:
 4. Select the mingw installation in CLion:
     * File | Settings | Build ,Execution... | Toolchains
     * Set MinGW Home to {MSys2 installation dir}\mingw64
+
+#### Open Project
+
+Open the project with your IDE and create a build.
+
+If you're using Visual Studio make sure that the LowPolyEngine.Test Project is set to startup project!
+
 
 ## What's next?
 
