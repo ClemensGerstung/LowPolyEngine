@@ -67,15 +67,18 @@ lpe::ModelsRenderer::~ModelsRenderer()
   }
 }
 
-std::vector<vk::DrawIndexedIndirectCommand> lpe::ModelsRenderer::GetDrawIndexedIndirectCommands()
+std::vector<vk::DrawIndexedIndirectCommand> lpe::ModelsRenderer::GetDrawIndexedIndirectCommands(uint32_t prio)
 {
 	std::vector<vk::DrawIndexedIndirectCommand> commands = {};
 
 	uint32_t i = 0;
 	for (auto& entry : objects)
 	{
-		commands.push_back(entry->GetIndirectCommand(i));
-    i += entry->GetInstanceCount();
+    if (entry->GetPrio() == prio)
+    {
+      commands.push_back(entry->GetIndirectCommand(i));
+      i += entry->GetInstanceCount();
+    }
 	}
 
 	return commands;
@@ -112,19 +115,14 @@ void lpe::ModelsRenderer::AddObject(ObjectRef obj)
 
 void lpe::ModelsRenderer::UpdateBuffer()
 {
-  auto cmds = GetDrawIndexedIndirectCommands();
-
   vk::DeviceSize indexSize = sizeof(indices[0]) * indices.size();
   vk::DeviceSize vertexSize = sizeof(vertices[0]) * vertices.size();
-  vk::DeviceSize indirectSize = cmds.size() * sizeof(vk::DrawIndexedIndirectCommand);
-
+ 
   /*indexBuffer = commands->CreateBuffer(indices.data(), indexSize);
   vertexBuffer = commands->CreateBuffer(vertices.data(), vertexSize);*/
 
   vertexBuffer.CreateStaged(*commands, vertexSize, vertices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
   indexBuffer.CreateStaged(*commands, indexSize, indices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-  
-	indirectBuffer.CreateStaged(*commands, indirectSize, cmds.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndirectBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
 }
 
 uint32_t lpe::ModelsRenderer::GetCount() const
@@ -162,7 +160,27 @@ uint32_t lpe::ModelsRenderer::EntriesCount() const
   return (uint32_t)objects.size();
 }
 
-vk::Buffer lpe::ModelsRenderer::GetIndirectBuffer()
+vk::Buffer lpe::ModelsRenderer::GetIndirectBuffer(uint32_t prio)
 {
+  auto cmds = GetDrawIndexedIndirectCommands(prio);
+  vk::DeviceSize indirectSize = cmds.size() * sizeof(vk::DrawIndexedIndirectCommand);
+
+  if (indirectSize >= indirectBuffer.GetSize() || !indirectBuffer.GetBuffer())
+  {
+    indirectBuffer.CreateStaged(*commands, 
+                                indirectSize, 
+                                cmds.data(), 
+                                vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndirectBuffer, 
+                                vk::MemoryPropertyFlagBits::eDeviceLocal);
+  }
+  else
+  {
+    auto cmdBuffer = commands->BeginSingleTimeCommands();
+
+    indirectBuffer.CopyStaged(cmdBuffer, cmds.data());
+
+    commands->EndSingleTimeCommands(cmdBuffer);
+  }
+
 	return indirectBuffer.GetBuffer();
 }

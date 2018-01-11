@@ -102,7 +102,7 @@ void lpe::Commands::ResetCommandBuffers()
 void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers,
                                          vk::Extent2D extent,
                                          RenderPass& renderPass,
-                                         Pipeline& pipeline,
+                                         const std::map<int, lpe::Pipeline>& pipelines,
                                          ModelsRenderer& renderer, 
 																				 UniformBuffer& ubo)
 {
@@ -138,30 +138,39 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
       commandBuffers[i].setScissor(0, 1, &scissor);
 
 			std::array<uint32_t, 1> dynOffsets = { 0 };
-			commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineLayout(), 0, 1, pipeline.GetDescriptorSetRef(), dynOffsets.size(), dynOffsets.data());
 
-      commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipeline());
+      for (const auto& pair : pipelines)
+      {
+        uint32_t prio = pair.first;
+        lpe::Pipeline pipeline = pair.second;
 
-			VkDeviceSize offsets[1] = { 0 };
-			vk::Buffer vertexBuffer = renderer.GetVertexBuffer();
-			vk::Buffer instanceBuffer = ubo.GetInstanceBuffer();
-      commandBuffers[i].bindVertexBuffers(0, 1, &vertexBuffer, offsets);
-			commandBuffers[i].bindVertexBuffers(1, 1, &instanceBuffer, offsets);
-      commandBuffers[i].bindIndexBuffer(renderer.GetIndexBuffer(), 0, vk::IndexType::eUint32);
+        pipeline.UpdateDescriptorSets(ubo.GetDescriptors());
 
-			if (physicalDevice.getFeatures().multiDrawIndirect)
-			{
-				commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(), 0, renderer.GetCount(), sizeof(vk::DrawIndexedIndirectCommand));
-			}
-			else
-			{
-				auto cmds = renderer.GetDrawIndexedIndirectCommands();
+        commandBuffers[i].bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetPipelineLayout(), 0, 1, pipeline.GetDescriptorSetRef(), dynOffsets.size(), dynOffsets.data());
 
-				for (auto j = 0; j < cmds.size(); j++)
-				{
-					commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(), j * sizeof(vk::DrawIndexedIndirectCommand), 1, sizeof(vk::DrawIndexedIndirectCommand));
-				}
-			}
+        commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.GetPipeline());
+
+        VkDeviceSize offsets[1] = { 0 };
+        vk::Buffer vertexBuffer = renderer.GetVertexBuffer();
+        vk::Buffer instanceBuffer = ubo.GetInstanceBuffer();
+        commandBuffers[i].bindVertexBuffers(0, 1, &vertexBuffer, offsets);
+        commandBuffers[i].bindVertexBuffers(1, 1, &instanceBuffer, offsets);
+        commandBuffers[i].bindIndexBuffer(renderer.GetIndexBuffer(), 0, vk::IndexType::eUint32);
+
+        if (physicalDevice.getFeatures().multiDrawIndirect)
+        {
+          commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(prio), 0, renderer.GetCount(), sizeof(vk::DrawIndexedIndirectCommand));
+        }
+        else
+        {
+          auto cmds = renderer.GetDrawIndexedIndirectCommands(prio);
+
+          for (auto j = 0; j < cmds.size(); j++)
+          {
+            commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(prio), j * sizeof(vk::DrawIndexedIndirectCommand), 1, sizeof(vk::DrawIndexedIndirectCommand));
+          }
+        }
+      }
     }
 
     commandBuffers[i].endRenderPass();

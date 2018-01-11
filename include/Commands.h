@@ -5,6 +5,8 @@
 #include "ImageView.h"
 #include "Pipeline.h"
 
+#include <map>
+
 BEGIN_LPE
   class RenderPass;
   class ModelsRenderer;
@@ -30,7 +32,7 @@ public:
   ~Commands();
 
   void ResetCommandBuffers();
-  void CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers, vk::Extent2D extent, RenderPass& renderPass, lpe::Pipeline& pipeline, ModelsRenderer& renderer, lpe::UniformBuffer& ubo);
+  void CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers, vk::Extent2D extent, RenderPass& renderPass, const std::map<int, lpe::Pipeline>& pipelines, ModelsRenderer& renderer, lpe::UniformBuffer& ubo);
 
   vk::CommandBuffer BeginSingleTimeCommands() const;
   void EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const;

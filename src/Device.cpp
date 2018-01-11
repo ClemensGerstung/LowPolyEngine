@@ -10,18 +10,19 @@ lpe::Device::Device(const Device& device)
   this->graphicsQueue = device.graphicsQueue;
   this->presentQueue = device.presentQueue;
   this->indices = device.indices;
+  this->pipelineCache = device.pipelineCache;
 }
 
 lpe::Device::Device(Device&& device) noexcept
 {
-  instance.reset(device.instance.get());
-  device.instance.release();
+  instance = std::move(device.instance);
   this->physicalDevice = device.physicalDevice;
   this->device = device.device;
   this->surface = device.surface;
   this->graphicsQueue = device.graphicsQueue;
   this->presentQueue = device.presentQueue;
   this->indices = device.indices;
+  this->pipelineCache = device.pipelineCache;
 }
 
 lpe::Device& lpe::Device::operator=(const Device& device)
@@ -33,19 +34,20 @@ lpe::Device& lpe::Device::operator=(const Device& device)
   this->graphicsQueue = device.graphicsQueue;
   this->presentQueue = device.presentQueue;
   this->indices = device.indices;
+  this->pipelineCache = device.pipelineCache;
   return *this;
 }
 
 lpe::Device& lpe::Device::operator=(Device&& device) noexcept
 {
-  instance.reset(device.instance.get());
-  device.instance.release();
+  instance = std::move(device.instance);
   this->physicalDevice = device.physicalDevice;
   this->graphicsQueue = device.graphicsQueue;
   this->presentQueue = device.presentQueue;
   this->indices = device.indices;
   this->device = device.device;
   this->surface = device.surface;
+  this->pipelineCache = device.pipelineCache;
   return *this;
 }
 
@@ -224,9 +226,29 @@ lpe::UniformBuffer lpe::Device::CreateUniformBuffer(ModelsRenderer& modelsRender
   return { physicalDevice, &device, modelsRenderer, camera, commands};
 }
 
-lpe::Pipeline lpe::Device::CreatePipeline(const SwapChain& swapChain, RenderPass& renderPass, UniformBuffer* ubo)
+std::map<int, lpe::Pipeline> lpe::Device::CreatePipelines(const SwapChain& swapChain, RenderPass& renderPass, UniformBuffer* ubo)
 {
-  return {physicalDevice, &device, pipelineCache, renderPass, swapChain.GetExtent(), ubo};
+  std::map<int, lpe::Pipeline> pipelines;
+  //{physicalDevice, &device, pipelineCache, renderPass, swapChain.GetExtent(), ubo};
+
+  Pipeline::CreateInfo::ShaderInfo vertex = { "shaders/base.vert.spv",{}, vk::ShaderStageFlagBits::eVertex, "main" };
+  Pipeline::CreateInfo::ShaderInfo fragement = { "shaders/base.frag.spv",{}, vk::ShaderStageFlagBits::eFragment, "main" };
+
+  Pipeline::CreateInfo info = {};
+  info.type = Pipeline::Type::Render;
+  info.allowTransperency = false;
+  info.prio = 0;
+  info.attributeDescriptions = lpe::Vertex::GetAttributeDescriptions();
+  info.bindingDescriptions = lpe::Vertex::GetBindingDescription();
+  info.shaders.emplace_back(vertex);
+  info.shaders.emplace_back(fragement);
+  info.renderPass = renderPass;
+  info.swapChainExtent = swapChain.GetExtent();
+  info.uniformBuffer = ubo;
+
+  pipelines.insert(std::make_pair(info.prio, Pipeline{ physicalDevice, &device, pipelineCache, info }));
+
+  return pipelines;
 }
 
 lpe::Device::operator bool() const

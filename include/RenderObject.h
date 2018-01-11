@@ -87,6 +87,9 @@ public:
   std::vector<Vertex>::iterator GetVertexEnd();
   std::vector<uint32_t>::iterator GetIndexBegin();
   std::vector<uint32_t>::iterator GetIndexEnd();
+
+
+  uint32_t GetPrio() const;
 };
 
 END_LPE

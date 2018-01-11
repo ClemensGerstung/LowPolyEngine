@@ -268,7 +268,7 @@ external/
 *_.h
 *_.cpp
 
-#excluse visual studio project files
+#exclude visual studio project files
 *.sln
 *.vcxproj
 *.vcxproj.filter

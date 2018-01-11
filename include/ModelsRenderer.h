@@ -53,12 +53,12 @@ public:
 	vk::Buffer GetVertexBuffer();
 	vk::Buffer GetIndexBuffer();
 
-	vk::Buffer GetIndirectBuffer();
+	vk::Buffer GetIndirectBuffer(uint32_t prio = 0);
 
 	bool Empty() const;
 	uint32_t EntriesCount() const;
 
-	std::vector<vk::DrawIndexedIndirectCommand> GetDrawIndexedIndirectCommands();
+	std::vector<vk::DrawIndexedIndirectCommand> GetDrawIndexedIndirectCommands(uint32_t prio = 0);
 
   std::vector<InstanceData> GetInstanceData() const;
 };

@@ -150,6 +150,8 @@ void lpe::Buffer::CreateHostVisible(vk::DeviceSize size, void* data, vk::BufferU
   this->device->mapMemory(memory, 0, size, {}, &mapped);
   memcpy(mapped, data, (size_t)size);
   this->device->unmapMemory(memory);
+
+  descriptor.buffer = buffer;
 }
 
 void lpe::Buffer::CreateStaged(const Commands& commands, vk::DeviceSize size, void* data, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties)
@@ -164,6 +166,8 @@ void lpe::Buffer::CreateStaged(const Commands& commands, vk::DeviceSize size, vo
   Copy(staging, commandBuffer);
 
   commands.EndSingleTimeCommands(commandBuffer);
+
+  descriptor.buffer = buffer;
 }
 
 void lpe::Buffer::Copy(lpe::Buffer& src, vk::CommandBuffer& commandBuffer) const

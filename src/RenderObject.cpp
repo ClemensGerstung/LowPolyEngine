@@ -345,3 +345,8 @@ std::vector<uint32_t>::iterator lpe::RenderObject::GetIndexEnd()
 {
   return std::end(indices);
 }
+
+uint32_t lpe::RenderObject::GetPrio() const
+{
+  return prio;
+}
