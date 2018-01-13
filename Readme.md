@@ -1,4 +1,4 @@
-# LowPolyEngine
+﻿# LowPolyEngine
 
 Simple render engine written in C++ and Vulkan as graphics API.  
 Will be optimized to render low poly games like this:  
@@ -201,7 +201,7 @@ If you're using Visual Studio make sure that the LowPolyEngine.Test Project is s
 ## What's next?
 
 My current schedule is:
-1. Implement multi pipeline rendering (use the ```lpe::RenderObject::prio```, the objects will be rendered on different pipelines by their priority)
+1. Implement multi pipeline rendering (use the ```lpe::RenderObject::prio```, the objects will be rendered on different pipelines by their priority) ✅
 2. Add [ImGUI](https://github.com/ocornut/imgui) support - [see](https://github.com/SaschaWillems/Vulkan/tree/master/examples/imgui)
 2. Implement frustum culling and lod - [see](https://github.com/SaschaWillems/Vulkan/tree/master/examples/computecullandlod)
 3. Tessellation - [see](https://github.com/SaschaWillems/Vulkan/tree/master/examples/terraintessellation)
