@@ -5,29 +5,35 @@ void lpe::Pipeline::CreateDescriptorPool()
 {
   std::vector<vk::DescriptorPoolSize> poolSizes =
   {
-    {vk::DescriptorType::eUniformBuffer, 1}
+    { vk::DescriptorType::eUniformBuffer, 1 }
   };
 
   vk::DescriptorPoolCreateInfo poolInfo = { {}, 2, (uint32_t)poolSizes.size(), poolSizes.data() };
 
-  auto result = device->createDescriptorPool(&poolInfo, nullptr, &descriptorPool);
-  helper::ThrowIfNotSuccess(result, "Failed to create DescriptorPool!");
+  auto result = device->createDescriptorPool(&poolInfo,
+                                             nullptr,
+                                             &descriptorPool);
+  helper::ThrowIfNotSuccess(result,
+                            "Failed to create DescriptorPool!");
 }
 
 void lpe::Pipeline::CreateDescriptorSetLayout()
 {
-  std::vector<vk::DescriptorSetLayoutBinding> bindings = 
+  std::vector<vk::DescriptorSetLayoutBinding> bindings =
   {
     { 0, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex }
   };
 
   vk::DescriptorSetLayoutCreateInfo layoutInfo = { {}, (uint32_t)bindings.size(), bindings.data() };
 
-  auto result = device->createDescriptorSetLayout(&layoutInfo, nullptr, &descriptorSetLayout);
-  helper::ThrowIfNotSuccess(result, "Failed to create DescriptorSetLayout!");
+  auto result = device->createDescriptorSetLayout(&layoutInfo,
+                                                  nullptr,
+                                                  &descriptorSetLayout);
+  helper::ThrowIfNotSuccess(result,
+                            "Failed to create DescriptorSetLayout!");
 }
 
-lpe::Pipeline::CreateInfo::ShaderInfo::ShaderInfo(const std::string& fileName, 
+lpe::Pipeline::CreateInfo::ShaderInfo::ShaderInfo(const std::string& fileName,
                                                   const std::vector<char>& compiledCode,
                                                   vk::ShaderStageFlagBits type,
                                                   const std::string& entryPoint)
@@ -44,8 +50,11 @@ vk::ShaderModule lpe::Pipeline::CreateShaderModule(const std::vector<char>& code
 
   vk::ShaderModule shaderModule;
 
-  auto result = device->createShaderModule(&createInfo, nullptr, &shaderModule);
-  helper::ThrowIfNotSuccess(result, "Failed to create ShaderModule!");
+  auto result = device->createShaderModule(&createInfo,
+                                           nullptr,
+                                           &shaderModule);
+  helper::ThrowIfNotSuccess(result,
+                            "Failed to create ShaderModule!");
 
   return shaderModule;
 }
@@ -70,21 +79,33 @@ vk::DescriptorSet* lpe::Pipeline::GetDescriptorSetRef()
   return &descriptorSet;
 }
 
-void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent, vk::RenderPass renderPass, const CreateInfo& info)
+bool lpe::Pipeline::AllowsTransparency() const
+{
+  return transparent;
+}
+
+uint32_t lpe::Pipeline::GetPrio() const
+{
+  return priority;
+}
+
+void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent,
+                                   vk::RenderPass renderPass,
+                                   const CreateInfo& info)
 {
   std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = {};
   std::vector<vk::ShaderModule> modules = {};
 
   for (const auto& shader : info.shaders)
   {
-    if(shader.fileName.empty() && shader.compiledCode.empty())
+    if (shader.fileName.empty() && shader.compiledCode.empty())
     {
       throw std::runtime_error("Got Shader with no compiled SPIR-V code or filename");
     }
-    
+
     std::vector<char> shaderCode;
 
-    if(!shader.fileName.empty() && shader.compiledCode.empty())
+    if (!shader.fileName.empty() && shader.compiledCode.empty())
     {
       shaderCode = lpe::helper::ReadSPIRVFile(shader.fileName);
     }
@@ -96,14 +117,20 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent, vk::RenderPass 
     vk::ShaderModule shaderModule = CreateShaderModule(shaderCode);
     vk::PipelineShaderStageCreateInfo shaderStageInfo = { {}, shader.type, shaderModule, shader.entryPoint.c_str() };
 
-    modules.emplace_back(shaderModule);
-    shaderStages.emplace_back(shaderStageInfo);
+    modules.push_back(shaderModule);
+    shaderStages.push_back(shaderStageInfo);
   }
 
   auto bindingDescriptions = info.bindingDescriptions;
   auto attributeDescriptions = info.attributeDescriptions;
 
-  vk::PipelineVertexInputStateCreateInfo vertexInputInfo = { {}, (uint32_t)bindingDescriptions.size(), bindingDescriptions.data(), (uint32_t)attributeDescriptions.size(), attributeDescriptions.data() };
+  vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {
+    {},
+    (uint32_t)bindingDescriptions.size(),
+    bindingDescriptions.data(),
+    (uint32_t)attributeDescriptions.size(),
+    attributeDescriptions.data()
+  };
 
   vk::PipelineInputAssemblyStateCreateInfo inputAssembly = { {}, vk::PrimitiveTopology::eTriangleList, VK_FALSE };
 
@@ -113,7 +140,19 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent, vk::RenderPass 
 
   vk::PipelineViewportStateCreateInfo viewportState = { {}, 1, &viewport, 1, &scissor };
 
-  vk::PipelineRasterizationStateCreateInfo rasterizer = { {}, VK_FALSE, VK_FALSE, vk::PolygonMode::eFill, vk::CullModeFlagBits::eBack, vk::FrontFace::eCounterClockwise, VK_FALSE, 0, 0, 0, 1 };
+  vk::PipelineRasterizationStateCreateInfo rasterizer = {
+    {},
+    VK_FALSE,
+    VK_FALSE,
+    vk::PolygonMode::eFill,
+    vk::CullModeFlagBits::eBack,
+    vk::FrontFace::eCounterClockwise,
+    VK_FALSE,
+    0,
+    0,
+    0,
+    1
+  };
 
   //vk::PipelineRasterizationStateCreateInfo rasterizer = {};
   //rasterizer.polygonMode = vk::PolygonMode::eFill;
@@ -124,14 +163,21 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent, vk::RenderPass 
 
   vk::PipelineMultisampleStateCreateInfo multisampling = { {}, vk::SampleCountFlagBits::e1, VK_FALSE };
 
-  vk::PipelineDepthStencilStateCreateInfo depthStencil = { {}, VK_TRUE, VK_TRUE, vk::CompareOp::eLessOrEqual, VK_FALSE, VK_FALSE };
+  vk::PipelineDepthStencilStateCreateInfo depthStencil = {
+    {},
+    VK_TRUE,
+    VK_TRUE,
+    vk::CompareOp::eLessOrEqual,
+    VK_FALSE,
+    VK_FALSE
+  };
   depthStencil.front = depthStencil.back;
   depthStencil.back.compareOp = vk::CompareOp::eAlways;
   depthStencil.maxDepthBounds = 1.0;
 
-  vk::PipelineColorBlendAttachmentState colorBlendAttachment = { };
+  vk::PipelineColorBlendAttachmentState colorBlendAttachment = { VK_FALSE };
 
-  if(info.allowTransperency)
+  if (info.allowTransperency)
   {
     colorBlendAttachment.blendEnable = VK_TRUE;
     colorBlendAttachment.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha;
@@ -141,14 +187,13 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent, vk::RenderPass 
     colorBlendAttachment.dstAlphaBlendFactor = vk::BlendFactor::eZero;
     colorBlendAttachment.alphaBlendOp = vk::BlendOp::eAdd;
   }
-  else
-  {
-    colorBlendAttachment.blendEnable = VK_FALSE;
-  }
 
-  colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+  colorBlendAttachment.colorWriteMask = vk::ColorComponentFlagBits::eR |
+    vk::ColorComponentFlagBits::eG |
+    vk::ColorComponentFlagBits::eB |
+    vk::ColorComponentFlagBits::eA;
 
-  std::vector<vk::DynamicState> dynamicStates = {vk::DynamicState::eViewport, vk::DynamicState::eScissor};
+  std::vector<vk::DynamicState> dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
   vk::PipelineDynamicStateCreateInfo dynamicState = { {}, (uint32_t)dynamicStates.size(), dynamicStates.data() };
 
   vk::PipelineColorBlendStateCreateInfo colorBlending = { {}, VK_FALSE, vk::LogicOp::eCopy, 1, &colorBlendAttachment };
@@ -159,28 +204,32 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent, vk::RenderPass 
 
   vk::PipelineLayoutCreateInfo pipelineLayoutInfo = { {}, 1, &descriptorSetLayout };
 
-  auto result = device->createPipelineLayout(&pipelineLayoutInfo, nullptr, &pipelineLayout);
-  helper::ThrowIfNotSuccess(result, "Failed to create PipelineLayout!");
+  auto result = device->createPipelineLayout(&pipelineLayoutInfo,
+                                             nullptr,
+                                             &pipelineLayout);
+  helper::ThrowIfNotSuccess(result,
+                            "Failed to create PipelineLayout!");
 
-  vk::GraphicsPipelineCreateInfo pipelineInfo = 
-  { 
-    {}, 
-    (uint32_t)shaderStages.size(), 
-    shaderStages.data(), 
-    &vertexInputInfo, 
-    &inputAssembly, 
-    nullptr, 
-    &viewportState, 
-    &rasterizer, 
-    &multisampling, 
-    &depthStencil, 
-    &colorBlending, 
-    &dynamicState, 
-    pipelineLayout, 
-    renderPass 
+  vk::GraphicsPipelineCreateInfo pipelineInfo =
+  {
+    {},
+    (uint32_t)shaderStages.size(),
+    shaderStages.data(),
+    &vertexInputInfo,
+    &inputAssembly,
+    nullptr,
+    &viewportState,
+    &rasterizer,
+    &multisampling,
+    &depthStencil,
+    &colorBlending,
+    &dynamicState,
+    pipelineLayout,
+    renderPass
   };
 
-  pipeline = device->createGraphicsPipeline(cache, pipelineInfo);
+  pipeline = device->createGraphicsPipeline(cache,
+                                            pipelineInfo);
 
   for (const auto& module : modules)
   {
@@ -190,18 +239,17 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent, vk::RenderPass 
 
 void lpe::Pipeline::UpdateDescriptorSets(std::vector<vk::DescriptorBufferInfo> descriptors)
 {
-  if (descriptorSet)
+  if (!descriptorSet)
   {
-    auto result = device->freeDescriptorSets(descriptorPool, 0, &descriptorSet);
-    helper::ThrowIfNotSuccess(result, "could net free descriptorSet");
+    std::array<vk::DescriptorSetLayout, 1> layouts = { descriptorSetLayout };
+
+    vk::DescriptorSetAllocateInfo allocInfo = { descriptorPool, (uint32_t)layouts.size(), layouts.data() };
+
+    auto result = device->allocateDescriptorSets(&allocInfo,
+                                                 &descriptorSet);
+    helper::ThrowIfNotSuccess(result,
+                              "Failed to allocate DescriptorSets!");
   }
-
-  std::array<vk::DescriptorSetLayout, 1> layouts = { descriptorSetLayout };
-
-  vk::DescriptorSetAllocateInfo allocInfo = { descriptorPool, (uint32_t)layouts.size(), layouts.data() };
-
-  auto result = device->allocateDescriptorSets(&allocInfo, &descriptorSet);
-  helper::ThrowIfNotSuccess(result, "Failed to allocate DescriptorSets!");
 
   vk::WriteDescriptorSet uboWriteDescriptorSet = { descriptorSet };
   uboWriteDescriptorSet.dstBinding = 0;
@@ -210,8 +258,11 @@ void lpe::Pipeline::UpdateDescriptorSets(std::vector<vk::DescriptorBufferInfo> d
   uboWriteDescriptorSet.pBufferInfo = &descriptors[0];
 
   std::vector<vk::WriteDescriptorSet> descriptorWrites = { uboWriteDescriptorSet };
- 
-  device->updateDescriptorSets((uint32_t)descriptorWrites.size(), descriptorWrites.data(), 0, nullptr);
+
+  device->updateDescriptorSets((uint32_t)descriptorWrites.size(),
+                               descriptorWrites.data(),
+                               0,
+                               nullptr);
 }
 
 lpe::Pipeline::Pipeline(const Pipeline& other)
@@ -291,7 +342,9 @@ lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
 
   CreateDescriptorSetLayout();
 
-  CreatePipeline(createInfo.swapChainExtent, createInfo.renderPass, createInfo);
+  CreatePipeline(createInfo.swapChainExtent,
+                 createInfo.renderPass,
+                 createInfo);
 
   CreateDescriptorPool();
 
@@ -300,24 +353,24 @@ lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
 
 lpe::Pipeline::~Pipeline()
 {
-  if(device)
+  if (device)
   {
-    if(descriptorSetLayout)
+    if (descriptorSetLayout)
     {
       device->destroyDescriptorSetLayout(descriptorSetLayout);
     }
 
-    if(pipelineLayout)
+    if (pipelineLayout)
     {
       device->destroyPipelineLayout(pipelineLayout);
     }
 
-    if(pipeline)
+    if (pipeline)
     {
       device->destroyPipeline(pipeline);
     }
 
-    if(descriptorPool)
+    if (descriptorPool)
     {
       device->destroyDescriptorPool(descriptorPool);
     }

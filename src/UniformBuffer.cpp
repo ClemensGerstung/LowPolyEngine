@@ -89,6 +89,7 @@ void lpe::UniformBuffer::Update(const Camera& camera, ModelsRenderer& renderer, 
 
 	  // totally dump and inefficient
 	  instanceBuffer.CreateStaged(commands, size, instanceData.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+
 	}
   else
   {

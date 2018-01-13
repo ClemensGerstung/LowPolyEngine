@@ -3,12 +3,12 @@
 void lpe::ModelsRenderer::Copy(const ModelsRenderer& other)
 {
   this->commands.reset(other.commands.get());
-  this->indices = { other.indices };
-  this->vertices = { other.vertices };
-  this->objects = { other.objects };
-  this->indexBuffer = { other.indexBuffer };
-  this->vertexBuffer = { other.vertexBuffer };
-	this->indirectBuffer = { other.indirectBuffer };
+  this->indices = {other.indices};
+  this->vertices = {other.vertices};
+  this->objects = {other.objects};
+  this->indexBuffer = {other.indexBuffer};
+  this->vertexBuffer = {other.vertexBuffer};
+  this->indirectBuffer = {other.indirectBuffer};
 }
 
 void lpe::ModelsRenderer::Move(ModelsRenderer& other)
@@ -18,7 +18,7 @@ void lpe::ModelsRenderer::Move(ModelsRenderer& other)
   this->vertices = std::move(other.vertices);
   this->indexBuffer = std::move(other.indexBuffer);
   this->vertexBuffer = std::move(other.vertexBuffer);
-	this->indirectBuffer = std::move(other.indirectBuffer);
+  this->indirectBuffer = std::move(other.indirectBuffer);
 }
 
 lpe::ModelsRenderer::ModelsRenderer(const ModelsRenderer& other)
@@ -43,45 +43,44 @@ lpe::ModelsRenderer& lpe::ModelsRenderer::operator=(ModelsRenderer&& other) noex
   return *this;
 }
 
-lpe::ModelsRenderer::ModelsRenderer(vk::PhysicalDevice physicalDevice, vk::Device* device, Commands* commands)
+lpe::ModelsRenderer::ModelsRenderer(vk::PhysicalDevice physicalDevice,
+                                    vk::Device* device,
+                                    Commands* commands)
 {
   this->physicalDevice = physicalDevice;
   this->device.reset(device);
   this->commands.reset(commands);
 
-  indexBuffer = { physicalDevice, device };
-  vertexBuffer = { physicalDevice, device };
-	indirectBuffer = { physicalDevice, device };
+  indexBuffer = {physicalDevice, device};
+  vertexBuffer = {physicalDevice, device};
+  indirectBuffer = {physicalDevice, device};
 }
 
 lpe::ModelsRenderer::~ModelsRenderer()
 {
-  if(commands)
+  if (commands)
   {
     commands.release();
   }
 
-  if(device)
+  if (device)
   {
     device.release();
   }
 }
 
-std::vector<vk::DrawIndexedIndirectCommand> lpe::ModelsRenderer::GetDrawIndexedIndirectCommands(uint32_t prio)
+std::vector<vk::DrawIndexedIndirectCommand> lpe::ModelsRenderer::GetDrawIndexedIndirectCommands()
 {
-	std::vector<vk::DrawIndexedIndirectCommand> commands = {};
+  std::vector<vk::DrawIndexedIndirectCommand> commands = {};
 
-	uint32_t i = 0;
-	for (auto& entry : objects)
-	{
-    if (entry->GetPrio() == prio)
-    {
-      commands.push_back(entry->GetIndirectCommand(i));
-      i += entry->GetInstanceCount();
-    }
-	}
+  uint32_t i = 0;
+  for (auto& entry : objects)
+  {
+    commands.push_back(entry->GetIndirectCommand(i));
+    i += entry->GetInstanceCount();
+  }
 
-	return commands;
+  return commands;
 }
 
 std::vector<lpe::InstanceData> lpe::ModelsRenderer::GetInstanceData() const
@@ -91,7 +90,9 @@ std::vector<lpe::InstanceData> lpe::ModelsRenderer::GetInstanceData() const
   for (const auto& entry : objects)
   {
     auto instanceData = entry->GetInstanceData();
-    instances.insert(std::end(instances), std::begin(instanceData), std::end(instanceData));
+    instances.insert(std::end(instances),
+                     std::begin(instanceData),
+                     std::end(instanceData));
   }
 
   return instances;
@@ -102,30 +103,87 @@ void lpe::ModelsRenderer::AddObject(ObjectRef obj)
   int32_t vertexOffset = (int32_t)vertices.size();
   uint32_t indexOffset = (uint32_t)indices.size();
 
-  obj->SetOffsets(indexOffset, vertexOffset);
+  obj->SetOffsets(indexOffset,
+                  vertexOffset);
 
-	objects.push_back(obj);
+  objects.push_back(obj);
 
-	this->vertices.insert(std::end(this->vertices), obj->GetVertexBegin(), obj->GetVertexEnd());
-	this->indices.insert(std::end(this->indices), obj->GetIndexBegin(), obj->GetIndexEnd());
+  std::sort(objects.begin(), objects.end(), [](const ObjectRef& first, const ObjectRef& second) { return first->GetPrio() < second->GetPrio(); });
 
-	UpdateBuffer();
+  this->vertices.insert(std::end(this->vertices),
+                        obj->GetVertexBegin(),
+                        obj->GetVertexEnd());
+  this->indices.insert(std::end(this->indices),
+                       obj->GetIndexBegin(),
+                       obj->GetIndexEnd());
+
+  UpdateBuffer();
 }
 
 
 void lpe::ModelsRenderer::UpdateBuffer()
 {
+  auto cmds = GetDrawIndexedIndirectCommands();
+
+  vk::DeviceSize indirectSize = cmds.size() * sizeof(vk::DrawIndexedIndirectCommand);
   vk::DeviceSize indexSize = sizeof(indices[0]) * indices.size();
   vk::DeviceSize vertexSize = sizeof(vertices[0]) * vertices.size();
- 
+
   /*indexBuffer = commands->CreateBuffer(indices.data(), indexSize);
   vertexBuffer = commands->CreateBuffer(vertices.data(), vertexSize);*/
 
-  vertexBuffer.CreateStaged(*commands, vertexSize, vertices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
-  indexBuffer.CreateStaged(*commands, indexSize, indices.data(), vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer, vk::MemoryPropertyFlagBits::eDeviceLocal);
+  vertexBuffer.CreateStaged(*commands,
+                            vertexSize,
+                            vertices.data(),
+                            vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eVertexBuffer,
+                            vk::MemoryPropertyFlagBits::eDeviceLocal);
+  indexBuffer.CreateStaged(*commands,
+                           indexSize,
+                           indices.data(),
+                           vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
+                           vk::MemoryPropertyFlagBits::eDeviceLocal);
+
+  indirectBuffer.CreateStaged(*commands,
+                              indirectSize,
+                              cmds.data(),
+                              vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndirectBuffer,
+                              vk::MemoryPropertyFlagBits::eDeviceLocal);
 }
 
-uint32_t lpe::ModelsRenderer::GetCount() const
+
+uint32_t lpe::ModelsRenderer::GetOffet(uint32_t prio) const
+{
+  uint32_t offset = 0;
+
+  for (const auto& object : objects)
+  {
+    if (object->GetPrio() == prio)
+    {
+      break;
+    }
+
+    offset++;
+  }
+
+  return offset;
+}
+
+uint32_t lpe::ModelsRenderer::GetCount(uint32_t prio) const
+{
+  uint32_t count = 0;
+
+  for (const auto& object : objects)
+  {
+    if(object->GetPrio() == prio)
+    {
+      count++;
+    }
+  }
+
+  return count;
+}
+
+uint32_t lpe::ModelsRenderer::GetTotalCount() const
 {
   return (uint32_t)objects.size();
 }
@@ -160,27 +218,7 @@ uint32_t lpe::ModelsRenderer::EntriesCount() const
   return (uint32_t)objects.size();
 }
 
-vk::Buffer lpe::ModelsRenderer::GetIndirectBuffer(uint32_t prio)
+vk::Buffer lpe::ModelsRenderer::GetIndirectBuffer()
 {
-  auto cmds = GetDrawIndexedIndirectCommands(prio);
-  vk::DeviceSize indirectSize = cmds.size() * sizeof(vk::DrawIndexedIndirectCommand);
-
-  if (indirectSize >= indirectBuffer.GetSize() || !indirectBuffer.GetBuffer())
-  {
-    indirectBuffer.CreateStaged(*commands, 
-                                indirectSize, 
-                                cmds.data(), 
-                                vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndirectBuffer, 
-                                vk::MemoryPropertyFlagBits::eDeviceLocal);
-  }
-  else
-  {
-    auto cmdBuffer = commands->BeginSingleTimeCommands();
-
-    indirectBuffer.CopyStaged(cmdBuffer, cmds.data());
-
-    commands->EndSingleTimeCommands(cmdBuffer);
-  }
-
-	return indirectBuffer.GetBuffer();
+  return indirectBuffer.GetBuffer();
 }

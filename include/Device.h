@@ -45,7 +45,7 @@ public:
   SwapChain CreateSwapChain(uint32_t width, uint32_t height);
   Commands CreateCommands();
   UniformBuffer CreateUniformBuffer(ModelsRenderer& modelsRenderer, const Camera& camera, const Commands& commands);
-  std::map<int, lpe::Pipeline> CreatePipelines(const SwapChain& swapChain, RenderPass& renderPass, UniformBuffer* ubo);
+  std::vector<lpe::Pipeline> CreatePipelines(const SwapChain& swapChain, RenderPass& renderPass, UniformBuffer* ubo);
   ModelsRenderer CreateModelsRenderer(Commands* commands);
   RenderPass CreateRenderPass(vk::Format swapChainImageFormat);
 

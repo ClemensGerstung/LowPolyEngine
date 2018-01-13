@@ -11,38 +11,48 @@ BEGIN_LPE
   class RenderPass;
   class ModelsRenderer;
 
-class Commands
-{
-private:
-  vk::PhysicalDevice physicalDevice;
-  std::unique_ptr<vk::Device> device;
-  std::unique_ptr<vk::Queue> graphicsQueue;
-  vk::CommandPool commandPool;
-  std::vector<vk::CommandBuffer> commandBuffers;
+  class Commands
+  {
+  private:
+    vk::PhysicalDevice physicalDevice;
+    std::unique_ptr<vk::Device> device;
+    std::unique_ptr<vk::Queue> graphicsQueue;
+    vk::CommandPool commandPool;
+    std::vector<vk::CommandBuffer> commandBuffers;
 
-public:
-  Commands() = default;
-  Commands(const Commands& other);
-  Commands(Commands&& other) noexcept;
-  Commands& operator=(const Commands& other);
-  Commands& operator=(Commands&& other) noexcept;
+  public:
+    Commands() = default;
+    Commands(const Commands& other);
+    Commands(Commands&& other) noexcept;
+    Commands& operator=(const Commands& other);
+    Commands& operator=(Commands&& other) noexcept;
 
-  Commands(vk::PhysicalDevice physicalDevice, vk::Device* device, vk::Queue* graphicsQueue, uint32_t graphicsFamilyIndex);
+    Commands(vk::PhysicalDevice physicalDevice,
+             vk::Device* device,
+             vk::Queue* graphicsQueue,
+             uint32_t graphicsFamilyIndex);
 
-  ~Commands();
+    ~Commands();
 
-  void ResetCommandBuffers();
-  void CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers, vk::Extent2D extent, RenderPass& renderPass, const std::map<int, lpe::Pipeline>& pipelines, ModelsRenderer& renderer, lpe::UniformBuffer& ubo);
+    void ResetCommandBuffers();
+    void CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers,
+                              vk::Extent2D extent,
+                              RenderPass& renderPass,
+                              const std::vector<lpe::Pipeline>& pipelines,
+                              ModelsRenderer& renderer,
+                              lpe::UniformBuffer& ubo);
 
-  vk::CommandBuffer BeginSingleTimeCommands() const;
-  void EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const;
+    vk::CommandBuffer BeginSingleTimeCommands() const;
+    void EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const;
 
-  lpe::Buffer CreateBuffer(void* data, vk::DeviceSize size) const;
-  lpe::Buffer CreateBuffer(vk::DeviceSize size) const;
-  lpe::ImageView CreateDepthImage(vk::Extent2D extent, vk::Format depthFormat) const;
+    lpe::Buffer CreateBuffer(void* data,
+                             vk::DeviceSize size) const;
+    lpe::Buffer CreateBuffer(vk::DeviceSize size) const;
+    lpe::ImageView CreateDepthImage(vk::Extent2D extent,
+                                    vk::Format depthFormat) const;
 
-  vk::CommandBuffer operator[](uint32_t index);
-};
+    vk::CommandBuffer operator[](uint32_t index);
+  };
 
 END_LPE
 

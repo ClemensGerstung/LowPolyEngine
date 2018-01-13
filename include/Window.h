@@ -24,7 +24,7 @@ BEGIN_LPE
 		lpe::SwapChain swapChain;
 		lpe::Commands commands;
 		lpe::UniformBuffer uniformBuffer;
-    std::map<int, lpe::Pipeline> pipelines;
+    std::vector<lpe::Pipeline> pipelines;
 		lpe::ImageView depthImage;
 		lpe::ModelsRenderer modelsRenderer;
     lpe::RenderPass renderPass;

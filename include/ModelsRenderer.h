@@ -47,18 +47,20 @@ public:
 
 	void UpdateBuffer();
 
-	uint32_t GetCount() const;
+  uint32_t GetOffet(uint32_t prio) const;
+	uint32_t GetCount(uint32_t prio) const;
+  uint32_t GetTotalCount() const;
 	std::vector<lpe::Vertex> GetVertices() const;
 	std::vector<uint32_t> GetIndices() const;
 	vk::Buffer GetVertexBuffer();
 	vk::Buffer GetIndexBuffer();
 
-	vk::Buffer GetIndirectBuffer(uint32_t prio = 0);
+	vk::Buffer GetIndirectBuffer();
 
 	bool Empty() const;
 	uint32_t EntriesCount() const;
 
-	std::vector<vk::DrawIndexedIndirectCommand> GetDrawIndexedIndirectCommands(uint32_t prio = 0);
+	std::vector<vk::DrawIndexedIndirectCommand> GetDrawIndexedIndirectCommands();
 
   std::vector<InstanceData> GetInstanceData() const;
 };

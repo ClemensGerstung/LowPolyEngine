@@ -90,6 +90,7 @@ public:
   vk::DescriptorSet* GetDescriptorSetRef();
 
   bool AllowsTransparency() const;
+  uint32_t GetPrio() const;
 };
 
 END_LPE

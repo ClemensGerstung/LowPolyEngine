@@ -312,3 +312,7 @@ glfw3Config.cmake
 glfw3ConfigVersion.cmake
 glfw_config.h
 uninstall.vcxproj.filters
+/glfw_local
+/Makefile
+/LowPolyEngine.cbp
+/lib
