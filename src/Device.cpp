@@ -65,9 +65,9 @@ lpe::Device::Device(vk::Instance* instance,
 
   std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
 
-  for (auto queueFamily : {indices.graphicsFamily, indices.presentFamily})
+  for (auto queueFamily : { indices.graphicsFamily, indices.presentFamily })
   {
-    queueCreateInfos.push_back({{}, queueFamily, 1, &queuePriority});
+    queueCreateInfos.push_back({ {}, queueFamily, 1, &queuePriority });
   }
 
   vk::DeviceCreateInfo createInfo =
@@ -130,7 +130,7 @@ vk::Format lpe::Device::FindDepthFormat() const
 {
   vk::FormatFeatureFlags features = vk::FormatFeatureFlagBits::eDepthStencilAttachment;
 
-  for (vk::Format format : {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint})
+  for (vk::Format format : { vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint })
   {
     auto props = physicalDevice.getFormatProperties(format);
 
@@ -151,22 +151,22 @@ vk::Format lpe::Device::FindDepthFormat() const
 lpe::SwapChain lpe::Device::CreateSwapChain(uint32_t width,
                                             uint32_t height)
 {
-  return {physicalDevice, std::make_unique<vk::Device>(device), surface, indices, width, height};
+  return { physicalDevice, std::make_unique<vk::Device>(device), surface, indices, width, height };
 }
 
 lpe::Commands lpe::Device::CreateCommands()
 {
-  return {physicalDevice, &device, &graphicsQueue, indices.graphicsFamily};
+  return { physicalDevice, &device, &graphicsQueue, indices.graphicsFamily };
 }
 
 lpe::ModelsRenderer lpe::Device::CreateModelsRenderer(Commands* commands)
 {
-  return {physicalDevice, &device, commands};
+  return { physicalDevice, &device, commands };
 }
 
 lpe::RenderPass lpe::Device::CreateRenderPass(vk::Format swapChainImageFormat)
 {
-  return {std::unique_ptr<vk::Device>(&device), swapChainImageFormat, FindDepthFormat()};
+  return { std::unique_ptr<vk::Device>(&device), swapChainImageFormat, FindDepthFormat() };
 }
 
 vk::SubmitInfo lpe::Device::PrepareFrame(const SwapChain& swapChain,
@@ -210,7 +210,7 @@ vk::SubmitInfo lpe::Device::PrepareFrame(const SwapChain& swapChain,
     throw std::runtime_error("Failed to acquire swap chain image! (" + vk::to_string(result) + ")");
   }
 
-  vk::SubmitInfo submitInfo = {1, &imageAvailableSemaphore, waitFlags, 0, nullptr, 1, &renderAvailableSemaphore};
+  vk::SubmitInfo submitInfo = { 1, &imageAvailableSemaphore, waitFlags, 0, nullptr, 1, &renderAvailableSemaphore };
 
   return submitInfo;
 }
@@ -228,9 +228,9 @@ void lpe::Device::SubmitQueue(uint32_t submitCount,
 void lpe::Device::SubmitFrame(const std::vector<vk::SwapchainKHR>& swapChains,
                               uint32_t* imageIndex)
 {
-  vk::Semaphore signalSemaphores[] = {renderAvailableSemaphore};
+  vk::Semaphore signalSemaphores[] = { renderAvailableSemaphore };
 
-  vk::PresentInfoKHR presentInfo = {1, signalSemaphores, (uint32_t)swapChains.size(), swapChains.data(), imageIndex};
+  vk::PresentInfoKHR presentInfo = { 1, signalSemaphores, (uint32_t)swapChains.size(), swapChains.data(), imageIndex };
 
   auto result = presentQueue.presentKHR(&presentInfo);
   //auto result = vk::Result::eSuccess;
@@ -251,34 +251,51 @@ lpe::UniformBuffer lpe::Device::CreateUniformBuffer(ModelsRenderer& modelsRender
                                                     const Camera& camera,
                                                     const Commands& commands)
 {
-  return {physicalDevice, &device, modelsRenderer, camera, commands};
+  return { physicalDevice, &device, modelsRenderer, camera, commands };
 }
 
 std::vector<lpe::Pipeline> lpe::Device::CreatePipelines(const SwapChain& swapChain,
-                                                          RenderPass& renderPass,
-                                                          UniformBuffer* ubo)
+                                                        RenderPass& renderPass,
+                                                        UniformBuffer* ubo)
 {
   std::vector<lpe::Pipeline> pipes = {};
 
-  Pipeline::CreateInfo::ShaderInfo vertex = {"shaders/base.vert.spv", {}, vk::ShaderStageFlagBits::eVertex, "main"};
-  Pipeline::CreateInfo::ShaderInfo fragement = {"shaders/base.frag.spv", {}, vk::ShaderStageFlagBits::eFragment, "main"};
+  Pipeline::CreateInfo::ShaderInfo vertex = { 
+    "shaders/base.vert.spv", 
+    {}, 
+    vk::ShaderStageFlagBits::eVertex, 
+    "main" 
+  };
+  Pipeline::CreateInfo::ShaderInfo fragement = {
+    "shaders/base.frag.spv",
+    {},
+    vk::ShaderStageFlagBits::eFragment,
+    "main"
+  };
 
   Pipeline::CreateInfo info = {};
-  info.type = Pipeline::Type::Render;
+  info.type = vk::PipelineBindPoint::eGraphics;
   info.allowTransperency = false;
   info.prio = 0;
   info.attributeDescriptions = lpe::Vertex::GetAttributeDescriptions();
   info.bindingDescriptions = lpe::Vertex::GetBindingDescription();
+  info.pushConstantRanges = {};
   info.shaders.emplace_back(vertex);
   info.shaders.emplace_back(fragement);
   info.renderPass = renderPass;
   info.swapChainExtent = swapChain.GetExtent();
   info.uniformBuffer = ubo;
 
-  pipes.emplace_back(physicalDevice, &device, pipelineCache, info);
+  pipes.emplace_back(physicalDevice,
+                     &device,
+                     pipelineCache,
+                     info);
 
   info.prio = 1;
-  pipes.emplace_back(physicalDevice, &device, pipelineCache, info);
+  pipes.emplace_back(physicalDevice,
+                     &device,
+                     pipelineCache,
+                     info);
 
   return pipes;
 }

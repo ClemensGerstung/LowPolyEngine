@@ -89,6 +89,11 @@ uint32_t lpe::Pipeline::GetPrio() const
   return priority;
 }
 
+vk::PipelineBindPoint lpe::Pipeline::GetType() const
+{
+  return type;
+}
+
 void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent,
                                    vk::RenderPass renderPass,
                                    const CreateInfo& info)
@@ -203,6 +208,11 @@ void lpe::Pipeline::CreatePipeline(vk::Extent2D swapChainExtent,
   colorBlending.blendConstants[3] = 0;
 
   vk::PipelineLayoutCreateInfo pipelineLayoutInfo = { {}, 1, &descriptorSetLayout };
+  if (!info.pushConstantRanges.empty())
+  {
+    pipelineLayoutInfo.pushConstantRangeCount = (uint32_t)info.pushConstantRanges.size();
+    pipelineLayoutInfo.pPushConstantRanges = info.pushConstantRanges.data();
+  }
 
   auto result = device->createPipelineLayout(&pipelineLayoutInfo,
                                              nullptr,
@@ -251,16 +261,16 @@ void lpe::Pipeline::UpdateDescriptorSets(std::vector<vk::DescriptorBufferInfo> d
                               "Failed to allocate DescriptorSets!");
   }
 
-  vk::WriteDescriptorSet uboWriteDescriptorSet = { descriptorSet };
-  uboWriteDescriptorSet.dstBinding = 0;
-  uboWriteDescriptorSet.descriptorCount = 1;
-  uboWriteDescriptorSet.descriptorType = vk::DescriptorType::eUniformBuffer;
-  uboWriteDescriptorSet.pBufferInfo = &descriptors[0];
+  descriptorSets.emplace_back(descriptorSet,
+                              0,
+                              0,
+                              1,
+                              vk::DescriptorType::eUniformBuffer,
+                              nullptr,
+                              &descriptors[0]);
 
-  std::vector<vk::WriteDescriptorSet> descriptorWrites = { uboWriteDescriptorSet };
-
-  device->updateDescriptorSets((uint32_t)descriptorWrites.size(),
-                               descriptorWrites.data(),
+  device->updateDescriptorSets((uint32_t)descriptorSets.size(),
+                               descriptorSets.data(),
                                0,
                                nullptr);
 }
@@ -272,6 +282,8 @@ lpe::Pipeline::Pipeline(const Pipeline& other)
 
   this->priority = other.priority;
   this->transparent = other.transparent;
+  this->type = other.type;
+  this->descriptorSets = other.descriptorSets;
   this->cache = other.cache;
   this->descriptorSetLayout = other.descriptorSetLayout;
   this->pipelineLayout = other.pipelineLayout;
@@ -287,6 +299,8 @@ lpe::Pipeline::Pipeline(Pipeline&& other) noexcept
 
   this->priority = other.priority;
   this->transparent = other.transparent;
+  this->type = other.type;
+  this->descriptorSets = std::move(other.descriptorSets);
   this->cache = other.cache;
   this->descriptorSetLayout = other.descriptorSetLayout;
   this->pipelineLayout = other.pipelineLayout;
@@ -302,6 +316,8 @@ lpe::Pipeline& lpe::Pipeline::operator=(const Pipeline& other)
 
   this->priority = other.priority;
   this->transparent = other.transparent;
+  this->type = other.type;
+  this->descriptorSets = other.descriptorSets;
   this->cache = other.cache;
   this->descriptorSetLayout = other.descriptorSetLayout;
   this->pipelineLayout = other.pipelineLayout;
@@ -319,6 +335,8 @@ lpe::Pipeline& lpe::Pipeline::operator=(Pipeline&& other) noexcept
 
   this->priority = other.priority;
   this->transparent = other.transparent;
+  this->type = other.type;
+  this->descriptorSets = std::move(other.descriptorSets);
   this->cache = other.cache;
   this->descriptorSetLayout = other.descriptorSetLayout;
   this->pipelineLayout = other.pipelineLayout;
@@ -336,7 +354,8 @@ lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
   : physicalDevice(physicalDevice),
     cache(cache),
     transparent(createInfo.allowTransperency),
-    priority(createInfo.prio)
+    priority(createInfo.prio),
+    type(createInfo.type)
 {
   this->device.reset(device);
 
@@ -355,6 +374,13 @@ lpe::Pipeline::~Pipeline()
 {
   if (device)
   {
+    if (descriptorSet)
+    {
+        auto result = device->freeDescriptorSets(descriptorPool,
+                                                 1,
+                                                 &descriptorSet);
+    }
+
     if (descriptorSetLayout)
     {
       device->destroyDescriptorSetLayout(descriptorSetLayout);

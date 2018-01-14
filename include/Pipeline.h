@@ -10,11 +10,6 @@ BEGIN_LPE
 class Pipeline
 {
 public:
-  enum class Type
-  {
-    Render,
-    Compute
-  };
 
   struct CreateInfo
   {
@@ -31,7 +26,7 @@ public:
                  const std::string& entryPoint);
     };
 
-    Type type;
+    vk::PipelineBindPoint type;
     uint32_t prio;
     bool allowTransperency;
 
@@ -43,6 +38,8 @@ public:
 
     std::vector<vk::VertexInputBindingDescription> bindingDescriptions;
     std::vector<vk::VertexInputAttributeDescription> attributeDescriptions;
+    std::vector<vk::PushConstantRange> pushConstantRanges;
+    std::vector<vk::WriteDescriptorSet> descriptorSets;
   };
 
 private:
@@ -59,6 +56,8 @@ private:
 
   bool transparent;
   uint32_t priority;
+  vk::PipelineBindPoint type;
+  std::vector<vk::WriteDescriptorSet> descriptorSets;
 
   vk::ShaderModule CreateShaderModule(const std::vector<char>& code);
 
@@ -91,6 +90,7 @@ public:
 
   bool AllowsTransparency() const;
   uint32_t GetPrio() const;
+  vk::PipelineBindPoint GetType() const;
 };
 
 END_LPE
