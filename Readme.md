@@ -177,7 +177,7 @@ Clone this project to your local disk:
 ##### Visual Studio
 
 Create the solution file with:  
-```cmake -G "Visual Studio 15 Win64"```
+```cmake -G "Visual Studio 15 2017 Win64"```
 
 This will link all libraries (vulkan, glfw, glm).
 Make sure you use the correct Visual Studio version in the cmake command (15 = Visual Studio 2017)

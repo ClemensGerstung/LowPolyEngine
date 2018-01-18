@@ -8,31 +8,33 @@
 #include <glm/glm.hpp>
 
 #include "stdafx.h"
-#include <cstdint>
 
 BEGIN_LPE
 
-static struct 
+class Settings
 {
-  bool EnableValidationLayer = false;
-} settings;
+  
 
-VULKAN_HPP_INLINE LPE uint32_t GetPhysicalDeviceCount()
+public:
+  explicit Settings() = default;
+
+  static Settings& GetDefault()
+  {
+    static Settings settings = {};
+    return settings;
+  }
+
+  bool EnableValidationLayer = true;
+};
+
+namespace helper
 {
-	vk::ApplicationInfo appInfo = { "", 0, "", 0, VK_MAKE_VERSION(1, 0, 39) };
-	vk::InstanceCreateInfo info = { {}, &appInfo };
-	vk::Instance instance;
-	uint32_t count = -1;
-
-	auto result = vk::createInstance(&info, nullptr, &instance);
-	helper::ThrowIfNotSuccess(result, "Couldn't get physical device count");
-
-	result = instance.enumeratePhysicalDevices(&count, nullptr);
-	helper::ThrowIfNotSuccess(result, "Couldn't get physical device count");
-
-	instance.destroy();
-
-	return count;
+  template<typename TType>
+  class Deleter
+  {
+  public:
+    void operator()(TType* instance) const {}
+  };
 }
 
 END_LPE

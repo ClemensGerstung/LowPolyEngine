@@ -122,7 +122,7 @@ lpe::Instance::~Instance()
 
 void lpe::Instance::Create(const std::string& appName)
 {
-  if (settings.EnableValidationLayer && !helper::CheckValidationLayerSupport())
+  if (Settings::GetDefault().EnableValidationLayer && !helper::CheckValidationLayerSupport())
   {
     throw std::runtime_error("validation layers requested, but not available");
   }
@@ -137,7 +137,7 @@ void lpe::Instance::Create(const std::string& appName)
     extensions.push_back(glfwExtensions[i]);
   }
 
-  if (settings.EnableValidationLayer)
+  if (Settings::GetDefault().EnableValidationLayer)
   {
     extensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
   }
@@ -156,7 +156,7 @@ void lpe::Instance::Create(const std::string& appName)
     extensions.data()
   };
 
-  if(settings.EnableValidationLayer)
+  if(Settings::GetDefault().EnableValidationLayer)
   {
     createInfo.enabledLayerCount = (uint32_t)helper::ValidationLayer.size();
     createInfo.ppEnabledLayerNames = helper::ValidationLayer.data();
@@ -165,7 +165,7 @@ void lpe::Instance::Create(const std::string& appName)
   auto result = vk::createInstance(&createInfo, nullptr, &instance);
   helper::ThrowIfNotSuccess(result, "Failed to create Vulkan instance");
 
-  if (settings.EnableValidationLayer)
+  if (Settings::GetDefault().EnableValidationLayer)
   {
     VkDebugReportCallbackCreateInfoEXT debugReportCreateInfo = {};
     debugReportCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;

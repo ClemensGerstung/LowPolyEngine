@@ -9,18 +9,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 #include "RenderObject.h"
+#include "BufferMemory.h"
 
 int main()
 {
-  lpe::settings.EnableValidationLayer = true;
+  lpe::Settings::GetDefault().EnableValidationLayer = true;
 
   lpe::RenderObject object = { "models/tree.ply", 1 };
   lpe::RenderObject monkey = { "models/monkey.ply", 0 };
-  lpe::RenderObject monkey1 = { "models/monkey.ply", 3 };
-  lpe::RenderObject monkey2 = { "models/monkey.ply", 5 };
-  lpe::RenderObject monkey3 = { "models/monkey.ply", 6 };
-  lpe::RenderObject monkey4 = { "models/monkey.ply", 4 };
-  lpe::RenderObject monkey5 = { "models/monkey.ply", 2 };
 
   uint32_t instances = 5;
 

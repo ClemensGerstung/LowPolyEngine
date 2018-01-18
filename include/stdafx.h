@@ -37,7 +37,7 @@ namespace helper
   }
 
   const std::vector<const char*> ValidationLayer = {
-    "VK_LAYER_LUNARG_core_validation"
+    "VK_LAYER_LUNARG_standard_validation"
   };
 
   const std::vector<const char*> DeviceExtensions = {
