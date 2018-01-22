@@ -14,6 +14,7 @@ BEGIN_LPE
     vk::Buffer buffer;
     vk::DeviceMemory memory;
     vk::DeviceSize size;
+    vk::DeviceSize alignment;
     void* mapped;
     vk::DescriptorBufferInfo descriptor;
 
@@ -21,6 +22,7 @@ BEGIN_LPE
     vk::MemoryPropertyFlags memoryPropertyFlags;
 
     std::map<uint32_t, vk::DeviceSize> offsets;
+
   public:
     enum class Type : uint32_t
     {
@@ -43,6 +45,8 @@ BEGIN_LPE
 
     BufferMemory(vk::Device* device,
                  vk::PhysicalDevice physicalDevice,
+                 vk::BufferUsageFlags usage,
+                 vk::MemoryPropertyFlags properties,
                  std::initializer_list<std::pair<uint32_t, vk::DeviceSize>> pairs);
 
     vk::Result Map(vk::DeviceSize size = VK_WHOLE_SIZE,
@@ -65,6 +69,10 @@ BEGIN_LPE
                           vk::DeviceSize offset = 0);
     void Destroy();
 
+    vk::DeviceSize GetSize(uint32_t key);
+    vk::DeviceSize GetOffset(uint32_t key);
+
+    void Get(uint32_t key, vk::DeviceSize* size, vk::DeviceSize* offset);
 
     vk::Buffer GetBuffer() const;
     vk::DescriptorBufferInfo GetDescriptor() const;
