@@ -15,7 +15,8 @@ void lpe::Buffer::CreateBuffer(vk::DeviceSize size,
 
   vk::MemoryRequirements requirements = device->getBufferMemoryRequirements(buffer);
 
-  vk::MemoryAllocateInfo allocInfo = { requirements.size, helper::FindMemoryTypeIndex(requirements.memoryTypeBits, properties, physicalDevice.getMemoryProperties()) };
+  auto typeIndex = helper::FindMemoryTypeIndex(requirements.memoryTypeBits, properties, physicalDevice.getMemoryProperties());
+  vk::MemoryAllocateInfo allocInfo = { requirements.size, typeIndex };
 
   result = device->allocateMemory(&allocInfo, nullptr, &memory);
   

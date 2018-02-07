@@ -8,39 +8,44 @@
 #include "UniformBufferObject.h"
 
 BEGIN_LPE
+  class ModelsRenderer;
 
-class ModelsRenderer;
+  class UniformBuffer
+  {
+  private:
+    vk::PhysicalDevice physicalDevice;
+    std::unique_ptr<vk::Device> device;
 
-class UniformBuffer
-{
-private:
-  vk::PhysicalDevice physicalDevice;
-  std::unique_ptr<vk::Device> device;
+    UniformBufferObject ubo;
 
-  UniformBufferObject ubo;
+    Buffer viewBuffer;
+    Buffer instanceBuffer;
 
-  Buffer viewBuffer;
-	Buffer instanceBuffer;
+  public:
+    UniformBuffer() = default;
+    UniformBuffer(const UniformBuffer& other);
+    UniformBuffer(UniformBuffer&& other);
+    UniformBuffer& operator=(const UniformBuffer& other);
+    UniformBuffer& operator=(UniformBuffer&& other);
 
-public:
-  UniformBuffer() = default;
-  UniformBuffer(const UniformBuffer& other);
-  UniformBuffer(UniformBuffer&& other);
-  UniformBuffer& operator=(const UniformBuffer& other);
-  UniformBuffer& operator=(UniformBuffer&& other);
+    UniformBuffer(vk::PhysicalDevice physicalDevice,
+                  vk::Device* device,
+                  ModelsRenderer& modelsRenderer,
+                  const Camera& camera,
+                  const Commands& commands);
 
-  UniformBuffer(vk::PhysicalDevice physicalDevice, vk::Device* device, ModelsRenderer& modelsRenderer, const Camera& camera, const Commands& commands);
+    ~UniformBuffer();
 
-  ~UniformBuffer();
+    void Update(const Camera& camera,
+                ModelsRenderer& renderer,
+                const Commands& commands);
 
-  void Update(const Camera& camera, ModelsRenderer& renderer, const Commands& commands);
+    std::vector<vk::DescriptorBufferInfo> GetDescriptors();
 
-  std::vector<vk::DescriptorBufferInfo> GetDescriptors();
+    void SetLightPosition(glm::vec3 light);
 
-  void SetLightPosition(glm::vec3 light);
-
-	vk::Buffer GetInstanceBuffer();
-};
+    vk::Buffer GetInstanceBuffer();
+  };
 
 END_LPE
 

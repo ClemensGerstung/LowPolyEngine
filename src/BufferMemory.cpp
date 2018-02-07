@@ -5,12 +5,12 @@ lpe::BufferMemory::BufferMemory(const BufferMemory& other)
 {
   device.reset(other.device.get());
   physicalDevice = other.physicalDevice;
-  buffer = other.buffer;
+  buffers = { other.buffers };
   memory = other.memory;
   size = other.size;
-  alignment = other.alignment;
+  alignments = { other.alignments };
   mapped = other.mapped;
-  usageFlags = other.usageFlags;
+  usageFlags = { other.usageFlags };
   memoryPropertyFlags = other.memoryPropertyFlags;
   offsets = { other.offsets };
 }
@@ -19,12 +19,12 @@ lpe::BufferMemory::BufferMemory(BufferMemory&& other) noexcept
 {
   device = std::move(other.device);
   physicalDevice = other.physicalDevice;
-  buffer = other.buffer;
+  buffers = std::move(other.buffers);
   memory = other.memory;
   size = other.size;
-  alignment = other.alignment;
+  alignments = std::move(other.alignments);
   mapped = other.mapped;
-  usageFlags = other.usageFlags;
+  usageFlags = std::move(other.usageFlags);
   memoryPropertyFlags = other.memoryPropertyFlags;
   offsets = std::move(other.offsets);
 }
@@ -33,12 +33,12 @@ lpe::BufferMemory& lpe::BufferMemory::operator=(const BufferMemory& other)
 {
   device.reset(other.device.get());
   physicalDevice = other.physicalDevice;
-  buffer = other.buffer;
+  buffers = { other.buffers };
   memory = other.memory;
   size = other.size;
-  alignment = other.alignment;
+  alignments = { other.alignments };
   mapped = other.mapped;
-  usageFlags = other.usageFlags;
+  usageFlags = { other.usageFlags };
   memoryPropertyFlags = other.memoryPropertyFlags;
   offsets = { other.offsets };
 
@@ -49,12 +49,12 @@ lpe::BufferMemory& lpe::BufferMemory::operator=(BufferMemory&& other) noexcept
 {
   device = std::move(other.device);
   physicalDevice = other.physicalDevice;
-  buffer = other.buffer;
+  buffers = std::move(other.buffers);
   memory = other.memory;
   size = other.size;
-  alignment = other.alignment;
+  alignments = std::move(other.alignments);
   mapped = other.mapped;
-  usageFlags = other.usageFlags;
+  usageFlags = std::move(other.usageFlags);
   memoryPropertyFlags = other.memoryPropertyFlags;
   offsets = std::move(other.offsets);
 
@@ -65,53 +65,6 @@ lpe::BufferMemory::~BufferMemory()
 {
   Destroy();
 }
-
-lpe::BufferMemory::BufferMemory(vk::Device* device,
-                                vk::PhysicalDevice physicalDevice,
-                                vk::BufferUsageFlags usage,
-                                vk::MemoryPropertyFlags properties,
-                                std::initializer_list<std::pair<uint32_t, vk::DeviceSize>> pairs)
-  : physicalDevice(physicalDevice),
-    usageFlags(usage),
-    memoryPropertyFlags(properties)
-{
-  this->device.reset(device);
-  size = 0;
-  mapped = nullptr;
-
-  for (auto pair : pairs)
-  {
-    offsets.insert(pair);
-    size += pair.second;
-  }
-
-  vk::BufferCreateInfo createInfo = { {}, size, usage, vk::SharingMode::eExclusive };
-  auto result = device->createBuffer(&createInfo,
-                                     nullptr,
-                                     &buffer);
-  helper::ThrowIfNotSuccess(result,
-                            "Failed to create buffer!");
-
-  vk::MemoryRequirements requirements = device->getBufferMemoryRequirements(buffer);
-  auto memoryProperties = physicalDevice.getMemoryProperties();
-  auto memoryIndex = helper::FindMemoryTypeIndex(requirements.memoryTypeBits,
-                                                 properties,
-                                                 memoryProperties);
-
-  vk::MemoryAllocateInfo allocInfo = { requirements.size, memoryIndex };
-
-  result = device->allocateMemory(&allocInfo,
-                                  nullptr,
-                                  &memory);
-  helper::ThrowIfNotSuccess(result,
-                            "Failed to allocate buffer memory!");
-  alignment = requirements.alignment;
-
-  SetupDescriptor();
-
-  Bind();
-}
-
 
 vk::Result lpe::BufferMemory::Map(vk::DeviceSize size,
                                   vk::DeviceSize offset)
@@ -128,25 +81,28 @@ void lpe::BufferMemory::Unmap()
   device->unmapMemory(memory);
 }
 
-void lpe::BufferMemory::Bind(vk::DeviceSize offset)
+void lpe::BufferMemory::Bind(uint32_t id,
+                             vk::DeviceSize offset)
 {
-  device->bindBufferMemory(buffer,
+  device->bindBufferMemory(buffers.at(id),
                            memory,
                            offset);
 }
 
-vk::DescriptorBufferInfo lpe::BufferMemory::SetupDescriptor(vk::DeviceSize size,
+vk::DescriptorBufferInfo lpe::BufferMemory::SetupDescriptor(uint32_t id,
+                                                            vk::DeviceSize size,
                                                             vk::DeviceSize offset)
 {
   descriptor.offset = offset;
   descriptor.range = size;
-  descriptor.buffer = buffer;
+  descriptor.buffer = buffers.at(id);
 
   return descriptor;
 }
 
 void lpe::BufferMemory::Write(void* data,
                               vk::DeviceSize size,
+                              vk::DeviceSize offset,
                               bool map)
 {
   assert(mapped);
@@ -154,9 +110,12 @@ void lpe::BufferMemory::Write(void* data,
   if (map)
   {
     auto result = Map();
+    helper::ThrowIfNotSuccess(result,
+                              "Can't map memory");
   }
 
-  memcpy(mapped,
+  // the internet says casting void* to char* is fine 
+  memcpy((char*)mapped + offset,
          data,
          size);
 
@@ -166,18 +125,21 @@ void lpe::BufferMemory::Write(void* data,
   }
 }
 
-void lpe::BufferMemory::WriteStaged(void* data,
+void lpe::BufferMemory::WriteStaged(uint32_t sourceId,
+                                    uint32_t targetId,
+                                    void* data,
                                     vk::DeviceSize size,
                                     BufferMemory& buffer,
                                     vk::DeviceSize offset,
                                     vk::CommandBuffer command)
 {
   buffer.Write(data,
-               size);
+               size,
+               offset);
 
   vk::BufferCopy copyRegion = { offset, 0, size };
-  command.copyBuffer(buffer.GetBuffer(),
-                     this->buffer,
+  command.copyBuffer(buffer.GetBuffer(sourceId),
+                     buffers[targetId],
                      1,
                      &copyRegion);
 }
@@ -205,9 +167,11 @@ void lpe::BufferMemory::Destroy()
 {
   if (device)
   {
-    if (buffer)
+    if (!buffers.empty())
     {
-      device->destroyBuffer(buffer);
+      std::for_each(std::begin(buffers),
+                    std::end(buffers),
+                    [device = device.get()](const std::pair<uint32_t, vk::Buffer>& buffer) { device->destroyBuffer(buffer.second); });
     }
 
     if (memory)
@@ -217,18 +181,20 @@ void lpe::BufferMemory::Destroy()
   }
 }
 
-vk::DeviceSize lpe::BufferMemory::GetSize(uint32_t key)
+vk::DeviceSize lpe::BufferMemory::GetSize(uint32_t id,
+                                          uint32_t key)
 {
-  return offsets[key];
+  return offsets[id][key];
 }
 
-vk::DeviceSize lpe::BufferMemory::GetOffset(uint32_t key)
+vk::DeviceSize lpe::BufferMemory::GetOffset(uint32_t id,
+                                            uint32_t key)
 {
   vk::DeviceSize offset = 0;
 
-  for (const auto& off : offsets)
+  for (const auto& off : offsets[id])
   {
-    if(off.first == key)
+    if (off.first == key)
     {
       break;
     }
@@ -239,11 +205,12 @@ vk::DeviceSize lpe::BufferMemory::GetOffset(uint32_t key)
   return offset;
 }
 
-void lpe::BufferMemory::Get(uint32_t key,
+void lpe::BufferMemory::Get(uint32_t id,
+                            uint32_t key,
                             vk::DeviceSize* size,
                             vk::DeviceSize* offset)
 {
-  for (const auto& off : offsets)
+  for (const auto& off : offsets[id])
   {
     if (off.first == key)
     {
@@ -255,9 +222,9 @@ void lpe::BufferMemory::Get(uint32_t key,
   }
 }
 
-vk::Buffer lpe::BufferMemory::GetBuffer() const
+vk::Buffer lpe::BufferMemory::GetBuffer(uint32_t id) const
 {
-  return buffer;
+  return buffers.at(id);
 }
 
 vk::DescriptorBufferInfo lpe::BufferMemory::GetDescriptor() const
@@ -265,9 +232,9 @@ vk::DescriptorBufferInfo lpe::BufferMemory::GetDescriptor() const
   return descriptor;
 }
 
-vk::BufferUsageFlags lpe::BufferMemory::GetUsageFlags() const
+vk::BufferUsageFlags lpe::BufferMemory::GetUsageFlags(uint32_t id) const
 {
-  return usageFlags;
+  return usageFlags[id];
 }
 
 vk::MemoryPropertyFlags lpe::BufferMemory::GetMemoryPropertyFlags() const

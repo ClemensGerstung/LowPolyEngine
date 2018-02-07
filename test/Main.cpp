@@ -26,11 +26,13 @@ int main()
     {
       auto instance = object.GetInstance(x * instances + y);
       instance->SetPosition({ x, y, 0 });
-      instance->SetTransform(glm::scale(glm::mat4(1), { 0.75f, 0.75f, 0.75f }));
+      instance->SetTransform(glm::scale(glm::mat4(1),
+                                        { 0.75f, 0.75f, 0.75f }));
 
       instance = monkey.GetInstance(x * instances + y);
       instance->SetPosition({ x, y, 1 });
-      instance->SetTransform(glm::scale(glm::mat4(1), { 0.5f, 0.5f, 0.5f }));
+      instance->SetTransform(glm::scale(glm::mat4(1),
+                                        { 0.5f, 0.5f, 0.5f }));
     }
   }
 
@@ -38,7 +40,10 @@ int main()
   lpe::Window window;
   try
   {
-    window.Create(1920, 1080, "LowPolyEngine", false);
+    window.Create(1920,
+                  1080,
+                  "LowPolyEngine",
+                  false);
     window.AddRenderObject(&object);
     window.AddRenderObject(&monkey);
 
@@ -55,8 +60,11 @@ int main()
         {
           auto instance = object.GetInstance(x * instances + y);
           instance->SetPosition({ x, y, 0 });
-          instance->SetTransform(glm::scale(glm::mat4(1), { 0.75f, 0.75f, 0.75f }));
-          instance->Transform(glm::rotate(glm::mat4(1), glm::radians(90.0f) * time, { 0, 0, 1 }));
+          instance->SetTransform(glm::scale(glm::mat4(1),
+                                            { 0.75f, 0.75f, 0.75f }));
+          instance->Transform(glm::rotate(glm::mat4(1),
+                                          glm::radians(90.0f) * time,
+                                          { 0, 0, 1 }));
         }
       }
 

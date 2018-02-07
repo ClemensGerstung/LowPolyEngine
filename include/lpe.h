@@ -20,7 +20,7 @@ public:
 
   static Settings& GetDefault()
   {
-    static Settings settings = {};
+    static Settings settings;
     return settings;
   }
 

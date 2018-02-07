@@ -43,9 +43,12 @@ lpe::ImageView::ImageView(vk::Device* device,
 {
   this->device.reset(device);
 
-  vk::ImageViewCreateInfo createInfo = { {}, image, vk::ImageViewType::e2D, format,{},{ flags, 0, 1, 0, 1 } };
-  auto result = device->createImageView(&createInfo, nullptr, &imageView);
-  helper::ThrowIfNotSuccess(result, "Failed to create texture image view!");
+  vk::ImageViewCreateInfo createInfo = { {}, image, vk::ImageViewType::e2D, format, {}, { flags, 0, 1, 0, 1 } };
+  auto result = device->createImageView(&createInfo,
+                                        nullptr,
+                                        &imageView);
+  helper::ThrowIfNotSuccess(result,
+                            "Failed to create texture image view!");
 }
 
 lpe::ImageView::ImageView(vk::PhysicalDevice physicalDevice,
@@ -73,38 +76,57 @@ lpe::ImageView::ImageView(vk::PhysicalDevice physicalDevice,
     usage
   };
 
-  auto result = this->device->createImage(&createInfo, nullptr, &image);
-  helper::ThrowIfNotSuccess(result, "Failed to create image!");
+  auto result = this->device->createImage(&createInfo,
+                                          nullptr,
+                                          &image);
+  helper::ThrowIfNotSuccess(result,
+                            "Failed to create image!");
 
   vk::MemoryRequirements requirements = this->device->getImageMemoryRequirements(image);
 
-  vk::MemoryAllocateInfo allocInfo = { requirements.size, helper::FindMemoryTypeIndex(requirements.memoryTypeBits, properties, physicalDevice.getMemoryProperties()) };
+  auto memoryIndex = helper::FindMemoryTypeIndex(requirements.memoryTypeBits,
+                                                 properties,
+                                                 physicalDevice.getMemoryProperties());
+  vk::MemoryAllocateInfo allocInfo = {
+    requirements.size,
+    memoryIndex
+  };
 
-  result = this->device->allocateMemory(&allocInfo, nullptr, &memory);
-  helper::ThrowIfNotSuccess(result, "Failed to allocate image memory!");
+  result = this->device->allocateMemory(&allocInfo,
+                                        nullptr,
+                                        &memory);
+  helper::ThrowIfNotSuccess(result,
+                            "Failed to allocate image memory!");
 
-  this->device->bindImageMemory(image, memory, 0);
+  this->device->bindImageMemory(image,
+                                memory,
+                                0);
 
   vk::ImageViewCreateInfo viewCreateInfo = { {}, image, vk::ImageViewType::e2D, format, {}, { flags, 0, 1, 0, 1 } };
-  result = this->device->createImageView(&viewCreateInfo, nullptr, &imageView);
-  helper::ThrowIfNotSuccess(result, "Failed to create texture image view!");
+  result = this->device->createImageView(&viewCreateInfo,
+                                         nullptr,
+                                         &imageView);
+  helper::ThrowIfNotSuccess(result,
+                            "Failed to create texture image view!");
 }
 
 lpe::ImageView::~ImageView()
 {
-  if(device)
+  if (device)
   {
-    if(imageView)
+    if (imageView)
     {
-      device->destroyImageView(imageView, nullptr);
+      device->destroyImageView(imageView,
+                               nullptr);
     }
 
-    if(image)
+    if (image)
     {
-      device->destroyImage(image, nullptr);
+      device->destroyImage(image,
+                           nullptr);
     }
 
-    if(memory)
+    if (memory)
     {
       device->freeMemory(memory);
     }
@@ -166,9 +188,26 @@ void lpe::ImageView::TransitionImageLayout(vk::CommandBuffer commandBuffer,
     throw std::invalid_argument("unsupported layout transition!");
   }
 
-  vk::ImageMemoryBarrier barrier = { srcAccessMask, dstAccessMask, oldLayout, newLayout, VK_QUEUE_FAMILY_IGNORED, VK_QUEUE_FAMILY_IGNORED, image, range };
+  vk::ImageMemoryBarrier barrier = {
+    srcAccessMask,
+    dstAccessMask,
+    oldLayout,
+    newLayout,
+    VK_QUEUE_FAMILY_IGNORED,
+    VK_QUEUE_FAMILY_IGNORED,
+    image,
+    range
+  };
 
-  commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, 0, nullptr, 0, nullptr, 1, &barrier);
+  commandBuffer.pipelineBarrier(sourceStage,
+                                destinationStage,
+                                {},
+                                0,
+                                nullptr,
+                                0,
+                                nullptr,
+                                1,
+                                &barrier);
 }
 
 vk::ImageView lpe::ImageView::GetImageView() const

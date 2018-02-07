@@ -10,6 +10,7 @@
 #include "RenderPass.h"
 
 #include <map>
+#include "BufferMemory.h"
 
 BEGIN_LPE
 
@@ -55,6 +56,25 @@ public:
 
   explicit operator bool() const;
   bool operator!() const;
+
+  lpe::BufferMemory CreateBuffer()
+  {
+    lpe::BufferMemoryCreateInfo<2> createInfo = {};
+    createInfo.ids = { 1 };
+    createInfo.usages = {
+      vk::BufferUsageFlagBits::eUniformBuffer |
+      vk::BufferUsageFlagBits::eIndexBuffer |
+      vk::BufferUsageFlagBits::eVertexBuffer |
+      vk::BufferUsageFlagBits::eIndirectBuffer
+    };
+    createInfo.propertyFlags = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+    std::map<uint32_t, vk::DeviceSize> offsets = { { 0, 1000 },{ 1, 3000 },{ 2, 100 } };
+    createInfo.offsets = { offsets };
+
+    lpe::BufferMemory memory = { &device, physicalDevice, createInfo };
+
+    return memory;
+  }
 };
 
 END_LPE

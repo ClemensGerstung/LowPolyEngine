@@ -7,17 +7,20 @@
 #include <glm/detail/type_vec3.hpp>
 #include "Camera.h"
 #include "RenderObject.h"
+#include "BufferMemory.h"
 
 BEGIN_LPE
 	class Window
 	{
 	private:
+    // using raw pointer because glfw is an c api and std::unique_ptr wouldn't work due to incomplete type...
 		GLFWwindow* window = nullptr;
-		// using raw pointer because glfw is an c api and std::unique_ptr wouldn't work due to incomplete type...
+
 		uint32_t width;
 		uint32_t height;
 		std::string title;
 		bool resizeable;
+
 		lpe::Camera defaultCamera;
 		lpe::Instance instance;
 		lpe::Device device;
@@ -28,6 +31,7 @@ BEGIN_LPE
 		lpe::ImageView depthImage;
 		lpe::ModelsRenderer modelsRenderer;
     lpe::RenderPass renderPass;
+    lpe::BufferMemory buffer;
 
     glm::vec2 mousepos;
 
