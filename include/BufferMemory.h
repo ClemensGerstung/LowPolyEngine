@@ -149,12 +149,9 @@ BEGIN_LPE
 
       Bind(id);
 
-      buffers.insert_or_assign(id,
-                               buffer);
-      alignments.insert_or_assign(id,
-                                  requirements.alignment);
-      offsets.insert_or_assign(id,
-                               offsets);
+      buffers.insert(std::make_pair(id, buffer));
+      alignments.insert(std::make_pair(id, requirements.alignment));
+      this->offsets.insert(std::make_pair(id, offsets));
     }
   }
 
