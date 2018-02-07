@@ -147,11 +147,11 @@ BEGIN_LPE
       helper::ThrowIfNotSuccess(result,
                                 "Failed to allocate buffer memory!");
 
-      Bind(id);
-
       buffers.insert(std::make_pair(id, buffer));
       alignments.insert(std::make_pair(id, requirements.alignment));
       this->offsets.insert(std::make_pair(id, offsets));
+
+      Bind(id);
     }
   }
 

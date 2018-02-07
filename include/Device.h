@@ -59,7 +59,7 @@ public:
 
   lpe::BufferMemory CreateBuffer()
   {
-    lpe::BufferMemoryCreateInfo<2> createInfo = {};
+    lpe::BufferMemoryCreateInfo<1> createInfo = {};
     createInfo.ids = { 1 };
     createInfo.usages = {
       vk::BufferUsageFlagBits::eUniformBuffer |
