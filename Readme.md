@@ -16,7 +16,7 @@ You can create a ```lpe::Window``` and add some ```lpe::RenderObjects``` to it.
 These Objects can have several instances which are rendered separately (see [instancing](https://en.wikipedia.org/wiki/Geometry_instancing)).
 
 #### Example:
-```
+```c++
 #include "lpe.h"
 
 int main()
@@ -86,7 +86,7 @@ int main()
 ##### I'm not sure about this at all.
 
 One way is to create for every input it's own handler. Like this:
-```
+```c++
 window.HandleInput(lpe::Key::W, [](KeyInputEvent e)
 {
     // move camera forward
@@ -94,7 +94,7 @@ window.HandleInput(lpe::Key::W, [](KeyInputEvent e)
 ```
 
 Other way is to create a own class which inherits from something like ```InputHandlerBase```. This would look like:
-```
+```c++
 class SimpleInputHandler : public InputHandlerBase 
 {
 public:
