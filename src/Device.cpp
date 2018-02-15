@@ -309,3 +309,31 @@ bool lpe::Device::operator!() const
 {
   return !(static_cast<bool>(device) && static_cast<bool>(surface));
 }
+
+lpe::BufferMemory lpe::Device::CreateBuffer(uint32_t vertexCount,
+                                            uint32_t indexCount,
+                                            uint32_t instanceCount,
+                                            uint32_t indirectCommandsCount)
+{
+  lpe::BufferMemoryCreateInfo<1> createInfo = {};
+  createInfo.ids = { 1 };
+  createInfo.usages = {
+    vk::BufferUsageFlagBits::eUniformBuffer |
+    vk::BufferUsageFlagBits::eIndexBuffer |
+    vk::BufferUsageFlagBits::eVertexBuffer |
+    vk::BufferUsageFlagBits::eIndirectBuffer
+  };
+  createInfo.propertyFlags = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+  std::map<uint32_t, vk::DeviceSize> offsets = {
+    { BufferMemory::Type::Vertex, vertexCount * sizeof(lpe::Vertex) },
+    { BufferMemory::Type::Index, indexCount * sizeof(uint32_t) },
+    { BufferMemory::Type::UBO, sizeof(UniformBufferObject) },
+    { BufferMemory::Type::Instance, instanceCount * sizeof(InstanceData) },
+    { BufferMemory::Type::Indirect, indirectCommandsCount * sizeof(vk::DrawIndexedIndirectCommand) },
+  };
+  createInfo.offsets = { offsets };
+
+  lpe::BufferMemory memory = { &device, physicalDevice, createInfo };
+
+  return memory;
+}

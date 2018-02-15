@@ -201,7 +201,7 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
                                           0,
                                           vk::IndexType::eUint32);
 
-        if (physicalDevice.getFeatures().multiDrawIndirect)
+        if (physicalDevice.getFeatures().multiDrawIndirect) // bad, really bad
         {
           commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(),
                                                 renderer.GetOffet(prio) * sizeof(vk::DrawIndexedIndirectCommand),
@@ -213,7 +213,7 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
         {
           auto cmds = renderer.GetDrawIndexedIndirectCommands();
 
-          for (auto j = 0; j < cmds.size(); j++)
+          for (size_t j = 0; j < cmds.size(); j++)
           {
             commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(),
                                                   j * sizeof(vk::DrawIndexedIndirectCommand),

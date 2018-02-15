@@ -74,7 +74,7 @@ std::vector<vk::DrawIndexedIndirectCommand> lpe::ModelsRenderer::GetDrawIndexedI
   std::vector<vk::DrawIndexedIndirectCommand> commands = {};
 
   uint32_t i = 0;
-  for (auto& entry : objects)
+  for (auto entry : objects)
   {
     commands.push_back(entry->GetIndirectCommand(i));
     i += entry->GetInstanceCount();

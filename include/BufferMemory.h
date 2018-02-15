@@ -34,14 +34,15 @@ BEGIN_LPE
     std::map<uint32_t, std::map<uint32_t, vk::DeviceSize>> offsets;
 
   public:
-    enum class Type : uint32_t
+    struct Type
     {
-      Vertex = 0,
-      Index = 1,
-      Indirect = 2,
-      Instance = 3,
-      UBO = 4,
-      Stage = 5
+      static const uint32_t Vertex = 0;
+      static const uint32_t Index = 1;
+      static const uint32_t Indirect = 2;
+      static const uint32_t Instance = 3;
+      static const uint32_t UBO = 4;
+      static const uint32_t Stage = 5;
+      static const uint32_t Storage = 6;
       // tbc
     };
 
@@ -53,10 +54,13 @@ BEGIN_LPE
     BufferMemory& operator=(BufferMemory&& other) noexcept;
     ~BufferMemory();
 
-    template <uint32_t bufferCount>
+    template <uint32_t bufferCount = 1>
     BufferMemory(vk::Device* device,
                  vk::PhysicalDevice physicalDevice,
                  BufferMemoryCreateInfo<bufferCount> createInfo);
+
+    template <uint32_t bufferCount = 1>
+    void Recreate(BufferMemoryCreateInfo<bufferCount> createInfo);
 
     vk::Result Map(vk::DeviceSize size = VK_WHOLE_SIZE,
                    vk::DeviceSize offset = 0);
@@ -93,6 +97,8 @@ BEGIN_LPE
              vk::DeviceSize* size,
              vk::DeviceSize* offset);
 
+    std::map<uint32_t, vk::DeviceSize> GetOffsets(uint32_t id);
+
     vk::Buffer GetBuffer(uint32_t id) const;
     vk::DescriptorBufferInfo GetDescriptor() const;
     vk::BufferUsageFlags GetUsageFlags(uint32_t id) const;
@@ -103,10 +109,17 @@ BEGIN_LPE
   lpe::BufferMemory::BufferMemory(vk::Device* device,
                                   vk::PhysicalDevice physicalDevice,
                                   BufferMemoryCreateInfo<bufferCount> createInfo)
-    : physicalDevice(physicalDevice),
-      memoryPropertyFlags(createInfo.propertyFlags)
+    : physicalDevice(physicalDevice)
   {
-    this->device.reset(device);
+    this->Recreate(createInfo);
+  }
+
+  template <uint32_t bufferCount>
+  void BufferMemory::Recreate(BufferMemoryCreateInfo<bufferCount> createInfo)
+  {
+    this->Destroy();
+
+    memoryPropertyFlags = createInfo.propertyFlags;
     size = 0;
     mapped = nullptr;
 
@@ -119,14 +132,15 @@ BEGIN_LPE
       uint32_t id = createInfo.ids[i];
       auto usage = usageFlags[i];
       auto offsets = createInfo.offsets[i];
+      vk::DeviceSize bufferOffset = size;
 
       std::for_each(std::begin(offsets),
                     std::end(offsets),
-                    [&size = size](const std::pair<uint32_t, vk::DeviceSize> pair) { size += pair.second; });
+                    [&size = size](const std::pair<uint32_t, vk::DeviceSize>& pair) { size += pair.second; });
 
       vk::Buffer buffer = {};
-      vk::BufferCreateInfo createInfo = { {}, size, usage, vk::SharingMode::eExclusive };
-      auto result = device->createBuffer(&createInfo,
+      vk::BufferCreateInfo bufferCreateInfo = { {}, size, usage, vk::SharingMode::eExclusive };
+      auto result = device->createBuffer(&bufferCreateInfo,
                                          nullptr,
                                          &buffer);
 
@@ -147,11 +161,14 @@ BEGIN_LPE
       helper::ThrowIfNotSuccess(result,
                                 "Failed to allocate buffer memory!");
 
-      buffers.insert(std::make_pair(id, buffer));
-      alignments.insert(std::make_pair(id, requirements.alignment));
-      this->offsets.insert(std::make_pair(id, offsets));
+      buffers.insert(std::make_pair(id,
+                                    buffer));
+      alignments.insert(std::make_pair(id,
+                                       requirements.alignment));
+      this->offsets.insert(std::make_pair(id,
+                                          offsets));
 
-      Bind(id);
+      Bind(id, bufferOffset);
     }
   }
 

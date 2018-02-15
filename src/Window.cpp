@@ -32,11 +32,7 @@ void lpe::Window::Create()
 
   instance.Create(title);
   device = instance.CreateDevice(window);
-
-
-  device.CreateBuffer();
-
-
+  deviceVisibleMemory = device.CreateBuffer(2001, 2001 * 3, 100, 5);
   commands = device.CreateCommands();
   modelsRenderer = device.CreateModelsRenderer(&commands);
 
@@ -275,7 +271,7 @@ void lpe::Window::AddRenderObject(RenderObject* obj)
   uniformBuffer.Update(defaultCamera,
                        modelsRenderer,
                        commands);
-  commands.ResetCommandBuffers();
+  //commands.ResetCommandBuffers();
   commands.CreateCommandBuffers(swapChain.GetFramebuffers(),
                                 swapChain.GetExtent(),
                                 renderPass,

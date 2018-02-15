@@ -222,6 +222,11 @@ void lpe::BufferMemory::Get(uint32_t id,
   }
 }
 
+std::map<uint32_t, vk::DeviceSize> lpe::BufferMemory::GetOffsets(uint32_t id)
+{
+  return offsets[id];
+}
+
 vk::Buffer lpe::BufferMemory::GetBuffer(uint32_t id) const
 {
   return buffers.at(id);

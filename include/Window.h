@@ -21,6 +21,7 @@ BEGIN_LPE
 		std::string title;
 		bool resizeable;
 
+    lpe::BufferMemory deviceVisibleMemory;
 		lpe::Camera defaultCamera;
 		lpe::Instance instance;
 		lpe::Device device;
