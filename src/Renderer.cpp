@@ -81,9 +81,7 @@ void lpe::Renderer::AddObject(ObjectRef obj)
   obj->SetOffsets(indexOffset,
                   vertexOffset);
 
-  if (std::find(std::begin(objects),
-                std::end(objects),
-                obj->GetPrio()) == std::end(objects))
+  if (objects.find(obj->GetPrio()) == std::end(objects))
   {
     objects.insert(std::make_pair(obj->GetPrio(),
                                   std::vector<ObjectRef> {}));
