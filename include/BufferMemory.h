@@ -127,7 +127,7 @@ BEGIN_LPE
     for (uint32_t i = 0; i < createInfo.count; ++i)
     {
       uint32_t id = createInfo.ids[i];
-      auto usage = usageFlags[i];
+      auto usage = createInfo.usages[i];
       auto offsets = createInfo.offsets[i];
       vk::DeviceSize bufferOffset = size;
 
