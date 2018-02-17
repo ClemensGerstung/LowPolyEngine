@@ -142,7 +142,7 @@ void lpe::Renderer::UpdateBuffer(const lpe::Camera& camera)
     offsets[BufferMemory::Type::Instance] = instancesSize * 2 * sizeof(lpe::Vertex);
     offsets[BufferMemory::Type::Indirect] = indirectSize * 2 * sizeof(lpe::Vertex);
     createInfo.offsets = { offsets };
-
+      
     buffer->Recreate(createInfo);
   }
 
