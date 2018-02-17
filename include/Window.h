@@ -8,6 +8,7 @@
 #include "Camera.h"
 #include "RenderObject.h"
 #include "BufferMemory.h"
+#include "Renderer.h"
 
 BEGIN_LPE
 	class Window
@@ -21,18 +22,17 @@ BEGIN_LPE
 		std::string title;
 		bool resizeable;
 
-    lpe::BufferMemory deviceVisibleMemory;
+    lpe::BufferMemory hostVisibleMemory;
 		lpe::Camera defaultCamera;
 		lpe::Instance instance;
 		lpe::Device device;
 		lpe::SwapChain swapChain;
 		lpe::Commands commands;
-		lpe::UniformBuffer uniformBuffer;
     std::vector<lpe::Pipeline> pipelines;
 		lpe::ImageView depthImage;
-		lpe::ModelsRenderer modelsRenderer;
     lpe::RenderPass renderPass;
     lpe::BufferMemory buffer;
+    lpe::Renderer renderer;
 
     glm::vec2 mousepos;
 

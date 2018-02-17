@@ -159,9 +159,10 @@ lpe::Commands lpe::Device::CreateCommands()
   return { physicalDevice, &device, &graphicsQueue, indices.graphicsFamily };
 }
 
-lpe::ModelsRenderer lpe::Device::CreateModelsRenderer(Commands* commands)
+lpe::Renderer lpe::Device::CreateRenderer(lpe::BufferMemory* bufferMemory,
+                                          uint32_t bufferId)
 {
-  return { physicalDevice, &device, commands };
+  return { &device, physicalDevice, bufferMemory, bufferId };
 }
 
 lpe::RenderPass lpe::Device::CreateRenderPass(vk::Format swapChainImageFormat)
@@ -247,24 +248,18 @@ void lpe::Device::SubmitFrame(const std::vector<vk::SwapchainKHR>& swapChains,
   presentQueue.waitIdle();
 }
 
-lpe::UniformBuffer lpe::Device::CreateUniformBuffer(ModelsRenderer& modelsRenderer,
-                                                    const Camera& camera,
-                                                    const Commands& commands)
-{
-  return { physicalDevice, &device, modelsRenderer, camera, commands };
-}
-
 std::vector<lpe::Pipeline> lpe::Device::CreatePipelines(const SwapChain& swapChain,
                                                         RenderPass& renderPass,
-                                                        UniformBuffer* ubo)
+                                                        BufferMemory* buffer,
+                                                        uint32_t bufferId)
 {
   std::vector<lpe::Pipeline> pipes = {};
 
-  Pipeline::CreateInfo::ShaderInfo vertex = { 
-    "shaders/base.vert.spv", 
-    {}, 
-    vk::ShaderStageFlagBits::eVertex, 
-    "main" 
+  Pipeline::CreateInfo::ShaderInfo vertex = {
+    "shaders/base.vert.spv",
+    {},
+    vk::ShaderStageFlagBits::eVertex,
+    "main"
   };
   Pipeline::CreateInfo::ShaderInfo fragement = {
     "shaders/base.frag.spv",
@@ -284,7 +279,13 @@ std::vector<lpe::Pipeline> lpe::Device::CreatePipelines(const SwapChain& swapCha
   info.shaders.emplace_back(fragement);
   info.renderPass = renderPass;
   info.swapChainExtent = swapChain.GetExtent();
-  info.uniformBuffer = ubo;
+  info.descriptors = {
+    buffer->SetupDescriptor(bufferId,
+                            buffer->GetSize(bufferId,
+                                            BufferMemory::Type::UBO),
+                            buffer->GetOffset(bufferId,
+                                              BufferMemory::Type::UBO))
+  };
 
   pipes.emplace_back(physicalDevice,
                      &device,

@@ -32,33 +32,34 @@ void lpe::Window::Create()
 
   instance.Create(title);
   device = instance.CreateDevice(window);
-  deviceVisibleMemory = device.CreateBuffer(2001, 2001 * 3, 100, 5);
+  hostVisibleMemory = device.CreateBuffer(2001,
+                                          2001 * 3,
+                                          100,
+                                          5);
+  renderer = device.CreateRenderer(&hostVisibleMemory,
+                                   1);
+  renderer.SetLightPosition({ 0, 0, 5 });
   commands = device.CreateCommands();
-  modelsRenderer = device.CreateModelsRenderer(&commands);
 
   swapChain = device.CreateSwapChain(width,
                                      height);
   defaultCamera = { { 3, 0, 0 }, { 0, 0, 0 }, swapChain.GetExtent(), 110, 0.1f, 256 };
 
-  uniformBuffer = device.CreateUniformBuffer(modelsRenderer,
-                                             defaultCamera,
-                                             commands);
-  uniformBuffer.SetLightPosition({ 2, 2, 2 });
   renderPass = device.CreateRenderPass(swapChain.GetImageFormat());
   pipelines = device.CreatePipelines(swapChain,
                                      renderPass,
-                                     &uniformBuffer);
+                                     &hostVisibleMemory,
+                                     1);
   depthImage = commands.CreateDepthImage(swapChain.GetExtent(),
                                          device.FindDepthFormat());
 
   auto frameBuffers = swapChain.CreateFrameBuffers(renderPass,
                                                    &depthImage);
-  commands.CreateCommandBuffers(frameBuffers,
+  commands.RecordCommandBuffers(frameBuffers,
                                 swapChain.GetExtent(),
                                 renderPass,
                                 pipelines,
-                                modelsRenderer,
-                                uniformBuffer);
+                                renderer);
 }
 
 void lpe::Window::KeyInputCallback(GLFWwindow* window,
@@ -236,8 +237,9 @@ void lpe::Window::Create(uint32_t width,
                          std::string title,
                          bool resizeable)
 {
-  if (window) throw std::
-    runtime_error("Window was already created. Consider using the default constructor if you want to use this function!");
+  if (window)
+    throw std::
+      runtime_error("Window was already created. Consider using the default constructor if you want to use this function!");
 
   this->width = width;
   this->height = height;
@@ -264,20 +266,18 @@ lpe::Camera lpe::Window::CreateCamera(glm::vec3 position,
 
 void lpe::Window::AddRenderObject(RenderObject* obj)
 {
-  if (!window) throw std::
-    runtime_error("Cannot add model if the window wasn't created successfully. Call Create(...) before AddRenderObject(...)!");
+  if (!window)
+    throw std::
+      runtime_error("Cannot add model if the window wasn't created successfully. Call Create(...) before AddRenderObject(...)!");
 
-  modelsRenderer.AddObject(obj);
-  uniformBuffer.Update(defaultCamera,
-                       modelsRenderer,
-                       commands);
-  //commands.ResetCommandBuffers();
-  commands.CreateCommandBuffers(swapChain.GetFramebuffers(),
+  renderer.AddObject(obj);
+  renderer.UpdateBuffer(defaultCamera);
+
+  commands.RecordCommandBuffers(swapChain.GetFramebuffers(),
                                 swapChain.GetExtent(),
                                 renderPass,
                                 pipelines,
-                                modelsRenderer,
-                                uniformBuffer);
+                                renderer);
 }
 
 bool lpe::Window::IsOpen() const
@@ -293,9 +293,12 @@ void lpe::Window::Render()
 
   glfwPollEvents();
 
-  uniformBuffer.Update(defaultCamera,
-                       modelsRenderer,
-                       commands);
+  renderer.UpdateBuffer(defaultCamera);
+  commands.RecordCommandBuffers(swapChain.GetFramebuffers(),
+                                swapChain.GetExtent(),
+                                renderPass,
+                                pipelines,
+                                renderer);
 
   uint32_t imageIndex = -1;
   vk::SubmitInfo submitInfo = device.PrepareFrame(swapChain,

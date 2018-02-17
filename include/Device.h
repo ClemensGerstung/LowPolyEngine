@@ -6,11 +6,11 @@
 #include "SwapChain.h"
 #include "Commands.h"
 #include "Pipeline.h"
-#include "ModelsRenderer.h"
 #include "RenderPass.h"
 
 #include <map>
 #include "BufferMemory.h"
+#include "Renderer.h"
 
 BEGIN_LPE
   class Device
@@ -47,12 +47,12 @@ BEGIN_LPE
     SwapChain CreateSwapChain(uint32_t width,
                               uint32_t height);
     Commands CreateCommands();
-    UniformBuffer CreateUniformBuffer(ModelsRenderer& modelsRenderer,
-                                      const Camera& camera,
-                                      const Commands& commands);
+    Renderer CreateRenderer(lpe::BufferMemory* bufferMemory,
+                            uint32_t bufferId);
     std::vector<lpe::Pipeline> CreatePipelines(const SwapChain& swapChain,
                                                RenderPass& renderPass,
-                                               UniformBuffer* ubo);
+                                               BufferMemory* buffer,
+                                               uint32_t bufferId);
     ModelsRenderer CreateModelsRenderer(Commands* commands);
     RenderPass CreateRenderPass(vk::Format swapChainImageFormat);
 

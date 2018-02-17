@@ -104,8 +104,7 @@ void lpe::Renderer::AddObject(ObjectRef obj)
                    std::end(instanceData));
 }
 
-void lpe::Renderer::UpdateBuffer(vk::CommandBuffer cmd,
-                                 const lpe::Camera& camera)
+void lpe::Renderer::UpdateBuffer(const lpe::Camera& camera)
 {
   ubo.view = camera.GetView();
   ubo.projection = camera.GetPerspective();
@@ -242,5 +241,21 @@ uint32_t lpe::Renderer::GetOffet(uint32_t prio) const
 
 uint32_t lpe::Renderer::GetCount(uint32_t prio) const
 {
-  return (uint32_t)objects.at(prio).size();
+  auto found = objects.find(prio);
+  if (found != std::end(objects))
+  {
+    return (*found).second.size();
+  }
+
+  return 0;
+}
+
+bool lpe::Renderer::Empty() const
+{
+  return objects.empty();
+}
+
+void lpe::Renderer::SetLightPosition(glm::vec3 pos)
+{
+  ubo.lightPos = pos;
 }

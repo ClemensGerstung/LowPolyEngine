@@ -1,6 +1,8 @@
 #include "../include/Instance.h"
+#include <set>
 
-lpe::QueueFamilyIndices lpe::Instance::FindQueueFamilies(vk::PhysicalDevice device, const vk::SurfaceKHR& surface)
+lpe::QueueFamilyIndices lpe::Instance::FindQueueFamilies(vk::PhysicalDevice device,
+                                                         const vk::SurfaceKHR& surface)
 {
   lpe::QueueFamilyIndices indices;
   auto queueFamilies = device.getQueueFamilyProperties();
@@ -14,7 +16,8 @@ lpe::QueueFamilyIndices lpe::Instance::FindQueueFamilies(vk::PhysicalDevice devi
       indices.graphicsFamily = index;
     }
 
-    vk::Bool32 presentSupport = device.getSurfaceSupportKHR(index, surface);
+    vk::Bool32 presentSupport = device.getSurfaceSupportKHR(index,
+                                                            surface);
 
     if (queueFamily.queueCount > 0 && presentSupport)
     {
@@ -36,7 +39,8 @@ bool lpe::Instance::CheckDeviceExtensionSupport(vk::PhysicalDevice device)
 {
   auto extensions = device.enumerateDeviceExtensionProperties();
 
-  std::set<std::string> requiredExtensions(helper::DeviceExtensions.begin(), helper::DeviceExtensions.end());
+  std::set<std::string> requiredExtensions(helper::DeviceExtensions.begin(),
+                                           helper::DeviceExtensions.end());
 
   for (const auto& extension : extensions)
   {
@@ -46,7 +50,8 @@ bool lpe::Instance::CheckDeviceExtensionSupport(vk::PhysicalDevice device)
   return requiredExtensions.empty();
 }
 
-SwapChainSupportDetails lpe::Instance::QuerySwapChainDetails(vk::PhysicalDevice device, const vk::SurfaceKHR& surface)
+SwapChainSupportDetails lpe::Instance::QuerySwapChainDetails(vk::PhysicalDevice device,
+                                                             const vk::SurfaceKHR& surface)
 {
   SwapChainSupportDetails details;
 
@@ -57,23 +62,27 @@ SwapChainSupportDetails lpe::Instance::QuerySwapChainDetails(vk::PhysicalDevice 
   return details;
 }
 
-bool lpe::Instance::IsDeviceSuitable(vk::PhysicalDevice device, const vk::SurfaceKHR& surface) const
+bool lpe::Instance::IsDeviceSuitable(vk::PhysicalDevice device,
+                                     const vk::SurfaceKHR& surface) const
 {
-  auto indices = FindQueueFamilies(device, surface);
+  auto indices = FindQueueFamilies(device,
+                                   surface);
 
   bool supportsExtensions = CheckDeviceExtensionSupport(device);
 
   bool isSwapChainAdequate = false;
   if (supportsExtensions)
   {
-    auto swapChainDetails = QuerySwapChainDetails(device, surface);
+    auto swapChainDetails = QuerySwapChainDetails(device,
+                                                  surface);
     isSwapChainAdequate = !swapChainDetails.formats.empty() && !swapChainDetails.presentModes.empty();
   }
 
   return indices.IsComplete() && supportsExtensions && isSwapChainAdequate;
 }
 
-vk::PhysicalDevice lpe::Instance::PickPhysicalDevice(const uint32_t physicalDeviceIndex, const vk::SurfaceKHR& surface)
+vk::PhysicalDevice lpe::Instance::PickPhysicalDevice(const uint32_t physicalDeviceIndex,
+                                                     const vk::SurfaceKHR& surface)
 {
   vk::PhysicalDevice physicalDevice;
 
@@ -83,7 +92,8 @@ vk::PhysicalDevice lpe::Instance::PickPhysicalDevice(const uint32_t physicalDevi
   {
     for (const auto& device : physicalDevices)
     {
-      if (IsDeviceSuitable(device, surface))
+      if (IsDeviceSuitable(device,
+                           surface))
       {
         physicalDevice = device;
         break;
@@ -92,7 +102,8 @@ vk::PhysicalDevice lpe::Instance::PickPhysicalDevice(const uint32_t physicalDevi
   }
   else
   {
-    if (IsDeviceSuitable(physicalDevices[physicalDeviceIndex], surface))
+    if (IsDeviceSuitable(physicalDevices[physicalDeviceIndex],
+                         surface))
     {
       physicalDevice = physicalDevices[physicalDeviceIndex];
     }
@@ -111,7 +122,9 @@ lpe::Instance::~Instance()
 {
   if (callback)
   {
-    helper::DestroyDebugReportCallbackEXT(instance, callback, nullptr);
+    helper::DestroyDebugReportCallbackEXT(instance,
+                                          callback,
+                                          nullptr);
   }
 
   if (instance)
@@ -143,7 +156,11 @@ void lpe::Instance::Create(const std::string& appName)
   }
 
   vk::ApplicationInfo appInfo = {
-    appName.c_str(), APPLICATION_VERSION, ENGINE_NAME, ENGINE_VERSION, VK_MAKE_VERSION(1, 0, 39)
+    appName.c_str(),
+    APPLICATION_VERSION,
+    ENGINE_NAME,
+    ENGINE_VERSION,
+    VK_MAKE_VERSION(1, 0, 39)
   };
 
   vk::InstanceCreateInfo createInfo =
@@ -156,14 +173,17 @@ void lpe::Instance::Create(const std::string& appName)
     extensions.data()
   };
 
-  if(Settings::GetDefault().EnableValidationLayer)
+  if (Settings::GetDefault().EnableValidationLayer)
   {
     createInfo.enabledLayerCount = (uint32_t)helper::ValidationLayer.size();
     createInfo.ppEnabledLayerNames = helper::ValidationLayer.data();
   }
 
-  auto result = vk::createInstance(&createInfo, nullptr, &instance);
-  helper::ThrowIfNotSuccess(result, "Failed to create Vulkan instance");
+  auto result = vk::createInstance(&createInfo,
+                                   nullptr,
+                                   &instance);
+  helper::ThrowIfNotSuccess(result,
+                            "Failed to create Vulkan instance");
 
   if (Settings::GetDefault().EnableValidationLayer)
   {
@@ -172,24 +192,31 @@ void lpe::Instance::Create(const std::string& appName)
     debugReportCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
     debugReportCreateInfo.pfnCallback = helper::debugCallback;
 
-    if (helper::CreateDebugReportCallbackEXT(instance, &debugReportCreateInfo, nullptr, &callback))
+    if (helper::CreateDebugReportCallbackEXT(instance,
+                                             &debugReportCreateInfo,
+                                             nullptr,
+                                             &callback))
     {
       throw std::runtime_error("Failed to set up debug callback");
     }
   }
 }
 
-lpe::Device lpe::Instance::CreateDevice(GLFWwindow* window, const uint32_t physicalDeviceIndex)
+lpe::Device lpe::Instance::CreateDevice(GLFWwindow* window,
+                                        const uint32_t physicalDeviceIndex)
 {
   vk::SurfaceKHR surface;
 
-  if (glfwCreateWindowSurface(static_cast<VkInstance>(instance), window, nullptr,
+  if (glfwCreateWindowSurface(static_cast<VkInstance>(instance),
+                              window,
+                              nullptr,
                               reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS)
   {
     throw std::runtime_error("Failed to create window surface!");
   }
 
-  vk::PhysicalDevice physicalDevice = PickPhysicalDevice(physicalDeviceIndex, surface);
+  vk::PhysicalDevice physicalDevice = PickPhysicalDevice(physicalDeviceIndex,
+                                                         surface);
 
-  return {&instance, physicalDevice, surface};
+  return { &instance, physicalDevice, surface };
 }

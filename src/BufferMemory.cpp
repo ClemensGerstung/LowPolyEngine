@@ -105,7 +105,7 @@ void lpe::BufferMemory::Write(void* data,
                               vk::DeviceSize offset,
                               bool map)
 {
-  assert(mapped);
+  //assert(mapped);
 
   if (map)
   {
@@ -239,7 +239,13 @@ vk::DescriptorBufferInfo lpe::BufferMemory::GetDescriptor() const
 
 vk::BufferUsageFlags lpe::BufferMemory::GetUsageFlags(uint32_t id) const
 {
-  return usageFlags[id];
+  auto found = usageFlags.find(id);
+  if(found != std::end(usageFlags))
+  {
+    return (*found).second;
+  }
+
+  return {};
 }
 
 vk::MemoryPropertyFlags lpe::BufferMemory::GetMemoryPropertyFlags() const

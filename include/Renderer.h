@@ -45,16 +45,18 @@ BEGIN_LPE
     void AddObject(ObjectRef obj);
     //void RemoveObject(ObjectRef obj);
 
-    void UpdateBuffer(vk::CommandBuffer cmd,
-                      const lpe::Camera& camera);
+    void UpdateBuffer(const lpe::Camera& camera);
     void Record(uint32_t prio,
                 vk::CommandBuffer cmd);
 
     uint32_t GetOffet(uint32_t prio) const;
     uint32_t GetCount(uint32_t prio) const;
     //uint32_t GetTotalCount() const;
-    //bool Empty() const;
+    bool Empty() const;
     //uint32_t EntriesCount() const;
+
+    //tmp
+    void SetLightPosition(glm::vec3 pos);
   };
 
 END_LPE

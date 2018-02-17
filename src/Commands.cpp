@@ -1,5 +1,4 @@
 #include "../include/Commands.h"
-#include "../include/ModelsRenderer.h"
 #include "../include/RenderPass.h"
 
 
@@ -108,12 +107,11 @@ void lpe::Commands::ResetCommandBuffers()
   }
 }
 
-void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers,
+void lpe::Commands::RecordCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers,
                                          vk::Extent2D extent,
                                          RenderPass& renderPass,
                                          const std::vector<lpe::Pipeline>& pipelines,
-                                         ModelsRenderer& renderer,
-                                         UniformBuffer& ubo)
+                                         Renderer& renderer)
 {
   commandBuffers.resize(framebuffers.size());
 
@@ -153,7 +151,7 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
     commandBuffers[i].beginRenderPass(&renderPassInfo,
                                       vk::SubpassContents::eInline);
 
-    if (renderer.GetVertexBuffer() && renderer.GetIndexBuffer())
+    if (!renderer.Empty())
     {
       vk::Viewport viewport = { 0, 0, (float)extent.width, (float)extent.height, 0.0, 1.0f };
       commandBuffers[i].setViewport(0,
@@ -167,8 +165,6 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
 
 
       //pipeline.UpdateDescriptorSets(ubo.GetDescriptors());
-
-      std::array<uint32_t, 1> dynOffsets = { 0 };
 
       for (const auto& pipeline : pipelines)
       {
@@ -186,41 +182,7 @@ void lpe::Commands::CreateCommandBuffers(const std::vector<vk::Framebuffer>& fra
         commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics,
                                        pipeline.GetPipeline());
 
-        VkDeviceSize offsets[1] = { 0 };
-        vk::Buffer vertexBuffer = renderer.GetVertexBuffer();
-        vk::Buffer instanceBuffer = ubo.GetInstanceBuffer();
-        commandBuffers[i].bindVertexBuffers(0,
-                                            1,
-                                            &vertexBuffer,
-                                            offsets);
-        commandBuffers[i].bindVertexBuffers(1,
-                                            1,
-                                            &instanceBuffer,
-                                            offsets);
-        commandBuffers[i].bindIndexBuffer(renderer.GetIndexBuffer(),
-                                          0,
-                                          vk::IndexType::eUint32);
-
-        if (physicalDevice.getFeatures().multiDrawIndirect) // bad, really bad
-        {
-          commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(),
-                                                renderer.GetOffet(prio) * sizeof(vk::DrawIndexedIndirectCommand),
-                                                renderer.GetCount(prio),
-                                                sizeof(vk::DrawIndexedIndirectCommand));
-
-        }
-        else
-        {
-          auto cmds = renderer.GetDrawIndexedIndirectCommands();
-
-          for (size_t j = 0; j < cmds.size(); j++)
-          {
-            commandBuffers[i].drawIndexedIndirect(renderer.GetIndirectBuffer(),
-                                                  j * sizeof(vk::DrawIndexedIndirectCommand),
-                                                  1,
-                                                  sizeof(vk::DrawIndexedIndirectCommand));
-          }
-        }
+        renderer.Record(prio, commandBuffers[i]);
       }
     }
 
@@ -277,34 +239,6 @@ void lpe::Commands::EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const
   device->freeCommandBuffers(commandPool,
                              1,
                              &commandBuffer);
-}
-
-lpe::Buffer lpe::Commands::CreateBuffer(void* data,
-                                        vk::DeviceSize size) const
-{
-  Buffer staging = { physicalDevice, device.get(), data, size };
-
-  Buffer actual = {
-    physicalDevice,
-    device.get(),
-    size,
-    vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
-    vk::MemoryPropertyFlagBits::eDeviceLocal
-  };
-
-  auto commandBuffer = BeginSingleTimeCommands();
-
-  actual.Copy(staging,
-              commandBuffer);
-
-  EndSingleTimeCommands(commandBuffer);
-
-  return actual;
-}
-
-lpe::Buffer lpe::Commands::CreateBuffer(vk::DeviceSize size) const
-{
-  return { physicalDevice, device.get(), size };
 }
 
 lpe::ImageView lpe::Commands::CreateDepthImage(vk::Extent2D extent,

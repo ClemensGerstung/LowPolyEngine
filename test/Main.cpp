@@ -15,7 +15,7 @@ int main()
 {
   lpe::Settings::GetDefault().EnableValidationLayer = true;
 
-  lpe::RenderObject object = { "models/tree.ply", 1 };
+  lpe::RenderObject object = { "models/tree.ply", 0 };
   lpe::RenderObject monkey = { "models/monkey.ply", 0 };
 
   uint32_t instances = 5;

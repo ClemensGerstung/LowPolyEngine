@@ -2,7 +2,6 @@
 #define IMGUI_H
 
 #include "lpe.h"
-#include "Buffer.h"
 #include "RenderPass.h"
 
 BEGIN_LPE
@@ -16,8 +15,6 @@ private:
   int32_t indexCount = 0;
 
   VkSampler sampler;
-  lpe::Buffer vertexBuffer;
-  lpe::Buffer indexBuffer;
   VkDeviceMemory fontMemory = nullptr;
   VkImage fontImage = nullptr;
   VkImageView fontView = nullptr;

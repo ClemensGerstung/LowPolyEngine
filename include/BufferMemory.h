@@ -28,7 +28,7 @@ BEGIN_LPE
     void* mapped;
     vk::DescriptorBufferInfo descriptor;
 
-    std::vector<vk::BufferUsageFlags> usageFlags;
+    std::map<uint32_t, vk::BufferUsageFlags> usageFlags;
     vk::MemoryPropertyFlags memoryPropertyFlags;
 
     std::map<uint32_t, std::map<uint32_t, vk::DeviceSize>> offsets;
@@ -111,6 +111,7 @@ BEGIN_LPE
                                   BufferMemoryCreateInfo<bufferCount> createInfo)
     : physicalDevice(physicalDevice)
   {
+    this->device.reset(device);
     this->Recreate(createInfo);
   }
 
@@ -122,10 +123,6 @@ BEGIN_LPE
     memoryPropertyFlags = createInfo.propertyFlags;
     size = 0;
     mapped = nullptr;
-
-    usageFlags.insert(std::end(usageFlags),
-                      std::begin(createInfo.usages),
-                      std::end(createInfo.usages));
 
     for (uint32_t i = 0; i < createInfo.count; ++i)
     {
@@ -161,6 +158,8 @@ BEGIN_LPE
       helper::ThrowIfNotSuccess(result,
                                 "Failed to allocate buffer memory!");
 
+      usageFlags.insert(std::make_pair(id,
+                                       usage));
       buffers.insert(std::make_pair(id,
                                     buffer));
       alignments.insert(std::make_pair(id,
@@ -168,7 +167,8 @@ BEGIN_LPE
       this->offsets.insert(std::make_pair(id,
                                           offsets));
 
-      Bind(id, bufferOffset);
+      Bind(id,
+           bufferOffset);
     }
   }
 

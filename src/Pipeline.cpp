@@ -367,7 +367,7 @@ lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
 
   CreateDescriptorPool();
 
-  UpdateDescriptorSets(createInfo.uniformBuffer->GetDescriptors());
+  UpdateDescriptorSets(createInfo.descriptors);
 }
 
 lpe::Pipeline::~Pipeline()

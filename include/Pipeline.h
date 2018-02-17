@@ -1,7 +1,6 @@
 #ifndef PIPELINE_H
 #define PIPELINE_H
 #include "stdafx.h"
-#include "UniformBuffer.h"
 
 #include <string>
 
@@ -34,7 +33,7 @@ public:
 
     vk::RenderPass renderPass;
     vk::Extent2D swapChainExtent;
-    lpe::UniformBuffer* uniformBuffer;
+    std::vector<vk::DescriptorBufferInfo> descriptors;
 
     std::vector<vk::VertexInputBindingDescription> bindingDescriptions;
     std::vector<vk::VertexInputAttributeDescription> attributeDescriptions;
@@ -76,8 +75,6 @@ public:
            vk::Device* device,
            vk::PipelineCache cache,
            CreateInfo createInfo);
-
-
 
   ~Pipeline();
 

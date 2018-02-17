@@ -1,11 +1,11 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 #include "stdafx.h"
-#include "Buffer.h"
 #include "ImageView.h"
 #include "Pipeline.h"
 
 #include <map>
+#include "Renderer.h"
 
 BEGIN_LPE
   class RenderPass;
@@ -35,19 +35,15 @@ BEGIN_LPE
     ~Commands();
 
     void ResetCommandBuffers();
-    void CreateCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers,
+    void RecordCommandBuffers(const std::vector<vk::Framebuffer>& framebuffers,
                               vk::Extent2D extent,
                               RenderPass& renderPass,
                               const std::vector<lpe::Pipeline>& pipelines,
-                              ModelsRenderer& renderer,
-                              lpe::UniformBuffer& ubo);
+                              Renderer& renderer);
 
     vk::CommandBuffer BeginSingleTimeCommands() const;
     void EndSingleTimeCommands(vk::CommandBuffer commandBuffer) const;
 
-    lpe::Buffer CreateBuffer(void* data,
-                             vk::DeviceSize size) const;
-    lpe::Buffer CreateBuffer(vk::DeviceSize size) const;
     lpe::ImageView CreateDepthImage(vk::Extent2D extent,
                                     vk::Format depthFormat) const;
 
