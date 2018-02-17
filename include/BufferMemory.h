@@ -124,6 +124,11 @@ BEGIN_LPE
     size = 0;
     mapped = nullptr;
 
+    buffers.clear();
+    usageFlags.clear();
+    alignments.clear();
+    offsets.clear();
+
     for (uint32_t i = 0; i < createInfo.count; ++i)
     {
       uint32_t id = createInfo.ids[i];
@@ -131,9 +136,11 @@ BEGIN_LPE
       auto offsets = createInfo.offsets[i];
       vk::DeviceSize bufferOffset = size;
 
+      auto minOffset = physicalDevice.getProperties().limits.minUniformBufferOffsetAlignment;
+
       std::for_each(std::begin(offsets),
                     std::end(offsets),
-                    [&size = size](const std::pair<uint32_t, vk::DeviceSize>& pair) { size += pair.second; });
+                    [&size = size, alignment = minOffset](const std::pair<uint32_t, vk::DeviceSize>& pair) { size += (pair.second + (alignment - (pair.second % alignment))); });
 
       vk::Buffer buffer = {};
       vk::BufferCreateInfo bufferCreateInfo = { {}, size, usage, vk::SharingMode::eExclusive };
@@ -143,7 +150,7 @@ BEGIN_LPE
 
       helper::ThrowIfNotSuccess(result,
                                 "Failed to create buffer!");
-
+      
       vk::MemoryRequirements requirements = device->getBufferMemoryRequirements(buffer);
       auto memoryProperties = physicalDevice.getMemoryProperties();
       auto memoryIndex = helper::FindMemoryTypeIndex(requirements.memoryTypeBits,
@@ -157,6 +164,7 @@ BEGIN_LPE
                                       &memory);
       helper::ThrowIfNotSuccess(result,
                                 "Failed to allocate buffer memory!");
+      size = bufferOffset + requirements.size;
 
       usageFlags.insert(std::make_pair(id,
                                        usage));

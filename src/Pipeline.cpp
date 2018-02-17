@@ -261,6 +261,7 @@ void lpe::Pipeline::UpdateDescriptorSets(std::vector<vk::DescriptorBufferInfo> d
                               "Failed to allocate DescriptorSets!");
   }
 
+  descriptorSets.clear();
   descriptorSets.emplace_back(descriptorSet,
                               0,
                               0,

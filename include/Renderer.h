@@ -55,6 +55,8 @@ BEGIN_LPE
     bool Empty() const;
     //uint32_t EntriesCount() const;
 
+    vk::DescriptorBufferInfo GetBufferInfo();
+
     //tmp
     void SetLightPosition(glm::vec3 pos);
   };

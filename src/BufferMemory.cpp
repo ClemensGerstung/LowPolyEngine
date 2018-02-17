@@ -184,13 +184,17 @@ void lpe::BufferMemory::Destroy()
 vk::DeviceSize lpe::BufferMemory::GetSize(uint32_t id,
                                           uint32_t key)
 {
-  return offsets[id][key];
+  auto alignment = alignments[id];
+  auto size = offsets[id][key];
+
+  return size + (alignment - (size % alignment));
 }
 
 vk::DeviceSize lpe::BufferMemory::GetOffset(uint32_t id,
                                             uint32_t key)
 {
   vk::DeviceSize offset = 0;
+  auto alignment = alignments[id];
 
   for (const auto& off : offsets[id])
   {
@@ -202,7 +206,8 @@ vk::DeviceSize lpe::BufferMemory::GetOffset(uint32_t id,
     offset += off.second;
   }
 
-  return offset;
+  
+  return offset + (alignment - (offset % alignment));
 }
 
 void lpe::BufferMemory::Get(uint32_t id,

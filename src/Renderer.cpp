@@ -142,7 +142,7 @@ void lpe::Renderer::UpdateBuffer(const lpe::Camera& camera)
     offsets[BufferMemory::Type::Instance] = instancesSize * 2 * sizeof(lpe::Vertex);
     offsets[BufferMemory::Type::Indirect] = indirectSize * 2 * sizeof(lpe::Vertex);
     createInfo.offsets = { offsets };
-    
+
     buffer->Recreate(createInfo);
   }
 
@@ -253,6 +253,15 @@ uint32_t lpe::Renderer::GetCount(uint32_t prio) const
 bool lpe::Renderer::Empty() const
 {
   return objects.empty();
+}
+
+vk::DescriptorBufferInfo lpe::Renderer::GetBufferInfo()
+{
+  return buffer->SetupDescriptor(bufferId,
+                                 buffer->GetSize(bufferId,
+                                                 BufferMemory::Type::UBO),
+                                 buffer->GetOffset(bufferId,
+                                                   BufferMemory::Type::UBO));
 }
 
 void lpe::Renderer::SetLightPosition(glm::vec3 pos)

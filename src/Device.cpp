@@ -1,5 +1,6 @@
 #include "../include/Device.h"
 #include "../include/Instance.h"
+#include <set>
 
 lpe::Device::Device(const Device& device)
 {
@@ -64,28 +65,24 @@ lpe::Device::Device(vk::Instance* instance,
   float queuePriority = 1.0f;
 
   std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
+  std::set<uint32_t> queueFamiliyIndices = { indices.graphicsFamily, indices.presentFamily };
 
-  for (auto queueFamily : { indices.graphicsFamily, indices.presentFamily })
+  for (auto queueFamily : queueFamiliyIndices)
   {
-    queueCreateInfos.push_back({ {}, queueFamily, 1, &queuePriority });
+    queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), queueFamily, 1, &queuePriority);
   }
 
-  vk::DeviceCreateInfo createInfo =
-  {
-    {},
-    (uint32_t)queueCreateInfos.size(),
-    queueCreateInfos.data(),
-#if defined(ENABLE_VALIDATION_LAYER) && ENABLE_VALIDATION_LAYER
-    (uint32_t)helper::ValidationLayer.size(),
-    helper::ValidationLayer.data(),
-#else
-    0,
-    nullptr,
-#endif
-    (uint32_t)helper::DeviceExtensions.size(),
-    helper::DeviceExtensions.data(),
-    {}
-  };
+  vk::PhysicalDeviceFeatures deviceFeatures = {};
+  deviceFeatures.samplerAnisotropy = VK_TRUE;
+
+  vk::DeviceCreateInfo createInfo = {};
+  createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+  createInfo.pQueueCreateInfos = queueCreateInfos.data();
+  createInfo.enabledLayerCount = static_cast<uint32_t>(helper::ValidationLayer.size());
+  createInfo.ppEnabledLayerNames = helper::ValidationLayer.data();
+  createInfo.enabledExtensionCount = static_cast<uint32_t>(helper::DeviceExtensions.size());
+  createInfo.ppEnabledExtensionNames = helper::DeviceExtensions.data();
+  createInfo.pEnabledFeatures = &deviceFeatures;
 
   device = this->physicalDevice.createDevice(createInfo,
                                              nullptr);

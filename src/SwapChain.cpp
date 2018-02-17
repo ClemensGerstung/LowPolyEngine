@@ -91,6 +91,10 @@ void lpe::SwapChain::CreateSwapChain(vk::PhysicalDevice physicalDevice, const vk
     createInfo.imageSharingMode = vk::SharingMode::eConcurrent;
     createInfo.queueFamilyIndexCount = (uint32_t)queueFamilyIndices.size();
     createInfo.pQueueFamilyIndices = queueFamilyIndices.data();
+  } 
+  else
+  {
+    createInfo.imageSharingMode = vk::SharingMode::eExclusive;
   }
 
   vk::SwapchainKHR newSwapchain = device->createSwapchainKHR(createInfo, nullptr);
