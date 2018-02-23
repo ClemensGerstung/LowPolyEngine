@@ -163,10 +163,10 @@ void lpe::Commands::RecordCommandBuffers(const std::vector<vk::Framebuffer>& fra
                                    1,
                                    &scissor);
 
-      for (auto pipeline : pipelines)
+      for (auto& pipeline : pipelines)
       {
         std::vector<vk::DescriptorBufferInfo> bufferInfo = { renderer.GetBufferInfo() };
-        pipeline.UpdateDescriptorSets(bufferInfo);
+        //pipeline.UpdateDescriptorSets(bufferInfo);
 
         vk::DescriptorSet set = pipeline.GetDescriptorSet();
         uint32_t prio = pipeline.GetPrio();

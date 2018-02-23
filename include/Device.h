@@ -53,15 +53,14 @@ BEGIN_LPE
                                                RenderPass& renderPass,
                                                BufferMemory* buffer,
                                                uint32_t bufferId);
-    ModelsRenderer CreateModelsRenderer(Commands* commands);
     RenderPass CreateRenderPass(vk::Format swapChainImageFormat);
 
     vk::SubmitInfo PrepareFrame(const SwapChain& swapChain,
-                                uint32_t* imageIndex);
+                                int32_t* imageIndex);
     void SubmitQueue(uint32_t submitCount,
                      const vk::SubmitInfo* infos);
     void SubmitFrame(const std::vector<vk::SwapchainKHR>& swapChains,
-                     uint32_t* imageIndex);
+                     int32_t* imageIndex);
 
     explicit operator bool() const;
     bool operator!() const;

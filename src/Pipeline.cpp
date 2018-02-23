@@ -261,7 +261,7 @@ void lpe::Pipeline::UpdateDescriptorSets(std::vector<vk::DescriptorBufferInfo> d
                               "Failed to allocate DescriptorSets!");
   }
 
-  descriptorSets.clear();
+  std::vector<vk::WriteDescriptorSet> descriptorSets = {};
   descriptorSets.emplace_back(descriptorSet,
                               0,
                               0,
@@ -284,7 +284,6 @@ lpe::Pipeline::Pipeline(const Pipeline& other)
   this->priority = other.priority;
   this->transparent = other.transparent;
   this->type = other.type;
-  this->descriptorSets = other.descriptorSets;
   this->cache = other.cache;
   this->descriptorSetLayout = other.descriptorSetLayout;
   this->pipelineLayout = other.pipelineLayout;
@@ -301,7 +300,6 @@ lpe::Pipeline::Pipeline(Pipeline&& other) noexcept
   this->priority = other.priority;
   this->transparent = other.transparent;
   this->type = other.type;
-  this->descriptorSets = std::move(other.descriptorSets);
   this->cache = other.cache;
   this->descriptorSetLayout = other.descriptorSetLayout;
   this->pipelineLayout = other.pipelineLayout;
@@ -318,7 +316,6 @@ lpe::Pipeline& lpe::Pipeline::operator=(const Pipeline& other)
   this->priority = other.priority;
   this->transparent = other.transparent;
   this->type = other.type;
-  this->descriptorSets = other.descriptorSets;
   this->cache = other.cache;
   this->descriptorSetLayout = other.descriptorSetLayout;
   this->pipelineLayout = other.pipelineLayout;
@@ -337,7 +334,6 @@ lpe::Pipeline& lpe::Pipeline::operator=(Pipeline&& other) noexcept
   this->priority = other.priority;
   this->transparent = other.transparent;
   this->type = other.type;
-  this->descriptorSets = std::move(other.descriptorSets);
   this->cache = other.cache;
   this->descriptorSetLayout = other.descriptorSetLayout;
   this->pipelineLayout = other.pipelineLayout;
@@ -377,9 +373,9 @@ lpe::Pipeline::~Pipeline()
   {
     if (descriptorSet)
     {
-        auto result = device->freeDescriptorSets(descriptorPool,
-                                                 1,
-                                                 &descriptorSet);
+      auto result = device->freeDescriptorSets(descriptorPool,
+                                               1,
+                                               &descriptorSet);
     }
 
     if (descriptorSetLayout)

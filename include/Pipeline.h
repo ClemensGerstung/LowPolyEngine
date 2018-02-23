@@ -56,7 +56,6 @@ private:
   bool transparent;
   uint32_t priority;
   vk::PipelineBindPoint type;
-  std::vector<vk::WriteDescriptorSet> descriptorSets;
 
   vk::ShaderModule CreateShaderModule(const std::vector<char>& code);
 

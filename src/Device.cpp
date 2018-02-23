@@ -168,7 +168,7 @@ lpe::RenderPass lpe::Device::CreateRenderPass(vk::Format swapChainImageFormat)
 }
 
 vk::SubmitInfo lpe::Device::PrepareFrame(const SwapChain& swapChain,
-                                         uint32_t* imageIndex)
+                                         int32_t* imageIndex)
 {
   if (!imageAvailableSemaphore)
   {
@@ -196,7 +196,7 @@ vk::SubmitInfo lpe::Device::PrepareFrame(const SwapChain& swapChain,
                                            std::numeric_limits<uint64_t>::max(),
                                            imageAvailableSemaphore,
                                            {},
-                                           imageIndex);
+                                           reinterpret_cast<uint32_t*>(imageIndex));
 
   if (result == vk::Result::eErrorOutOfDateKHR)
   {
@@ -224,11 +224,11 @@ void lpe::Device::SubmitQueue(uint32_t submitCount,
 }
 
 void lpe::Device::SubmitFrame(const std::vector<vk::SwapchainKHR>& swapChains,
-                              uint32_t* imageIndex)
+                              int32_t* imageIndex)
 {
   vk::Semaphore signalSemaphores[] = { renderAvailableSemaphore };
 
-  vk::PresentInfoKHR presentInfo = { 1, signalSemaphores, (uint32_t)swapChains.size(), swapChains.data(), imageIndex };
+  vk::PresentInfoKHR presentInfo = { 1, signalSemaphores, (uint32_t)swapChains.size(), swapChains.data(), (uint32_t*)imageIndex };
 
   auto result = presentQueue.presentKHR(&presentInfo);
   //auto result = vk::Result::eSuccess;

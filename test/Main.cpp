@@ -16,7 +16,7 @@ int main()
   lpe::Settings::GetDefault().EnableValidationLayer = true;
 
   lpe::RenderObject object = { "models/tree.ply", 0 };
-  lpe::RenderObject monkey = { "models/monkey.ply", 0 };
+  //lpe::RenderObject monkey = { "models/monkey.ply", 0 };
 
   uint32_t instances = 5;
 
@@ -29,10 +29,10 @@ int main()
       instance->SetTransform(glm::scale(glm::mat4(1),
                                         { 0.75f, 0.75f, 0.75f }));
 
-      instance = monkey.GetInstance(x * instances + y);
-      instance->SetPosition({ x, y, 1 });
-      instance->SetTransform(glm::scale(glm::mat4(1),
-                                        { 0.5f, 0.5f, 0.5f }));
+      //instance = monkey.GetInstance(x * instances + y);
+      //instance->SetPosition({ x, y, 1 });
+      //instance->SetTransform(glm::scale(glm::mat4(1),
+      //                                  { 0.5f, 0.5f, 0.5f }));
     }
   }
 
@@ -45,7 +45,7 @@ int main()
                   "LowPolyEngine",
                   false);
     window.AddRenderObject(&object);
-    window.AddRenderObject(&monkey);
+    //window.AddRenderObject(&monkey);
 
     auto startTime = std::chrono::high_resolution_clock::now();
 

@@ -271,13 +271,6 @@ void lpe::Window::AddRenderObject(RenderObject* obj)
       runtime_error("Cannot add model if the window wasn't created successfully. Call Create(...) before AddRenderObject(...)!");
 
   renderer.AddObject(obj);
-  renderer.UpdateBuffer(defaultCamera);
-
-  commands.RecordCommandBuffers(swapChain.GetFramebuffers(),
-                                swapChain.GetExtent(),
-                                renderPass,
-                                pipelines,
-                                renderer);
 }
 
 bool lpe::Window::IsOpen() const
@@ -300,11 +293,11 @@ void lpe::Window::Render()
                                 pipelines,
                                 renderer);
 
-  uint32_t imageIndex = -1;
+  int32_t imageIndex = -1;
   vk::SubmitInfo submitInfo = device.PrepareFrame(swapChain,
                                                   &imageIndex);
 
-  if (imageIndex == -1) return;
+  if (imageIndex < 0) return;
 
   submitInfo.commandBufferCount = 1;
   auto commandBuffer = commands[imageIndex];

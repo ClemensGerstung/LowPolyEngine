@@ -118,7 +118,8 @@ BEGIN_LPE
   template <uint32_t bufferCount>
   void BufferMemory::Recreate(BufferMemoryCreateInfo<bufferCount> createInfo)
   {
-    this->Destroy();
+    //this->Destroy();
+    device->freeMemory(memory);
 
     memoryPropertyFlags = createInfo.propertyFlags;
     size = 0;
@@ -138,19 +139,38 @@ BEGIN_LPE
 
       auto minOffset = physicalDevice.getProperties().limits.minUniformBufferOffsetAlignment;
 
-      std::for_each(std::begin(offsets),
-                    std::end(offsets),
-                    [&size = size, alignment = minOffset](const std::pair<uint32_t, vk::DeviceSize>& pair) { size += (pair.second + (alignment - (pair.second % alignment))); });
 
+      for(auto iter = std::begin(offsets); iter != std::end(offsets); ++iter)
+      {
+        iter->second = (iter->second + (minOffset - (iter->second % minOffset)));
+        size += iter->second;
+      }
+
+      //std::for_each(std::begin(offsets),
+      //              std::end(offsets),
+      //              [&size = size, alignment = minOffset](const std::pair<uint32_t, vk::DeviceSize>& pair)
+      //              {
+      //                pair.second = (pair.second + (alignment - (pair.second % alignment)));
+      //                size += pair.second;
+      //              });
+
+      auto bufferIterator = buffers.find(id);
       vk::Buffer buffer = {};
       vk::BufferCreateInfo bufferCreateInfo = { {}, size, usage, vk::SharingMode::eExclusive };
+
+      if (bufferIterator != buffers.end())
+      {
+        buffer = (*bufferIterator).second;
+        device->destroyBuffer(buffer);
+      }
+
       auto result = device->createBuffer(&bufferCreateInfo,
                                          nullptr,
                                          &buffer);
 
       helper::ThrowIfNotSuccess(result,
                                 "Failed to create buffer!");
-      
+
       vk::MemoryRequirements requirements = device->getBufferMemoryRequirements(buffer);
       auto memoryProperties = physicalDevice.getMemoryProperties();
       auto memoryIndex = helper::FindMemoryTypeIndex(requirements.memoryTypeBits,
@@ -166,14 +186,23 @@ BEGIN_LPE
                                 "Failed to allocate buffer memory!");
       size = bufferOffset + requirements.size;
 
-      usageFlags.insert(std::make_pair(id,
-                                       usage));
-      buffers.insert(std::make_pair(id,
-                                    buffer));
-      alignments.insert(std::make_pair(id,
-                                       requirements.alignment));
-      this->offsets.insert(std::make_pair(id,
-                                          offsets));
+      if (bufferIterator != buffers.end())
+      {
+        usageFlags[id] = usage;
+        alignments[id] = requirements.alignment;
+        this->offsets[id] = offsets;
+      }
+      else
+      {
+        usageFlags.insert(std::make_pair(id,
+                                         usage));
+        buffers.insert(std::make_pair(id,
+                                      buffer));
+        alignments.insert(std::make_pair(id,
+                                         requirements.alignment));
+        this->offsets.insert(std::make_pair(id,
+                                            offsets));
+      }
 
       Bind(id,
            bufferOffset);

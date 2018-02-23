@@ -1,5 +1,4 @@
 #include "../include/BufferMemory.h"
-#include <cstdarg>
 
 lpe::BufferMemory::BufferMemory(const BufferMemory& other)
 {
@@ -79,6 +78,7 @@ vk::Result lpe::BufferMemory::Map(vk::DeviceSize size,
 void lpe::BufferMemory::Unmap()
 {
   device->unmapMemory(memory);
+  mapped = nullptr;
 }
 
 void lpe::BufferMemory::Bind(uint32_t id,
@@ -105,21 +105,20 @@ void lpe::BufferMemory::Write(void* data,
                               vk::DeviceSize offset,
                               bool map)
 {
-  //assert(mapped);
-
   if (map)
   {
-    auto result = Map();
+    auto result = Map(size, offset);
     helper::ThrowIfNotSuccess(result,
                               "Can't map memory");
   }
 
-  // the internet says casting void* to char* is fine 
-  memcpy((char*)mapped + offset,
+  assert(mapped);
+
+  memcpy(mapped,
          data,
          size);
 
-  if (map)
+  if (map && mapped)
   {
     Unmap();
   }
@@ -184,10 +183,9 @@ void lpe::BufferMemory::Destroy()
 vk::DeviceSize lpe::BufferMemory::GetSize(uint32_t id,
                                           uint32_t key)
 {
-  auto alignment = alignments[id];
   auto size = offsets[id][key];
 
-  return size + (alignment - (size % alignment));
+  return size;
 }
 
 vk::DeviceSize lpe::BufferMemory::GetOffset(uint32_t id,
@@ -207,7 +205,7 @@ vk::DeviceSize lpe::BufferMemory::GetOffset(uint32_t id,
   }
 
   
-  return offset + (alignment - (offset % alignment));
+  return offset;
 }
 
 void lpe::BufferMemory::Get(uint32_t id,
