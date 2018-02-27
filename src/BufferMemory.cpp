@@ -168,9 +168,10 @@ void lpe::BufferMemory::Destroy()
   {
     if (!buffers.empty())
     {
-      std::for_each(std::begin(buffers),
-                    std::end(buffers),
-                    [device = device.get()](const std::pair<uint32_t, vk::Buffer>& buffer) { device->destroyBuffer(buffer.second); });
+      for(auto iter = std::begin(buffers); iter != std::end(buffers); ++iter)
+      {
+        device->destroyBuffer(iter->second);
+      }
     }
 
     if (memory)

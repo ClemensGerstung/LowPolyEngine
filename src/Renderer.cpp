@@ -95,13 +95,6 @@ void lpe::Renderer::AddObject(ObjectRef obj)
   this->indices.insert(std::end(this->indices),
                        obj->GetIndexBegin(),
                        obj->GetIndexEnd());
-
-  commands.push_back(obj->GetIndirectCommand((uint32_t)instances.size()));
-
-  auto instanceData = obj->GetInstanceData();
-  instances.insert(std::end(instances),
-                   std::begin(instanceData),
-                   std::end(instanceData));
 }
 
 void lpe::Renderer::UpdateBuffer(const lpe::Camera& camera)
@@ -109,6 +102,22 @@ void lpe::Renderer::UpdateBuffer(const lpe::Camera& camera)
   ubo.view = camera.GetView();
   ubo.projection = camera.GetPerspective();
   ubo.projection[1][1] *= -1;
+
+  commands.clear();
+  instances.clear();
+
+  for (const auto& object : objects)
+  {
+    for (const auto obj : object.second)
+    {
+      commands.push_back(obj->GetIndirectCommand((uint32_t)instances.size()));
+
+      auto instanceData = obj->GetInstanceData();
+      instances.insert(std::end(instances),
+                       std::begin(instanceData),
+                       std::end(instanceData));
+    }
+  }
 
   vk::DeviceSize indexSize = sizeof(uint32_t) * indices.size();
   vk::DeviceSize vertexSize = sizeof(lpe::Vertex) * vertices.size();
@@ -175,14 +184,14 @@ void lpe::Renderer::Record(uint32_t prio,
   vk::Buffer buffer = this->buffer->GetBuffer(bufferId);
 
   // bind Vertex
-  vk::DeviceSize offsets[1] = {
+  std::array<vk::DeviceSize, 1> offsets = {
     this->buffer->GetOffset(bufferId,
                             BufferMemory::Type::Vertex)
   };
   cmd.bindVertexBuffers(0,
                         1,
                         &buffer,
-                        offsets);
+                        offsets.data());
 
   // bind Instances
   offsets[0] = this->buffer->GetOffset(bufferId,
@@ -190,7 +199,7 @@ void lpe::Renderer::Record(uint32_t prio,
   cmd.bindVertexBuffers(1,
                         1,
                         &buffer,
-                        offsets);
+                        offsets.data());
 
   // bind index
   cmd.bindIndexBuffer(buffer,

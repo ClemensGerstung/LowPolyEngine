@@ -1,6 +1,4 @@
 #include "../include/Window.h"
-#include "../include/UniformBufferObject.h"
-
 #include <glm/ext.hpp>
 
 void lpe::Window::Create()

@@ -8,7 +8,12 @@ void lpe::Pipeline::CreateDescriptorPool()
     { vk::DescriptorType::eUniformBuffer, 1 }
   };
 
-  vk::DescriptorPoolCreateInfo poolInfo = { {}, 2, (uint32_t)poolSizes.size(), poolSizes.data() };
+  vk::DescriptorPoolCreateInfo poolInfo = {
+    vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+    2,
+    (uint32_t)poolSizes.size(),
+    poolSizes.data()
+  };
 
   auto result = device->createDescriptorPool(&poolInfo,
                                              nullptr,

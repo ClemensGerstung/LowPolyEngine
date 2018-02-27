@@ -22,10 +22,10 @@ BEGIN_LPE
 		std::string title;
 		bool resizeable;
 
+    lpe::Instance instance;
+    lpe::Device device;
     lpe::BufferMemory hostVisibleMemory;
 		lpe::Camera defaultCamera;
-		lpe::Instance instance;
-		lpe::Device device;
 		lpe::SwapChain swapChain;
 		lpe::Commands commands;
     std::vector<lpe::Pipeline> pipelines;

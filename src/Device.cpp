@@ -104,6 +104,8 @@ lpe::Device::~Device()
 {
   if (instance)
   {
+    device.waitIdle();
+
     if (surface)
     {
       instance->destroySurfaceKHR(surface);
@@ -112,6 +114,16 @@ lpe::Device::~Device()
     if (pipelineCache)
     {
       device.destroyPipelineCache(pipelineCache);
+    }
+
+    if(renderAvailableSemaphore)
+    {
+      device.destroySemaphore(renderAvailableSemaphore);
+    }
+
+    if(imageAvailableSemaphore)
+    {
+      device.destroySemaphore(imageAvailableSemaphore);
     }
 
     if (device)

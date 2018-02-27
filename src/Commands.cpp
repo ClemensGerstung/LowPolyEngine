@@ -113,18 +113,23 @@ void lpe::Commands::RecordCommandBuffers(const std::vector<vk::Framebuffer>& fra
                                          const std::vector<lpe::Pipeline>& pipelines,
                                          Renderer& renderer)
 {
-  commandBuffers.resize(framebuffers.size());
+  vk::Result result;
 
-  vk::CommandBufferAllocateInfo allocInfo = {
-    commandPool,
-    vk::CommandBufferLevel::ePrimary,
-    (uint32_t)commandBuffers.size()
-  };
+  if (commandBuffers.size() != framebuffers.size())
+  {
+    commandBuffers.resize(framebuffers.size());
 
-  auto result = device->allocateCommandBuffers(&allocInfo,
-                                               commandBuffers.data());
-  helper::ThrowIfNotSuccess(result,
-                            "Failed to allocate command buffers!");
+    vk::CommandBufferAllocateInfo allocInfo = {
+      commandPool,
+      vk::CommandBufferLevel::ePrimary,
+      (uint32_t)commandBuffers.size()
+    };
+
+    result = device->allocateCommandBuffers(&allocInfo,
+                                            commandBuffers.data());
+    helper::ThrowIfNotSuccess(result,
+                              "Failed to allocate command buffers!");
+  }
 
   std::array<float, 4> color = { { 0, 0, 0, 1 } };
 
@@ -182,7 +187,8 @@ void lpe::Commands::RecordCommandBuffers(const std::vector<vk::Framebuffer>& fra
         commandBuffers[i].bindPipeline(vk::PipelineBindPoint::eGraphics,
                                        pipeline.GetPipeline());
 
-        renderer.Record(prio, commandBuffers[i]);
+        renderer.Record(prio,
+                        commandBuffers[i]);
       }
     }
 
