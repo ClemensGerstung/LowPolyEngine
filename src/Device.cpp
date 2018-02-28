@@ -69,7 +69,10 @@ lpe::Device::Device(vk::Instance* instance,
 
   for (auto queueFamily : queueFamiliyIndices)
   {
-    queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(), queueFamily, 1, &queuePriority);
+    queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlags(),
+                                  queueFamily,
+                                  1,
+                                  &queuePriority);
   }
 
   vk::PhysicalDeviceFeatures deviceFeatures = {};
@@ -116,12 +119,12 @@ lpe::Device::~Device()
       device.destroyPipelineCache(pipelineCache);
     }
 
-    if(renderAvailableSemaphore)
+    if (renderAvailableSemaphore)
     {
       device.destroySemaphore(renderAvailableSemaphore);
     }
 
-    if(imageAvailableSemaphore)
+    if (imageAvailableSemaphore)
     {
       device.destroySemaphore(imageAvailableSemaphore);
     }
@@ -240,7 +243,13 @@ void lpe::Device::SubmitFrame(const std::vector<vk::SwapchainKHR>& swapChains,
 {
   vk::Semaphore signalSemaphores[] = { renderAvailableSemaphore };
 
-  vk::PresentInfoKHR presentInfo = { 1, signalSemaphores, (uint32_t)swapChains.size(), swapChains.data(), (uint32_t*)imageIndex };
+  vk::PresentInfoKHR presentInfo = {
+    1,
+    signalSemaphores,
+    (uint32_t)swapChains.size(),
+    swapChains.data(),
+    (uint32_t*)imageIndex
+  };
 
   auto result = presentQueue.presentKHR(&presentInfo);
   //auto result = vk::Result::eSuccess;
@@ -299,12 +308,14 @@ std::vector<lpe::Pipeline> lpe::Device::CreatePipelines(const SwapChain& swapCha
   pipes.emplace_back(physicalDevice,
                      &device,
                      pipelineCache,
+                     *buffer,
                      info);
 
   info.prio = 1;
   pipes.emplace_back(physicalDevice,
                      &device,
                      pipelineCache,
+                     *buffer,
                      info);
 
   return pipes;

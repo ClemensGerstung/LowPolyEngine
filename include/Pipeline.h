@@ -3,6 +3,7 @@
 #include "stdafx.h"
 
 #include <string>
+#include "BufferMemory.h"
 
 BEGIN_LPE
 
@@ -73,6 +74,7 @@ public:
   Pipeline(vk::PhysicalDevice physicalDevice, 
            vk::Device* device,
            vk::PipelineCache cache,
+           const lpe::BufferMemory& memory,
            CreateInfo createInfo);
 
   ~Pipeline();

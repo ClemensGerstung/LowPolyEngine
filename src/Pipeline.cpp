@@ -352,6 +352,7 @@ lpe::Pipeline& lpe::Pipeline::operator=(Pipeline&& other) noexcept
 lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
                         vk::Device* device,
                         vk::PipelineCache cache,
+                        const lpe::BufferMemory& memory,
                         CreateInfo createInfo)
   : physicalDevice(physicalDevice),
     cache(cache),
@@ -370,6 +371,25 @@ lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
   CreateDescriptorPool();
 
   UpdateDescriptorSets(createInfo.descriptors);
+
+  memory.Recreated += [device = device, descriptorSet = descriptorSet](const BufferMemory& mem)
+  {
+    vk::DescriptorBufferInfo descriptor = mem.GetDescriptor();
+
+    std::vector<vk::WriteDescriptorSet> descriptorSets = {};
+    descriptorSets.emplace_back(descriptorSet,
+                                0,
+                                0,
+                                1,
+                                vk::DescriptorType::eUniformBuffer,
+                                nullptr,
+                                &descriptor);
+
+    device->updateDescriptorSets((uint32_t)descriptorSets.size(),
+                                 descriptorSets.data(),
+                                 0,
+                                 nullptr);
+  };
 }
 
 lpe::Pipeline::~Pipeline()

@@ -3,6 +3,7 @@
 
 #include "lpe.h"
 #include <map>
+#include <functional>
 
 BEGIN_LPE
   template <uint32_t bufferCount>
@@ -32,7 +33,6 @@ BEGIN_LPE
     vk::MemoryPropertyFlags memoryPropertyFlags;
 
     std::map<uint32_t, std::map<uint32_t, vk::DeviceSize>> offsets;
-
   public:
     struct Type
     {
@@ -46,6 +46,7 @@ BEGIN_LPE
       // tbc
     };
 
+    Event<BufferMemory> Recreated;
 
     BufferMemory() = default;
     BufferMemory(const BufferMemory& other);
@@ -82,9 +83,9 @@ BEGIN_LPE
                      vk::DeviceSize offset,
                      vk::CommandBuffer command);
     vk::Result Flush(vk::DeviceSize size = VK_WHOLE_SIZE,
-                     vk::DeviceSize offset = 0);
+                     vk::DeviceSize offset = 0) const;
     vk::Result Invalidate(vk::DeviceSize size = VK_WHOLE_SIZE,
-                          vk::DeviceSize offset = 0);
+                          vk::DeviceSize offset = 0) const;
     void Destroy();
 
     vk::DeviceSize GetSize(uint32_t id,
@@ -125,7 +126,6 @@ BEGIN_LPE
     size = 0;
     mapped = nullptr;
 
-    buffers.clear();
     usageFlags.clear();
     alignments.clear();
     offsets.clear();
@@ -140,19 +140,11 @@ BEGIN_LPE
       auto minOffset = physicalDevice.getProperties().limits.minUniformBufferOffsetAlignment;
 
 
-      for(auto iter = std::begin(offsets); iter != std::end(offsets); ++iter)
+      for (auto iter = std::begin(offsets); iter != std::end(offsets); ++iter)
       {
         iter->second = (iter->second + (minOffset - (iter->second % minOffset)));
         size += iter->second;
       }
-
-      //std::for_each(std::begin(offsets),
-      //              std::end(offsets),
-      //              [&size = size, alignment = minOffset](const std::pair<uint32_t, vk::DeviceSize>& pair)
-      //              {
-      //                pair.second = (pair.second + (alignment - (pair.second % alignment)));
-      //                size += pair.second;
-      //              });
 
       auto bufferIterator = buffers.find(id);
       vk::Buffer buffer = {};
@@ -188,6 +180,7 @@ BEGIN_LPE
 
       if (bufferIterator != buffers.end())
       {
+        buffers[id] = buffer;
         usageFlags[id] = usage;
         alignments[id] = requirements.alignment;
         this->offsets[id] = offsets;
@@ -206,6 +199,16 @@ BEGIN_LPE
 
       Bind(id,
            bufferOffset);
+
+      // setup descriptors to UBO
+      SetupDescriptor(id,
+                      GetSize(id,
+                              Type::UBO),
+                      GetOffset(id,
+                                Type::UBO));
+
+      const auto sender = *this;
+      Recreated(sender);
     }
   }
 

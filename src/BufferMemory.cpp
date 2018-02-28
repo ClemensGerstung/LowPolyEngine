@@ -145,7 +145,7 @@ void lpe::BufferMemory::WriteStaged(uint32_t sourceId,
 
 
 vk::Result lpe::BufferMemory::Flush(vk::DeviceSize size,
-                                    vk::DeviceSize offset)
+                                    vk::DeviceSize offset) const
 {
   vk::MappedMemoryRange mappedRange = { memory, offset, size };
 
@@ -154,7 +154,7 @@ vk::Result lpe::BufferMemory::Flush(vk::DeviceSize size,
 }
 
 vk::Result lpe::BufferMemory::Invalidate(vk::DeviceSize size,
-                                         vk::DeviceSize offset)
+                                         vk::DeviceSize offset) const
 {
   vk::MappedMemoryRange mappedRange = { memory, offset, size };
 
