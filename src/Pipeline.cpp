@@ -352,7 +352,7 @@ lpe::Pipeline& lpe::Pipeline::operator=(Pipeline&& other) noexcept
 lpe::Pipeline::Pipeline(vk::PhysicalDevice physicalDevice,
                         vk::Device* device,
                         vk::PipelineCache cache,
-                        const lpe::BufferMemory& memory,
+                        lpe::BufferMemory& memory,
                         CreateInfo createInfo)
   : physicalDevice(physicalDevice),
     cache(cache),
