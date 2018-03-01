@@ -74,7 +74,7 @@ public:
   Pipeline(vk::PhysicalDevice physicalDevice, 
            vk::Device* device,
            vk::PipelineCache cache,
-           const lpe::BufferMemory& memory,
+           lpe::BufferMemory& memory,
            CreateInfo createInfo);
 
   ~Pipeline();
