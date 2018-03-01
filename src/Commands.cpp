@@ -170,7 +170,7 @@ void lpe::Commands::RecordCommandBuffers(const std::vector<vk::Framebuffer>& fra
 
       for (auto& pipeline : pipelines)
       {
-        std::vector<vk::DescriptorBufferInfo> bufferInfo = { renderer.GetBufferInfo() };
+        //std::vector<vk::DescriptorBufferInfo> bufferInfo = { renderer.GetBufferInfo() };
         //pipeline.UpdateDescriptorSets(bufferInfo);
 
         vk::DescriptorSet set = pipeline.GetDescriptorSet();

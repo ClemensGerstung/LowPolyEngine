@@ -207,8 +207,7 @@ BEGIN_LPE
                       GetOffset(id,
                                 Type::UBO));
 
-      const auto sender = *this;
-      Recreated(sender);
+      Recreated(*this);
     }
   }
 

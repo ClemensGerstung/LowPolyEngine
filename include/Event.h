@@ -9,7 +9,7 @@ BEGIN_LPE
   class Event
   {
   private:
-    std::vector<std::function<void(const TSenderType&, TArgs...)>> callbacks;
+    std::vector<std::function<void(const TSenderType&, TArgs&&...)>> callbacks;
   public:
     Event() = default;
 
@@ -37,7 +37,7 @@ BEGIN_LPE
 
     ~Event() = default;
 
-    void operator+=(std::function<void(const TSenderType&, TArgs...)> callback) const
+    void operator+=(std::function<void(const TSenderType&, TArgs&&...)> callback) const
     {
       callbacks.push_back(callback);
     }
@@ -45,15 +45,15 @@ BEGIN_LPE
     template<class TLambda>
     void operator+=(TLambda callback) const
     {
-      callbacks.emplace_back(callback);
+      const_cast<std::vector<std::function<void(const TSenderType&, TArgs&&...)>>&>(callbacks).emplace_back(callback);
     }
 
-    void operator()(const TSenderType& sender, TArgs... args) const
+    void operator()(const TSenderType& sender, TArgs&&... args) const
     {
       Invoke(sender, args...);
     }
 
-    void Invoke(const TSenderType& sender, TArgs... args) const
+    void Invoke(const TSenderType& sender, TArgs&&... args) const
     {
       for(auto iter = std::begin(callbacks); iter != std::end(callbacks); ++iter)
       {
