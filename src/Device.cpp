@@ -77,6 +77,7 @@ lpe::Device::Device(vk::Instance* instance,
 
   vk::PhysicalDeviceFeatures deviceFeatures = {};
   deviceFeatures.samplerAnisotropy = VK_TRUE;
+  deviceFeatures.multiDrawIndirect = VK_TRUE;
 
   vk::DeviceCreateInfo createInfo = {};
   createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());

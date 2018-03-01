@@ -153,6 +153,8 @@ void lpe::Renderer::UpdateBuffer(const lpe::Camera& camera)
     createInfo.offsets = { offsets };
 
     buffer->Recreate(createInfo);
+
+    features = physicalDevice.getFeatures();
   }
 
   buffer->Write(&ubo,
@@ -206,7 +208,7 @@ void lpe::Renderer::Record(uint32_t prio,
                       this->buffer->GetOffset(bufferId,
                                               BufferMemory::Type::Index),
                       vk::IndexType::eUint32);
-
+  
   if (features.multiDrawIndirect)
   {
     // @formatter:off
