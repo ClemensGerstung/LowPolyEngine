@@ -34,17 +34,17 @@ BEGIN_LPE
 
     std::map<uint32_t, std::map<uint32_t, vk::DeviceSize>> offsets;
   public:
-    struct Type
+    enum Type
     {
-      static const uint32_t Vertex = 0;
-      static const uint32_t Index = 1;
-      static const uint32_t Indirect = 2;
-      static const uint32_t Instance = 3;
-      static const uint32_t UBO = 4;
-      static const uint32_t Stage = 5;
-      static const uint32_t Storage = 6;
+      Vertex = 0,
+      Index = 1,
+      Indirect = 2,
+      Instance = 3,
+      UBO = 4,
+      Stage = 5,
+      Storage = 6
       // tbc
-    };
+    } ;
 
     Event<BufferMemory> Recreated;
 
