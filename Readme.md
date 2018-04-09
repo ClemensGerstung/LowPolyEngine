@@ -119,7 +119,10 @@ This calls will be forwarded to GLFW which has such a simple input handler, but 
 
 ### 1. Use SLI/Crossfire
 
-Nope! [See](https://www.lunarg.com/faqs/scalable-link-interface-sli-vulkan/)
+~~Nope! [See](https://www.lunarg.com/faqs/scalable-link-interface-sli-vulkan/)~~  
+YES!  
+Use the Extensions ```VK_KHR_device_group``` ([see](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#VK_KHR_device_group)) and ```VK_KHR_device_group_creation``` ([see](https://www.khronos.org/registry/vulkan/specs/1.1-extensions/html/vkspec.html#VK_KHR_device_group_creation))
+
 
 ### 2. Render in HDR10 
 
