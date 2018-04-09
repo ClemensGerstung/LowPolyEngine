@@ -15,9 +15,9 @@ private:
   int32_t indexCount = 0;
 
   VkSampler sampler;
-  VkDeviceMemory fontMemory = nullptr;
-  VkImage fontImage = nullptr;
-  VkImageView fontView = nullptr;
+  VkDeviceMemory fontMemory = VK_NULL_HANDLE;
+  VkImage fontImage = VK_NULL_HANDLE;
+  VkImageView fontView = VK_NULL_HANDLE;
   VkDescriptorSet descriptorSet;
 
 public:
