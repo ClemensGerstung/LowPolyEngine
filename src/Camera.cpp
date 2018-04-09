@@ -47,6 +47,7 @@ lpe::Camera::Camera(glm::vec3 position, glm::vec3 lookAt, vk::Extent2D swapChain
 
 void lpe::Camera::Move(glm::vec3 move)
 {
+  move = glm::inverse(GetView()) * glm::vec4(-move.y,move.z,move.x,0.0f);
   position += move;
   lookAt += move;
 }
