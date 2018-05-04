@@ -43,7 +43,7 @@ add_subdirectory("external/glfw" glfw_local)
 
 file(GLOB_RECURSE lpe_includes include/*)
 file(GLOB_RECURSE lpe_sources src/*)
-file(GLOB_RECURSE lpe_test_sources test/*)
+file(GLOB_RECURSE lpe_example_sources examples/*)
 #Source Files Maybe use GLOB?
 set(SOURCE_FILES ${lpe_sources} ${lpe_includes})
 
@@ -55,6 +55,8 @@ add_library(LowPolyEngine ${SOURCE_FILES})
 # ${VULKAN_LIBRARY} gets definied by glfw
 target_link_libraries(LowPolyEngine glfw ${VULKAN_LIBRARY} glm stb)
 
-add_executable(LowPolyEngineTest ${lpe_test_sources})
-
-target_link_libraries(LowPolyEngineTest LowPolyEngine)
+foreach(loop ${lpe_example_sources})
+    get_filename_component(loopFileName ${loop} NAME)
+    add_executable(LowPolyEngineExample_${loopFileName} ${loop})
+    target_link_libraries(LowPolyEngineExample_${loopFileName} LowPolyEngine)
+endforeach(loop)
