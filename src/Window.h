@@ -1,5 +1,7 @@
 #pragma once
 
+#define GLFW_INCLUDE_VULKAN
+
 #include <GLFW/glfw3.h>
 #include <string>
 
@@ -364,8 +366,10 @@ namespace lpe
              bool resizeable);
       ~Window() = default;
 
-      void Render();
+      virtual void Render();
       bool IsOpen() const;
+
+      static std::vector<const char*> GetRequiredVulkanExtensions();
 
       event::Event<Window, WindowResizeEventArgs> Resized;
       event::Event<Window, WindowKeyPressedEventArgs> KeyPressed;

@@ -116,3 +116,18 @@ bool lpe::window::Window::IsOpen() const
 
   return !glfwWindowShouldClose(window);
 }
+
+std::vector<const char*> lpe::window::Window::GetRequiredVulkanExtensions()
+{
+  std::vector<const char*> extensions;
+
+  unsigned int glfwExtensionCount = 0;
+  auto glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+  for (unsigned int i = 0; i < glfwExtensionCount; i++)
+  {
+    extensions.push_back(glfwExtensions[i]);
+  }
+
+  return extensions;
+}
