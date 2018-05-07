@@ -53,5 +53,12 @@ namespace lpe
              pAllocator);
       }
     }
+  
+    template<typename TType>
+    class Deleter
+    {
+    public:
+      void operator()(TType* instance) const {}
+    };
   }
 }

@@ -103,6 +103,15 @@ lpe::window::Window::Window(const std::string&& title,
                    &y);
 }
 
+lpe::window::Window::~Window()
+{
+  if(window)
+  {
+    glfwDestroyWindow(window);
+    window = nullptr;
+  }
+}
+
 void lpe::window::Window::Render()
 {
   if (!window) throw std::runtime_error("Cannot render on a window if there is no window!");
@@ -115,6 +124,18 @@ bool lpe::window::Window::IsOpen() const
   if (!window) throw std::runtime_error("Tried to get window state of not existing window");
 
   return !glfwWindowShouldClose(window);
+}
+
+VkSurfaceKHR lpe::window::Window::GetWindowSurface(VkInstance instance) const
+{
+  VkSurfaceKHR surface;
+
+  if(glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS)
+  {
+    throw std::runtime_error("Failed to create window surface!");
+  }
+
+  return surface;
 }
 
 std::vector<const char*> lpe::window::Window::GetRequiredVulkanExtensions()

@@ -1,4 +1,68 @@
 #include "Instance.h"
+#include "PhysicalDevice.h"
+
+VkBool32 lpe::vulkan::Instance::DebugCallback(VkDebugReportFlagsEXT flags,
+                                              VkDebugReportObjectTypeEXT objType,
+                                              uint64_t obj,
+                                              size_t location,
+                                              int32_t code,
+                                              const char* layerPrefix,
+                                              const char* msg,
+                                              void* userData)
+{
+  std::cerr << "validation layer: " << msg << std::endl;
+
+  return VK_FALSE;
+}
+
+bool lpe::vulkan::Instance::CheckValidationLayerSupport() const
+{
+  auto availableLayers = vk::enumerateInstanceLayerProperties();
+  auto requiredLayers = Settings::Default().GetValidationLayers();
+
+  for (const auto& layerName : requiredLayers)
+  {
+    bool found = false;
+
+    for (const auto& layerProp : availableLayers)
+    {
+      if (strcmp(layerName,
+                 layerProp.layerName) == 0)
+      {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found)
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+lpe::vulkan::PhysicalDevice lpe::vulkan::Instance::GetSuitablePhysicalDevice(vk::SurfaceKHR surface,
+                                                                             bool forceRequeryingPhysicalDevices)
+{
+  if (physicalDevices.empty() || forceRequeryingPhysicalDevices)
+  {
+    physicalDevices = instance.enumeratePhysicalDevices();
+  }
+
+  for (const auto& physicalDevice : physicalDevices)
+  {
+    PhysicalDevice device = { this, physicalDevice, surface };
+
+    if (device.IsSuitable())
+    {
+      return device;
+    }
+  }
+
+  throw std::runtime_error("failed to find suitable GPU!");
+}
 
 lpe::vulkan::Instance::Instance(const std::string&& name,
                                 const uint32_t version)
@@ -30,9 +94,9 @@ lpe::vulkan::Instance::Instance(const std::string&& name,
     extensions.data()
   };
 
-  if (enableValidationLayers)
+  auto validationLayers = Settings::Default().GetValidationLayers();
+  if (enableValidationLayers && CheckValidationLayerSupport())
   {
-    auto validationLayers = Settings::Default().GetValidationLayers();
     createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
     createInfo.ppEnabledLayerNames = validationLayers.data();
   }
@@ -80,6 +144,26 @@ lpe::vulkan::Instance::~Instance()
     instance.destroy();
     instance = nullptr;
   }
+}
+
+std::vector<lpe::vulkan::PhysicalDevice> lpe::vulkan::Instance::GetPhysicalDevices(vk::SurfaceKHR surface,
+                                                                                   bool forceRequeryingPhysicalDevices)
+{
+  if (physicalDevices.empty() || forceRequeryingPhysicalDevices)
+  {
+    physicalDevices = instance.enumeratePhysicalDevices();
+  }
+
+  std::vector<lpe::vulkan::PhysicalDevice> devices;
+
+  for (const auto& physicalDevice : physicalDevices)
+  {
+    devices.emplace_back(this,
+                         physicalDevice,
+                         surface);
+  }
+
+  return devices;
 }
 
 lpe::vulkan::Instance::operator VkInstance() const

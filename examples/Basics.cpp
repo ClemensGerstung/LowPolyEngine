@@ -1,7 +1,5 @@
-#include "../src/Event.h"
-#include "../src/Window.h"
-
 #include <iostream>
+#include "../src/lpe.h"
 
 int main()
 {
@@ -15,6 +13,12 @@ int main()
   {
     std::cout << static_cast<uint32_t>(e.GetKey()) << std::endl;
   };
+
+  {
+    lpe::vulkan::Instance instance("asdf", VK_MAKE_VERSION(0, 0, 1));
+    auto surface = window.GetWindowSurface(instance);
+    lpe::vulkan::PhysicalDevice physicalDevice = instance.GetSuitablePhysicalDevice(surface);
+  }
 
   while (window.IsOpen())
   {

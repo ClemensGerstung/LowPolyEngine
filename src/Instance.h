@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.hpp>
 #include "Window.h"
-#include "lpe.h"
+#include "stdafx.h"
 #include "helper.h"
 #include <iostream>
 
@@ -10,9 +10,12 @@ namespace lpe
 {
   namespace vulkan
   {
+    class PhysicalDevice;
+
     class Instance
     {
     private:
+      vk::SurfaceKHR surface;
       vk::Instance instance;
       std::vector<vk::PhysicalDevice> physicalDevices;
       VkDebugReportCallbackEXT debugReportCallback;
@@ -24,12 +27,7 @@ namespace lpe
                                                           int32_t code,
                                                           const char* layerPrefix,
                                                           const char* msg,
-                                                          void* userData)
-      {
-        std::cerr << "validation layer: " << msg << std::endl;
-
-        return VK_FALSE;
-      }
+                                                          void* userData);
 
     public:
       Instance() = default;
@@ -40,6 +38,13 @@ namespace lpe
       Instance(const std::string&& name,
                const uint32_t version);
       ~Instance();
+
+      bool CheckValidationLayerSupport() const;
+
+      PhysicalDevice GetSuitablePhysicalDevice(vk::SurfaceKHR surface,
+                                               bool forceRequeryingPhysicalDevices = false);
+      std::vector<PhysicalDevice> GetPhysicalDevices(vk::SurfaceKHR surface,
+                                                     bool forceRequeryingPhysicalDevices = false);
 
       operator VkInstance() const;
       operator vk::Instance() const;

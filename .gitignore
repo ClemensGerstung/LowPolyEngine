@@ -316,3 +316,4 @@ uninstall.vcxproj.filters
 /Makefile
 /LowPolyEngine.cbp
 /lib
+/*.filters

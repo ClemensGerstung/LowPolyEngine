@@ -6,6 +6,7 @@
 #include <string>
 
 #include "Event.h"
+#include <vulkan/vulkan.hpp>
 
 namespace lpe
 {
@@ -364,10 +365,12 @@ namespace lpe
              uint32_t width,
              uint32_t height,
              bool resizeable);
-      ~Window() = default;
+      ~Window();
 
       virtual void Render();
       bool IsOpen() const;
+
+      VkSurfaceKHR GetWindowSurface(VkInstance instance) const;
 
       static std::vector<const char*> GetRequiredVulkanExtensions();
 
