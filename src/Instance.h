@@ -15,7 +15,6 @@ namespace lpe
     class Instance
     {
     private:
-      vk::SurfaceKHR surface;
       vk::Instance instance;
       std::vector<vk::PhysicalDevice> physicalDevices;
       VkDebugReportCallbackEXT debugReportCallback;

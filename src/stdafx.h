@@ -3,6 +3,8 @@
 
 namespace lpe
 {
+  constexpr uint32_t LPE_Version = VK_MAKE_VERSION(0, 0, 1);
+
   class Settings
   {
   private:
@@ -10,7 +12,7 @@ namespace lpe
     std::vector<const char*> deviceExtensions;
   public:
     bool EnableValidationLayers = true;
-
+    
     Settings()
     {
       validationLayers.push_back("VK_LAYER_LUNARG_standard_validation");

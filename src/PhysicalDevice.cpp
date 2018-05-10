@@ -1,13 +1,29 @@
 #include "PhysicalDevice.h"
+#include "Device.h"
+
+bool lpe::vulkan::QueueInfo::operator==(const QueueInfo& other) const
+{
+  return familyIndex == other.familyIndex;
+}
+
+bool lpe::vulkan::QueueInfo::operator!=(const QueueInfo& other) const
+{
+  return familyIndex != other.familyIndex;
+}
+
+bool lpe::vulkan::QueueInfo::operator<(const QueueInfo& other) const
+{
+  return familyIndex < other.familyIndex;
+}
 
 bool lpe::vulkan::QueueFamilyIndices::IsComplete() const
 {
-  return graphicsFamily >= 0 && presentFamily >= 0;
+  return !graphicsFamily.prios.empty() && !presentFamily.prios.empty();
 }
 
-std::array<int32_t, 2> lpe::vulkan::QueueFamilyIndices::ToArray() const
+std::set<lpe::vulkan::QueueInfo> lpe::vulkan::QueueFamilyIndices::Simplify() const
 {
-  return { graphicsFamily, presentFamily };
+  return { graphicsFamily, presentFamily, computeFamily };
 }
 
 bool lpe::vulkan::SwapChainSupportDetails::IsSuitable() const
@@ -83,6 +99,17 @@ lpe::vulkan::PhysicalDevice::PhysicalDevice(lpe::vulkan::Instance* instance,
   this->memoryProperties = this->physicalDevice.getMemoryProperties();
 }
 
+lpe::vulkan::PhysicalDevice::~PhysicalDevice()
+{
+  if (surface)
+  {
+    vkDestroySurfaceKHR(*instance,
+                        surface,
+                        nullptr);
+    surface = nullptr;
+  }
+}
+
 std::vector<vk::ExtensionProperties> lpe::vulkan::PhysicalDevice::GetDeviceExtensions(bool forceRequerying)
 {
   if (availableDeviceExtensions.empty() || forceRequerying)
@@ -133,16 +160,26 @@ lpe::vulkan::QueueFamilyIndices lpe::vulkan::PhysicalDevice::GetQueueFamilyIndic
 
     for (const auto& queueFamily : queueFamilies)
     {
-      if (queueFamily.queueCount > 0 && 
-          queueFamily.queueFlags & requiredFlags & vk::QueueFlagBits::eGraphics)
+      if (queueFamily.queueCount > 0 &&
+        queueFamily.queueFlags & requiredFlags & vk::QueueFlagBits::eGraphics)
       {
-        queueFamilyIndices.graphicsFamily = index;
+        queueFamilyIndices.graphicsFamily
+                          .familyIndex = index;
+        queueFamilyIndices.graphicsFamily
+                          .prios
+                          .resize(queueFamily.queueCount,
+                                  1.0f);
       }
 
       if (queueFamily.queueCount > 0 &&
-          queueFamily.queueFlags & requiredFlags & vk::QueueFlagBits::eCompute)
+        queueFamily.queueFlags & requiredFlags & vk::QueueFlagBits::eCompute)
       {
-        queueFamilyIndices.graphicsFamily = index;
+        queueFamilyIndices.computeFamily
+                          .familyIndex = index;
+        queueFamilyIndices.computeFamily
+                          .prios
+                          .resize(queueFamily.queueCount,
+                                  1.0f);
       }
 
       vk::Bool32 presentSupport = physicalDevice.getSurfaceSupportKHR(index,
@@ -150,7 +187,11 @@ lpe::vulkan::QueueFamilyIndices lpe::vulkan::PhysicalDevice::GetQueueFamilyIndic
 
       if (queueFamily.queueCount > 0 && presentSupport)
       {
-        queueFamilyIndices.presentFamily = index;
+        queueFamilyIndices.presentFamily.familyIndex = index;
+        queueFamilyIndices.presentFamily
+                          .prios
+                          .resize(queueFamily.queueCount,
+                                  1.0f);
       }
 
       if (queueFamilyIndices.IsComplete())
@@ -190,4 +231,19 @@ uint32_t lpe::vulkan::PhysicalDevice::FindMemoryTypeIndex(uint32_t typeFilter,
   }
 
   throw std::runtime_error("failed to find suitable memory type!");
+}
+
+lpe::vulkan::Device lpe::vulkan::PhysicalDevice::CreateDevice(vk::PhysicalDeviceFeatures features)
+{
+  return { instance.get(), this, physicalDevice, features };
+}
+
+lpe::vulkan::PhysicalDevice::operator vk::PhysicalDevice() const
+{
+  return physicalDevice;
+}
+
+lpe::vulkan::PhysicalDevice::operator VkPhysicalDevice() const
+{
+  return physicalDevice;
 }

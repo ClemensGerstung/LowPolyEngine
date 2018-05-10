@@ -8,14 +8,27 @@ namespace lpe
 {
   namespace vulkan
   {
+    class Device;
+
+    struct QueueInfo
+    {
+      uint32_t familyIndex;
+      std::vector<float> prios;
+
+      bool operator==(const QueueInfo& other) const;
+      bool operator!=(const QueueInfo& other) const;
+      bool operator<(const QueueInfo& other) const;
+    };
+
     struct QueueFamilyIndices
     {
-      int32_t graphicsFamily = -1;
-      int32_t presentFamily = -1;
-      int32_t computeFamily = -1;
+      QueueInfo graphicsFamily = {};
+      QueueInfo presentFamily = {};
+      QueueInfo computeFamily = {};
+      QueueInfo transferFamily = {};
 
       bool IsComplete() const;
-      std::array<int32_t, 2> ToArray() const;
+      std::set<QueueInfo> Simplify() const;
     };
 
     struct SwapChainSupportDetails
@@ -35,7 +48,7 @@ namespace lpe
       vk::PhysicalDeviceMemoryProperties memoryProperties;
 
       vk::PhysicalDevice physicalDevice;
-      std::unique_ptr<lpe::vulkan::Instance, helper::Deleter<lpe::vulkan::Instance>> instance;
+      helper::Pointer<Instance> instance;
       vk::SurfaceKHR surface;
 
       std::vector<vk::ExtensionProperties> availableDeviceExtensions;
@@ -51,17 +64,23 @@ namespace lpe
                      vk::PhysicalDevice physicalDevice,
                      vk::SurfaceKHR surface);
 
-      ~PhysicalDevice() = default;
+      ~PhysicalDevice();
 
       std::vector<vk::ExtensionProperties> GetDeviceExtensions(bool forceRequerying = false);
       bool SupportsExtensions(bool forceRequerying = false);
       SwapChainSupportDetails QuerySwapChainSupportDetails(bool forceRequerying = false);
       QueueFamilyIndices GetQueueFamilyIndices(vk::QueueFlags requiredFlags = vk::QueueFlagBits::eGraphics,
                                                bool forceRequerying = false);
-      bool IsSuitable(vk::QueueFlags requiredFlags = vk::QueueFlagBits::eGraphics);
+      bool IsSuitable(vk::QueueFlags requiredFlags = vk::QueueFlagBits::eGraphics | vk::QueueFlagBits::eCompute);
 
       uint32_t FindMemoryTypeIndex(uint32_t typeFilter,
                                    vk::MemoryPropertyFlags propertyFlags) const;
+
+      Device CreateDevice(vk::PhysicalDeviceFeatures features = {});
+
+      operator vk::PhysicalDevice() const;
+      operator VkPhysicalDevice() const;
+
     };
   }
 }

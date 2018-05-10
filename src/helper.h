@@ -60,5 +60,8 @@ namespace lpe
     public:
       void operator()(TType* instance) const {}
     };
+
+    template<typename TType>
+    using Pointer = std::unique_ptr<TType, Deleter<TType>>;
   }
 }

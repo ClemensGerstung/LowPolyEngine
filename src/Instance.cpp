@@ -72,7 +72,7 @@ lpe::vulkan::Instance::Instance(const std::string&& name,
     name.c_str(),
     version,
     "LPE",
-    VK_MAKE_VERSION(0, 1, 0),
+    LPE_Version,
     VK_MAKE_VERSION(1, 1, 0)
   };
 
