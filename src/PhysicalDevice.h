@@ -46,6 +46,7 @@ namespace lpe
       vk::PhysicalDeviceProperties properties;
       vk::PhysicalDeviceFeatures features;
       vk::PhysicalDeviceMemoryProperties memoryProperties;
+      vk::SurfaceCapabilitiesKHR surfaceCapabilities;
 
       vk::PhysicalDevice physicalDevice;
       helper::Pointer<Instance> instance;
@@ -77,10 +78,15 @@ namespace lpe
                                    vk::MemoryPropertyFlags propertyFlags) const;
 
       Device CreateDevice(vk::PhysicalDeviceFeatures features = {});
+      uint32_t GetSwapChainImageCount() const;
+      vk::Extent2D GetSwapChainImageExtent() const;
+
+      bool SupportsSurfaceCapability(vk::ImageUsageFlags flags) const;
+      bool SupportsSurfaceTransform(vk::SurfaceTransformFlagsKHR flags) const;
+      void SupportsSurfaceFormat(vk::Format* format, vk::ColorSpaceKHR* colorSpace) const;
 
       operator vk::PhysicalDevice() const;
       operator VkPhysicalDevice() const;
-
     };
   }
 }

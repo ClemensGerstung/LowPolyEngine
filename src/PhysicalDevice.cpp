@@ -42,6 +42,7 @@ lpe::vulkan::PhysicalDevice::PhysicalDevice(const PhysicalDevice& other)
   availableDeviceExtensions = { other.availableDeviceExtensions };
   swapChainSupportDetails = other.swapChainSupportDetails;
   queueFamilyIndices = other.queueFamilyIndices;
+  surfaceCapabilities = other.surfaceCapabilities;
 }
 
 lpe::vulkan::PhysicalDevice::PhysicalDevice(PhysicalDevice&& other) noexcept
@@ -55,6 +56,7 @@ lpe::vulkan::PhysicalDevice::PhysicalDevice(PhysicalDevice&& other) noexcept
   availableDeviceExtensions = std::move(other.availableDeviceExtensions);
   swapChainSupportDetails = other.swapChainSupportDetails;
   queueFamilyIndices = other.queueFamilyIndices;
+  surfaceCapabilities = other.surfaceCapabilities;
 }
 
 lpe::vulkan::PhysicalDevice& lpe::vulkan::PhysicalDevice::operator=(const PhysicalDevice& other)
@@ -68,6 +70,7 @@ lpe::vulkan::PhysicalDevice& lpe::vulkan::PhysicalDevice::operator=(const Physic
   availableDeviceExtensions = { other.availableDeviceExtensions };
   swapChainSupportDetails = other.swapChainSupportDetails;
   queueFamilyIndices = other.queueFamilyIndices;
+  surfaceCapabilities = other.surfaceCapabilities;
 
   return *this;
 }
@@ -83,6 +86,7 @@ lpe::vulkan::PhysicalDevice& lpe::vulkan::PhysicalDevice::operator=(PhysicalDevi
   availableDeviceExtensions = std::move(other.availableDeviceExtensions);
   swapChainSupportDetails = other.swapChainSupportDetails;
   queueFamilyIndices = other.queueFamilyIndices;
+  surfaceCapabilities = other.surfaceCapabilities;
 
   return *this;
 }
@@ -97,11 +101,12 @@ lpe::vulkan::PhysicalDevice::PhysicalDevice(lpe::vulkan::Instance* instance,
   this->properties = this->physicalDevice.getProperties();
   this->features = this->physicalDevice.getFeatures();
   this->memoryProperties = this->physicalDevice.getMemoryProperties();
+  this->surfaceCapabilities = this->physicalDevice.getSurfaceCapabilitiesKHR(this->surface);
 }
 
 lpe::vulkan::PhysicalDevice::~PhysicalDevice()
 {
-  if (surface)
+  if (surface && instance)
   {
     vkDestroySurfaceKHR(*instance,
                         surface,
@@ -235,7 +240,102 @@ uint32_t lpe::vulkan::PhysicalDevice::FindMemoryTypeIndex(uint32_t typeFilter,
 
 lpe::vulkan::Device lpe::vulkan::PhysicalDevice::CreateDevice(vk::PhysicalDeviceFeatures features)
 {
-  return { instance.get(), this, physicalDevice, features };
+  return { instance.get(), this, physicalDevice, surface, features };
+}
+
+uint32_t lpe::vulkan::PhysicalDevice::GetSwapChainImageCount() const
+{
+  uint32_t numberOfImages = surfaceCapabilities.minImageCount + 1;
+
+  if (surfaceCapabilities.maxImageCount > 0 &&
+    numberOfImages > surfaceCapabilities.maxImageCount)
+  {
+    numberOfImages = surfaceCapabilities.maxImageCount;
+  }
+
+  return numberOfImages;
+}
+
+vk::Extent2D lpe::vulkan::PhysicalDevice::GetSwapChainImageExtent() const
+{
+  vk::Extent2D extent;
+  if (surfaceCapabilities.currentExtent.width == 0xffffffff)
+  {
+    extent = vk::Extent2D(1280,
+                          720);
+
+    if (extent.width < surfaceCapabilities.minImageExtent.width)
+    {
+      extent.width = surfaceCapabilities.minImageExtent.width;
+    }
+    else if (extent.width > surfaceCapabilities.maxImageExtent.width)
+    {
+      extent.width = surfaceCapabilities.maxImageExtent.width;
+    }
+
+    if (extent.height < surfaceCapabilities.minImageExtent.height)
+    {
+      extent.height = surfaceCapabilities.minImageExtent.height;
+    }
+    else if (extent.height > surfaceCapabilities.maxImageExtent.height)
+    {
+      extent.height = surfaceCapabilities.maxImageExtent.height;
+    }
+  }
+  else
+  {
+    extent = surfaceCapabilities.currentExtent;
+  }
+
+  return extent;
+}
+
+bool lpe::vulkan::PhysicalDevice::SupportsSurfaceCapability(vk::ImageUsageFlags flags) const
+{
+  return (surfaceCapabilities.supportedUsageFlags & flags) == flags;
+}
+
+bool lpe::vulkan::PhysicalDevice::SupportsSurfaceTransform(vk::SurfaceTransformFlagsKHR flags) const
+{
+  return (surfaceCapabilities.supportedTransforms & flags) == flags;
+}
+
+void lpe::vulkan::PhysicalDevice::SupportsSurfaceFormat(vk::Format* format,
+                                                        vk::ColorSpaceKHR* colorSpace) const
+{
+  auto surfaceFormats = physicalDevice.getSurfaceFormatsKHR(surface);
+
+  if(surfaceFormats.size() == 1 && 
+    surfaceFormats[0].format == vk::Format::eUndefined)
+  {
+    return;
+  }
+
+  for(const auto& surfaceFormat : surfaceFormats)
+  {
+    if(*format == surfaceFormat.format && *colorSpace == surfaceFormat.colorSpace)
+    {
+      return;
+    }
+  }
+
+  for (const auto& surfaceFormat : surfaceFormats)
+  {
+    if (*format == surfaceFormat.format)
+    {
+      *colorSpace = surfaceFormat.colorSpace;
+      return;
+    }
+  }
+
+  if(!surfaceFormats.empty())
+  {
+    *format = surfaceFormats[0].format;
+    *colorSpace = surfaceFormats[0].colorSpace;
+    return;
+  }
+
+  throw std::runtime_error("could not find any format and colorspace");
 }
 
 lpe::vulkan::PhysicalDevice::operator vk::PhysicalDevice() const
