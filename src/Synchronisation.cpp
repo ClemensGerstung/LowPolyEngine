@@ -1,6 +1,7 @@
 #include "Synchronisation.h"
 
 lpe::vulkan::Semaphore::Semaphore(const Semaphore& other)
+  : DeviceLevelObject(other)
 {
   semaphore = other.semaphore;
 }
@@ -47,6 +48,7 @@ lpe::vulkan::Semaphore::~Semaphore()
 }
 
 lpe::vulkan::Fence::Fence(const Fence& other)
+  : DeviceLevelObject(other)
 {
   fence = other.fence;
 }
