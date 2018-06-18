@@ -3,12 +3,13 @@
 lpe::vulkan::CommandPool::CommandPool(Instance* instance,
                                       PhysicalDevice* physicalDevice,
                                       Device* device,
-                                      vk::CommandPoolCreateFlagBits flags,
+                                      vk::CommandPoolCreateFlags flags,
                                       uint32_t queueIndex)
   : DeviceLevelObject(instance,
                       physicalDevice,
                       device),
-    queueIndex(queueIndex)
+    queueIndex(queueIndex),
+    flags(flags)
 {
   vk::CommandPoolCreateInfo createInfo = {
     flags,
@@ -41,6 +42,21 @@ lpe::vulkan::Commands lpe::vulkan::CommandPool::AllocateMany(uint32_t count,
   return { instance.get(), physicalDevice.get(), device.get(), this, count, level };
 }
 
+bool lpe::vulkan::CommandPool::CanReset() const
+{
+  return (flags & vk::CommandPoolCreateFlagBits::eResetCommandBuffer) == vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+}
+
+lpe::vulkan::CommandPool::operator vk::CommandPool() const
+{
+  return commandPool;
+}
+
+lpe::vulkan::CommandPool::operator VkCommandPool() const
+{
+  return commandPool;
+}
+
 lpe::vulkan::Command::Command(Instance* instance,
                               PhysicalDevice* physicalDevice,
                               Device* device,
@@ -51,7 +67,8 @@ lpe::vulkan::Command::Command(Instance* instance,
                       physicalDevice,
                       device),
     level(level),
-    buffer(commandBuffer)
+    buffer(commandBuffer),
+    state(State::Initialized)
 {
   this->pool.reset(pool);
 }
@@ -64,7 +81,8 @@ lpe::vulkan::Command::Command(Instance* instance,
   : DeviceLevelObject(instance,
                       physicalDevice,
                       device),
-    level(level)
+    level(level),
+    state(State::Initialized)
 {
   this->pool.reset(pool);
 
@@ -89,6 +107,41 @@ lpe::vulkan::Command::~Command()
                                   1,
                                   &buffer);
   }
+}
+
+void lpe::vulkan::Command::Begin(vk::CommandBufferUsageFlags usage,
+                                 vk::CommandBufferInheritanceInfo* inheritance)
+{
+  vk::CommandBufferBeginInfo beginInfo = {
+    usage,
+    inheritance
+  };
+
+  vk::Result result = buffer.begin(&beginInfo);
+
+  helper::ThrowIfNotSuccess(result,
+                            "could not start command buffer");
+
+  state = State::Recording;
+}
+
+void lpe::vulkan::Command::End()
+{
+  buffer.end();
+
+  state = State::Ended;
+}
+
+void lpe::vulkan::Command::Reset(bool releaseResources)
+{
+  if(!pool->CanReset())
+    return;
+
+  buffer.reset(releaseResources ?
+                 vk::CommandBufferResetFlagBits::eReleaseResources :
+                 vk::CommandBufferResetFlags());
+
+  state = State::Resetted;
 }
 
 lpe::vulkan::Command::operator vk::CommandBuffer() const

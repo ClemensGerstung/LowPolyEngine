@@ -14,6 +14,7 @@ namespace lpe
     private:
       uint32_t queueIndex;
       vk::CommandPool commandPool;
+      vk::CommandPoolCreateFlags flags;
     public:
       CommandPool() = default;
       CommandPool(const CommandPool& other);
@@ -24,7 +25,7 @@ namespace lpe
       CommandPool(Instance* instance,
                   PhysicalDevice* physicalDevice,
                   Device* device,
-                  vk::CommandPoolCreateFlagBits flags,
+                  vk::CommandPoolCreateFlags flags,
                   uint32_t queueIndex);
 
       virtual ~CommandPool();
@@ -33,6 +34,8 @@ namespace lpe
       Commands AllocateMany(uint32_t count,
                             vk::CommandBufferLevel level);
 
+      bool CanReset() const;
+
       operator vk::CommandPool() const;
       operator VkCommandPool() const;
     };
@@ -40,10 +43,19 @@ namespace lpe
     class Command : DeviceLevelObject
     {
     private:
+      enum class State
+      {
+        Initialized,
+        Resetted,
+        Recording,
+        Ended,
+        Submitted
+      };
+
       std::unique_ptr<CommandPool> pool;
       vk::CommandBufferLevel level;
       vk::CommandBuffer buffer;
-
+      State state;
     public:
       Command() = default;
       Command(const Command& other);
@@ -65,6 +77,10 @@ namespace lpe
               vk::CommandBufferLevel level);
 
       ~Command();
+
+      void Begin(vk::CommandBufferUsageFlags usage, vk::CommandBufferInheritanceInfo *inheritance = nullptr);
+      void End();
+      void Reset(bool releaseResources = false);
 
       operator vk::CommandBuffer() const;
       operator VkCommandBuffer() const;
