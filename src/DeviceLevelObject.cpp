@@ -1,16 +1,16 @@
 #include "lpe.h"
 
-vk::Instance lpe::vulkan::DeviceLevelObject::GetInstance() const
+vk::Instance lpe::vulkan::DeviceLevelObject::VkInstance() const
 {
   return *instance;
 }
 
-vk::PhysicalDevice lpe::vulkan::DeviceLevelObject::GetPhysicalDevice() const
+vk::PhysicalDevice lpe::vulkan::DeviceLevelObject::VkPhysicalDevice() const
 {
   return *physicalDevice;
 }
 
-vk::Device lpe::vulkan::DeviceLevelObject::GetDevice() const
+vk::Device lpe::vulkan::DeviceLevelObject::VkDevice() const
 {
   return *device;
 }

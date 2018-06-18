@@ -17,9 +17,9 @@ namespace lpe
       helper::Pointer<PhysicalDevice> physicalDevice;
       helper::Pointer<Device> device;
 
-      vk::Instance GetInstance() const;
-      vk::PhysicalDevice GetPhysicalDevice() const;
-      vk::Device GetDevice() const;
+      vk::Instance VkInstance() const;
+      vk::PhysicalDevice VkPhysicalDevice() const;
+      vk::Device VkDevice() const;
     public:
       DeviceLevelObject() = default;
       DeviceLevelObject(const DeviceLevelObject& other);

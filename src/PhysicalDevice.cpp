@@ -102,6 +102,7 @@ lpe::vulkan::PhysicalDevice::PhysicalDevice(lpe::vulkan::Instance* instance,
   this->features = this->physicalDevice.getFeatures();
   this->memoryProperties = this->physicalDevice.getMemoryProperties();
   this->surfaceCapabilities = this->physicalDevice.getSurfaceCapabilitiesKHR(this->surface);
+  auto memprops = this->physicalDevice.getMemoryProperties();
 }
 
 lpe::vulkan::PhysicalDevice::~PhysicalDevice()

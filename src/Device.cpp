@@ -101,8 +101,8 @@ vk::Queue lpe::vulkan::Device::GetQueue(uint32_t familyIndex)
 }
 
 lpe::vulkan::SwapChain lpe::vulkan::Device::CreateSwapChain(vk::PresentModeKHR presentMode,
-  vk::Format format,
-  vk::ColorSpaceKHR colorSpace)
+                                                            vk::Format format,
+                                                            vk::ColorSpaceKHR colorSpace)
 {
   return { instance.get(), physicalDevice.get(), this, surface, presentMode, format, colorSpace };
 }
@@ -112,7 +112,7 @@ lpe::vulkan::Device::operator vk::Device() const
   return device;
 }
 
-lpe::vulkan::Device::operator VkDevice_T*() const
+lpe::vulkan::Device::operator VkDevice() const
 {
   return device;
 }

@@ -31,8 +31,8 @@ namespace lpe
                 vk::ColorSpaceKHR colorSpace = vk::ColorSpaceKHR::eSrgbNonlinear);
       ~SwapChain();
 
-      vk::Image AquireNextImage(vk::Semaphore semaphore, vk::Fence fence);
-      void SubmitImage(vk::SubmitInfo info);
+      vk::Image AquireNextImage(vk::Semaphore semaphore, vk::Fence fence, uint32_t *index);
+      void Present(uint32_t index, uint32_t presentQueueFamilyIndex, const std::vector<vk::Semaphore>& semaphores);
       void Recreate();
     };
   }
