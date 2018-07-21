@@ -1,10 +1,10 @@
 #pragma once
 #include <vector>
+#include <iostream>
+#include <functional>
 
 namespace lpe
 {
-  constexpr uint32_t LPE_Version = VK_MAKE_VERSION(0, 0, 1);
-
   class Settings
   {
   private:
@@ -12,11 +12,14 @@ namespace lpe
     std::vector<const char*> deviceExtensions;
   public:
     bool EnableValidationLayers = true;
-    
+    std::function<void(const char*)> Output;
+
     Settings()
     {
       validationLayers.push_back("VK_LAYER_LUNARG_standard_validation");
       deviceExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+
+      Output = [](const char* message) { std::cout << message << std::endl; };
     }
 
     ~Settings() = default;

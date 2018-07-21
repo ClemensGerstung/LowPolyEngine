@@ -1,5 +1,4 @@
-#include "Instance.h"
-#include "PhysicalDevice.h"
+#include "lpe.h"
 
 VkBool32 lpe::vulkan::Instance::DebugCallback(VkDebugReportFlagsEXT flags,
                                               VkDebugReportObjectTypeEXT objType,
@@ -72,7 +71,7 @@ lpe::vulkan::Instance::Instance(const std::string&& name,
     name.c_str(),
     version,
     "LPE",
-    LPE_Version,
+    LpeVersion,
     VK_MAKE_VERSION(1, 1, 0)
   };
 
