@@ -1,25 +1,12 @@
 #pragma once
 #include <stdexcept>
 #include <vulkan/vulkan.hpp>
-#include "stdafx.h"
+
 
 namespace lpe
 {
   namespace helper
   {
-    VULKAN_HPP_INLINE void ThrowIfNotSuccess(vk::Result result,
-                                             std::string message)
-    {
-#if _DEBUG
-      assert(result == vk::Result::eSuccess);
-#endif
-
-      if (result != vk::Result::eSuccess)
-      {
-        Settings::Default().Output((message + " (Result: " + vk::to_string(result) + ")").c_str());
-      }
-    }
-
     template <typename CallbackCreateInfo,
               typename Callback,
               typename CallbackFunctionType>

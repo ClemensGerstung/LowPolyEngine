@@ -6,7 +6,7 @@ namespace lpe
 {
   namespace utils
   {
-    class LogEventArgs : public event::EventArgs
+    class LogEventArgs : public utils::EventArgs
     {
     private:
       std::string message;
@@ -22,7 +22,7 @@ namespace lpe
     class Logger : public LpeObject
     {
     private:
-      lpe::event::Event<Logger, LogEventArgs> output;
+      lpe::utils::Event<Logger, LogEventArgs> output;
     public:
       Logger() = default;
       ~Logger() = default;

@@ -12,7 +12,7 @@ namespace lpe
 {
   namespace window
   {
-    class WindowResizeEventArgs : public event::EventArgs
+    class WindowResizeEventArgs : public utils::EventArgs
     {
     private:
       uint32_t oldWidth;
@@ -211,7 +211,7 @@ namespace lpe
       Middle = GLFW_MOUSE_BUTTON_MIDDLE
     };
 
-    class WindowKeyPressedEventArgs : public event::EventArgs
+    class WindowKeyPressedEventArgs : public utils::EventArgs
     {
     private:
       Key key;
@@ -253,7 +253,7 @@ namespace lpe
       }
     };
 
-    class WindowMouseMovedEventArgs : public event::EventArgs
+    class WindowMouseMovedEventArgs : public utils::EventArgs
     {
     private:
       double oldX;
@@ -295,7 +295,7 @@ namespace lpe
       }
     };
 
-    class WindowMouseClickedEventArgs : public event::EventArgs
+    class WindowMouseClickedEventArgs : public utils::EventArgs
     {
     private:
       MouseButton button;
@@ -374,10 +374,10 @@ namespace lpe
 
       static std::vector<const char*> GetRequiredVulkanExtensions();
 
-      event::Event<Window, WindowResizeEventArgs> Resized;
-      event::Event<Window, WindowKeyPressedEventArgs> KeyPressed;
-      event::Event<Window, WindowMouseMovedEventArgs> MouseMoved;
-      event::Event<Window, WindowMouseClickedEventArgs> MousePressed;
+      utils::Event<Window, WindowResizeEventArgs> Resized;
+      utils::Event<Window, WindowKeyPressedEventArgs> KeyPressed;
+      utils::Event<Window, WindowMouseMovedEventArgs> MouseMoved;
+      utils::Event<Window, WindowMouseClickedEventArgs> MousePressed;
     };
   }
 }

@@ -5,7 +5,7 @@
 
 namespace lpe
 {
-  namespace event
+  namespace utils
   {
     class EventArgs
     {
