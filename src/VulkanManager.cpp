@@ -7,6 +7,21 @@ bool lpe::vulkan::VulkanManager::EnableValidationLayers = true;
 bool lpe::vulkan::VulkanManager::EnableValidationLayers = true;
 #endif
 
+VkBool32 lpe::vulkan::VulkanManager::DebugCallback(VkDebugReportFlagsEXT flags,
+                                                   VkDebugReportObjectTypeEXT objType,
+                                                   uint64_t obj,
+                                                   size_t location,
+                                                   int32_t code,
+                                                   const char* layerPrefix,
+                                                   const char* msg,
+                                                   void* userData)
+{
+  lpe::ServiceLocator::Default.Logger->Write(msg);
+
+  return VK_FALSE;
+}
+
+
 void lpe::vulkan::VulkanManager::Initialize()
 {
   validationLayers.push_back("VK_LAYER_LUNARG_standard_validation");

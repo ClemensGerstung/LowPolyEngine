@@ -15,6 +15,15 @@ namespace lpe
     public:
       static bool EnableValidationLayers;
 
+      VKAPI_ATTR static VkBool32 VKAPI_CALL DebugCallback(VkDebugReportFlagsEXT flags,
+                                                          VkDebugReportObjectTypeEXT objType,
+                                                          uint64_t obj,
+                                                          size_t location,
+                                                          int32_t code,
+                                                          const char* layerPrefix,
+                                                          const char* msg,
+                                                          void* userData);
+
       void Initialize() override;
       void Destroy() override;
 
