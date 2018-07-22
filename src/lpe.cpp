@@ -1,5 +1,8 @@
 #include "lpe.h"
 #include "utils.h"
+#include "VulkanManager.h"
+
+lpe::ServiceLocator lpe::ServiceLocator::Default = {};
 
 void lpe::Initialize()
 {
@@ -15,12 +18,15 @@ void lpe::Close()
 
 void lpe::ServiceLocator::Initialize()
 {
-  Logger = std::make_unique<utils::Logger>();
+  Logger = std::make_shared<utils::Logger>();
   Logger->Initialize();
+
+  Renderer = std::make_shared<vulkan::VulkanManager>();
+  Renderer->Initialize();
 }
 
 void lpe::ServiceLocator::Destroy()
 {
+  Renderer->Destroy();
   Logger->Destroy();
-  Logger.release();
 }

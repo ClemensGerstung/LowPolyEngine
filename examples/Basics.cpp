@@ -14,10 +14,19 @@ int main()
     std::cout << static_cast<uint32_t>(e.GetKey()) << std::endl;
   };
 
+  //lpe::vulkan::VulkanManager::EnableValidationLayers = false;
+
+  lpe::Initialize();
+
+  lpe::ServiceLocator& locator = lpe::ServiceLocator::Default;
+  auto vulkan = locator.Renderer;
+
   while (window.IsOpen())
   {
     window.Render();
   }
+
+  lpe::Close();
 
   return 0;
 }
