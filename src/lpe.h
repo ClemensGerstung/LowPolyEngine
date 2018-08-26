@@ -3,6 +3,12 @@
 #include "Event.h"
 #include "Window.h"
 
+#ifndef VK_MAKE_VERSION
+#define LPE_MAKE_VERSION(major, minor, patch) \
+    (((major) << 22) | ((minor) << 12) | (patch))
+#else
+#define LPE_MAKE_VERSION(major, minor, patch) VK_MAKE_VERSION(major, minor, patch)
+#endif
 
 namespace lpe
 {
@@ -45,6 +51,23 @@ namespace lpe
     // also cannot include utils.h because of cyclic includes
     std::shared_ptr<utils::Logger> Logger;
     std::shared_ptr<vulkan::VulkanManager> Renderer;
+  };
+
+  class Guid
+  {
+  private:
+    uint64_t pt1;
+    uint32_t pt2;
+    uint32_t pt3;
+    uint32_t pt4;
+    uint32_t pt5;
+    uint64_t pt6;
+
+    Guid() = default;
+
+  public:
+    static Guid NewGuid();
+    std::string ToString() const;
   };
 }
 

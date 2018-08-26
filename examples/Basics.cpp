@@ -3,6 +3,8 @@
 
 int main()
 {
+  auto id = typeid(lpe::window::Window).raw_name();
+
   lpe::window::Window window("Hello World",
                              1920,
                              1080,
