@@ -17,6 +17,8 @@ void lpe::random::MersenneTwister<TType, w, n, m, r, a, u, d, s, b, t, c, l, f>:
 
     mt[i] = mt[(i + m) % n] ^ xA;
   }
+
+  index = 0;
 }
 
 template<typename TType, uint16_t w, uint16_t n, uint32_t m, uint32_t r, uint32_t a, uint32_t u, uint32_t d, uint32_t s, uint32_t b, uint32_t t, uint32_t c, uint32_t l, uint32_t f>

@@ -24,8 +24,8 @@ namespace lpe
     class MersenneTwister
     {
     private:
-      constexpr uint64_t LOWER = (1ull << r) - 1;
-      constexpr uint64_t UPPER = (1ull << r);
+      const uint64_t LOWER = (1ull << r) - 1;
+      const uint64_t UPPER = (1ull << r);
 
       uint16_t index;
       TType mt[n];
