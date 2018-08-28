@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 
 namespace lpe
 {
@@ -28,7 +29,8 @@ namespace lpe
       const uint64_t UPPER = (1ull << r);
 
       uint16_t index;
-      TType mt[n];
+      std::array<TType, n> mt;
+      //TType mt[n];
 
       void Twist();
 

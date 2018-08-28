@@ -1,6 +1,6 @@
 //#include "MersenneTwister.h"
 #include <cassert>
-#include <ctime>
+#include <chrono>
 
 template <typename TType, uint16_t w, uint16_t n, uint32_t m, uint32_t r, uint32_t a, uint32_t u, uint32_t d, uint32_t s, uint32_t b, uint32_t t, uint32_t c, uint32_t l, uint32_t f>
 void lpe::random::MersenneTwister<TType, w, n, m, r, a, u, d, s, b, t, c, l, f>::Twist()
@@ -24,8 +24,10 @@ void lpe::random::MersenneTwister<TType, w, n, m, r, a, u, d, s, b, t, c, l, f>:
 template<typename TType, uint16_t w, uint16_t n, uint32_t m, uint32_t r, uint32_t a, uint32_t u, uint32_t d, uint32_t s, uint32_t b, uint32_t t, uint32_t c, uint32_t l, uint32_t f>
 inline lpe::random::MersenneTwister<TType, w, n, m, r, a, u, d, s, b, t, c, l, f>::MersenneTwister()
 {
-  std::time_t timeStamp = std::time(nullptr);
-  this->SetSeed(static_cast<TType>(timeStamp));
+  auto currentTime = std::chrono::high_resolution_clock::now();
+
+
+  this->SetSeed(static_cast<TType>(currentTime.time_since_epoch().count()));
 }
 
 template <typename TType, uint16_t w, uint16_t n, uint32_t m, uint32_t r, uint32_t a, uint32_t u, uint32_t d, uint32_t s, uint32_t b, uint32_t t, uint32_t c, uint32_t l, uint32_t f>
