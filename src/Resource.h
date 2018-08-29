@@ -6,6 +6,8 @@ namespace lpe
 {
   namespace utils
   {
+    class ResourceManager;
+
     enum class ResourceType
     {
       Mesh,
@@ -29,7 +31,7 @@ namespace lpe
       ~Resource();
 
       void Load(const char* fileName, ResourceType type, std::function<void(const std::fstream&)> loaded);
-
+      void Load(const ResourceManager& manager, const Uuid& uuid);
     };
   }
 }
