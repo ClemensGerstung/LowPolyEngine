@@ -10,6 +10,7 @@ namespace lpe
     {
     private:
       std::array<uint8_t, 16> data;
+      bool initialized;
     public:
       Uuid() = default;
       ~Uuid() = default;
@@ -27,6 +28,11 @@ namespace lpe
       bool operator!=(const Uuid& other) const;
 
       bool operator<(const Uuid& other) const;
+
+      operator bool() const
+      {
+        return initialized;
+      }
     };
   }
 }

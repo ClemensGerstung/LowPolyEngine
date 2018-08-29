@@ -13,6 +13,7 @@ lpe::utils::Uuid lpe::utils::Uuid::GetNew()
     i = (mt.Next() % 0xFF) & 0xFF;
   }
 
+  uuid.initialized = true;
   return uuid;
 }
 

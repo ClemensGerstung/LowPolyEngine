@@ -22,7 +22,9 @@ namespace lpe
       Uuid uuid;
       std::string physicalName;
       ResourceType type;
+      std::weak_ptr<ResourceManager> manager;
     public:
+      Resource(const ResourceManager* manager);
       Resource() = default;
       Resource(const Resource& resource);
       Resource(Resource&& resource);
@@ -31,7 +33,7 @@ namespace lpe
       ~Resource();
 
       void Load(const char* fileName, ResourceType type, std::function<void(const std::fstream&)> loaded);
-      void Load(const ResourceManager& manager, const Uuid& uuid);
+      void Load(const Uuid& uuid);
     };
   }
 }
