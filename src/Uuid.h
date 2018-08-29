@@ -10,8 +10,10 @@ namespace lpe
     {
     private:
       std::array<uint8_t, 16> data;
-      Uuid() = default;
     public:
+      Uuid() = default;
+      ~Uuid() = default;
+
       static Uuid GetNew();
 
       /**
