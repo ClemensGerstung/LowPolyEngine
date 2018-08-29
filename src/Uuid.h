@@ -19,9 +19,21 @@ namespace lpe
        * \return Uuid String
        */
       std::string ToString() const;
+      size_t HashCode() const;
 
       bool operator==(const Uuid& other) const;
       bool operator!=(const Uuid& other) const;
+
+      bool operator<(const Uuid& other) const;
     };
   }
+}
+
+namespace std
+{
+  template<> 
+  struct hash<lpe::utils::Uuid>
+  {
+    size_t operator()(const lpe::utils::Uuid& uuid) const;
+  };
 }
