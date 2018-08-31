@@ -5,10 +5,10 @@
 #include "Uuid.h"
 #include <cassert>
 
+class TestManager;
+
 namespace lpe
 {
-  class ServiceLocator;
-
   class ManagerBase
   {
   public:
@@ -17,45 +17,49 @@ namespace lpe
 
     virtual void Initialize() = 0;
     virtual void Close() = 0;
-
-    virtual utils::Uuid GetUuid() const = 0;
   };
+
+  template<typename TManager>
+  class Locator
+  {
+  protected:
+    std::shared_ptr<TManager> manager;
+
+  public:
+    std::weak_ptr<TManager> Get() const;
+    void Provide(TManager* mgr);
+    void Provide(bool init = true);
+  };
+
+  template <typename TManager>
+  std::weak_ptr<TManager> Locator<TManager>::Get() const
+  {
+    return manager;
+  }
+
+  template <typename TManager>
+  void Locator<TManager>::Provide(TManager* mgr)
+  {
+    this->manager.reset(mgr);
+  }
+
+  template <typename TManager>
+  void Locator<TManager>::Provide(bool init)
+  {
+    this->manager = std::make_shared<TManager>();
+
+    if(init &&
+      typeid(ManagerBase).before(typeid(TManager)))
+    {
+      reinterpret_cast<ManagerBase*>(this->manager.get())->Initialize();
+    }
+  }
 
   class ServiceLocator
   {
-  private:
-    std::map<utils::Uuid, std::shared_ptr<ManagerBase>> manager;
   public:
-    template <typename TManager,
-              typename = typename std::enable_if<std::is_base_of<ManagerBase,
-                                                                 typename std::decay<TManager>::type>::value>::type>
-    void Register();
-
-    template <typename TManager,
-              typename = typename std::enable_if<std::is_base_of<ManagerBase,
-                                                                 typename std::decay<TManager>::type>::value>::type>
-    std::weak_ptr<TManager> Resolve();
+    static Locator<TestManager> Test;
   };
 
-  template <typename TManager, typename>
-  void ServiceLocator::Register()
-  {
-    TManager manager;
-    manager.Initialize();
-
-    this->manager.insert(std::pair<utils::Uuid, std::shared_ptr<ManagerBase>>(manager.GetUuid(),
-                                                                              std::make_shared<TManager>(manager)));
-  }
-
-  template <typename TManager, typename>
-  std::weak_ptr<TManager> ServiceLocator::Resolve()
-  {
-    TManager mgr;
-    auto uuid = mgr.GetUuid();
-
-    auto found = this->manager.find(uuid);
-    assert(found != std::end(this->manager));
-
-    return std::make_shared<TManager>(*reinterpret_cast<TManager*>(found->second.get()));
-  }
+  Locator<TestManager> ServiceLocator::Test = {};
 }
