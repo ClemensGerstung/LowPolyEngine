@@ -13,16 +13,15 @@ int main()
     lpe::ServiceLocator::ResourceManager.Provide<lpe::utils::ResourceManager>(&mgr);
   }
 
-  auto mgr = lpe::ServiceLocator::ResourceManager.Get();
-  auto ptr = mgr.lock();
+  auto mgr = lpe::ServiceLocator::ResourceManager.Get()
+                                                 .lock();
 
-  assert(ptr);
+  assert(mgr);
 
-  auto resource = ptr->Load("models/cube.ply",
-                            OnResourceLoaded);
+  auto resource = mgr->Load("models/tree.ply",
+                            OnResourceLoaded).lock();
 
-  auto rptr = resource.lock();
-  assert(rptr);
+  assert(resource);
 
   lpe::utils::Resource r;
   r.Load("models/cube.ply",

@@ -58,4 +58,8 @@ std::weak_ptr<lpe::utils::Resource> lpe::utils::ResourceManager::Get(const Uuid&
 
 void lpe::utils::ResourceManager::Add(const Resource& resource)
 {
+  Uuid uuid = resource.GetUuid();
+  auto ptr = std::make_shared<Resource>(resource);
+
+  resources.emplace(uuid, ptr);
 }

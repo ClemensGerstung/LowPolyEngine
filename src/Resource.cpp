@@ -17,6 +17,42 @@ lpe::utils::Resource::Resource()
   this->data = {};
 }
 
+lpe::utils::Resource::Resource(const Resource & resource)
+{
+  this->uuid = resource.uuid;
+  this->data = resource.data;
+  this->manager = resource.manager;
+  this->physicalName = resource.physicalName;
+}
+
+lpe::utils::Resource::Resource(Resource && resource) noexcept
+{
+  this->uuid = std::move(resource.uuid);
+  this->data = std::move(resource.data);
+  this->manager = std::move(resource.manager);
+  this->physicalName = std::move(resource.physicalName);
+}
+
+lpe::utils::Resource & lpe::utils::Resource::operator=(const Resource & resource)
+{
+  this->uuid = resource.uuid;
+  this->data = resource.data;
+  this->manager = resource.manager;
+  this->physicalName = resource.physicalName;
+
+  return *this;
+}
+
+lpe::utils::Resource & lpe::utils::Resource::operator=(Resource && resource) noexcept
+{
+  this->uuid = std::move(resource.uuid);
+  this->data = std::move(resource.data);
+  this->manager = std::move(resource.manager);
+  this->physicalName = std::move(resource.physicalName);
+
+  return *this;
+}
+
 lpe::utils::Resource::~Resource()
 {
   this->manager.reset();

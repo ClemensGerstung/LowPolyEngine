@@ -21,9 +21,9 @@ namespace lpe
       Resource(const std::shared_ptr<IResourceManager>& manager, const Uuid& uuid);
       Resource();
       Resource(const Resource& resource);
-      Resource(Resource&& resource);
+      Resource(Resource&& resource) noexcept;
       Resource& operator=(const Resource& resource);
-      Resource& operator=(Resource&& resource);
+      Resource& operator=(Resource&& resource) noexcept;
       ~Resource();
 
       void Load(const char* fileName,
