@@ -1,6 +1,7 @@
 #pragma once
 #include "Uuid.h"
 #include <functional>
+#include <vector>
 
 namespace lpe
 {
@@ -8,23 +9,15 @@ namespace lpe
   {
     class ResourceManager;
 
-    enum class ResourceType
-    {
-      Mesh,
-      Texture,
-      Shader,
-      SPIRV,
-    };
-
     class Resource
     {
     private:
       Uuid uuid;
       std::string physicalName;
-      ResourceType type;
       std::weak_ptr<ResourceManager> manager;
+      std::vector<char> data;
     public:
-      Resource(const ResourceManager* manager);
+      Resource(const std::shared_ptr<ResourceManager>& manager);
       Resource() = default;
       Resource(const Resource& resource);
       Resource(Resource&& resource);
@@ -32,7 +25,9 @@ namespace lpe
       Resource& operator=(Resource&& resource);
       ~Resource();
 
-      void Load(const char* fileName, ResourceType type, std::function<void(const std::fstream&)> loaded);
+      void Load(const char* fileName,
+                const std::function<void(const char*,
+                                         uint64_t)>& loaded = nullptr);
       void Load(const Uuid& uuid);
     };
   }

@@ -1,65 +1,56 @@
 #pragma once
 
-#include <map>
 #include <memory>
 #include "Uuid.h"
-#include <cassert>
+#include "ServiceBase.h"
+#include "ResourceManager.h"
 
+#ifdef ENABLE_TEST_MANAGER
 class TestManager;
+#endif
 
 namespace lpe
 {
-  class ManagerBase
+  namespace utils
   {
-  public:
-    ManagerBase() = default;
-    virtual ~ManagerBase() = default;
+    class ResourceManager;
+  }
 
-    virtual void Initialize() = 0;
-    virtual void Close() = 0;
-  };
-
-  template<typename TManager>
+  template <typename TService, typename TNullService = NullService>
   class Locator
   {
   protected:
-    std::shared_ptr<TManager> manager;
-
+    std::shared_ptr<TService> service;
+    TNullService nullService;
   public:
-    std::weak_ptr<TManager> Get() const;
-    void Provide(TManager* mgr);
-    void Provide(bool init = true);
+    Locator() = default;
+    Locator(const Locator& other) = delete;
+    Locator(Locator&& other) noexcept = delete;
+    Locator& operator=(const Locator& other) = delete;
+    Locator& operator=(Locator&& other) noexcept = delete;
+    ~Locator() = default;
+
+    std::weak_ptr<TService> Get() const;
+
+    template<typename = typename std::enable_if<std::is_base_of<TService,
+                                                typename std::decay<TNullService>::type>::value>::type>
+    void Provide(TService* service);
+    void ProvideDirect(bool init = true);
   };
-
-  template <typename TManager>
-  std::weak_ptr<TManager> Locator<TManager>::Get() const
-  {
-    return manager;
-  }
-
-  template <typename TManager>
-  void Locator<TManager>::Provide(TManager* mgr)
-  {
-    this->manager.reset(mgr);
-  }
-
-  template <typename TManager>
-  void Locator<TManager>::Provide(bool init)
-  {
-    this->manager = std::make_shared<TManager>();
-
-    if(init &&
-      typeid(ManagerBase).before(typeid(TManager)))
-    {
-      reinterpret_cast<ManagerBase*>(this->manager.get())->Initialize();
-    }
-  }
 
   class ServiceLocator
   {
   public:
+#ifdef ENABLE_TEST_MANAGER
     static Locator<TestManager> Test;
+#endif
+
+    static Locator<utils::ResourceManager> ResourceManager;
   };
 
+#ifdef ENABLE_TEST_MANAGER
   Locator<TestManager> ServiceLocator::Test = {};
+#endif
 }
+
+#include "ServiceLocator.inl"
