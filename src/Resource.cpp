@@ -4,18 +4,30 @@
 #include <fstream>
 #include <cassert>
 
-lpe::utils::Resource::Resource(const std::shared_ptr<ResourceManager>& manager)
-  : uuid()
+lpe::utils::Resource::Resource(const std::shared_ptr<IResourceManager>& manager, const Uuid& uuid)
+  : uuid(uuid)
 {
   this->manager = manager;
-  this->physicalName = nullptr;
   this->data = {};
+}
+
+lpe::utils::Resource::Resource()
+{
+  uuid = Uuid::GetNew();
+  this->data = {};
+}
+
+lpe::utils::Resource::~Resource()
+{
+  this->manager.reset();
+  this->data.clear();
 }
 
 void lpe::utils::Resource::Load(const char* fileName,
                                 const std::function<void(const char*,
                                                          uint64_t)>& loaded)
 {
+  this->physicalName = fileName;
   std::ifstream ifs(fileName,
                     std::ios::binary | std::ios::ate);
   uint64_t size = ifs.tellg();
@@ -34,10 +46,8 @@ void lpe::utils::Resource::Load(const char* fileName,
   }
 }
 
-void lpe::utils::Resource::Load(const Uuid& uuid)
+lpe::utils::Uuid lpe::utils::Resource::GetUuid() const
 {
-  auto rm = this->manager.lock();
-  assert(rm);
-
-
+  return uuid;
 }
+

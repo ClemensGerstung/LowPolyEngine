@@ -10,9 +10,12 @@ namespace lpe
     {
     private:
       std::array<uint8_t, 16> data;
-      bool initialized;
     public:
       Uuid() = default;
+      Uuid(const Uuid& other);
+      Uuid(Uuid&& other) noexcept;
+      Uuid& operator=(const Uuid& other) = default;
+      Uuid& operator=(Uuid&& other) noexcept;
       ~Uuid() = default;
 
       static Uuid GetNew();
@@ -28,11 +31,6 @@ namespace lpe
       bool operator!=(const Uuid& other) const;
 
       bool operator<(const Uuid& other) const;
-
-      operator bool() const
-      {
-        return initialized;
-      }
     };
   }
 }

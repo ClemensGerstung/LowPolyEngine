@@ -13,7 +13,8 @@ namespace lpe
 {
   namespace utils
   {
-    class ResourceManager;
+    class IResourceManager;
+    class NullResourceManager;
   }
 
   template <typename TService, typename TNullService = NullService>
@@ -32,9 +33,12 @@ namespace lpe
 
     std::weak_ptr<TService> Get() const;
 
-    template<typename = typename std::enable_if<std::is_base_of<TService,
-                                                typename std::decay<TNullService>::type>::value>::type>
-    void Provide(TService* service);
+    template <typename TServiceImpl,
+              typename = typename std::enable_if<std::is_base_of<TService,
+                                                                 typename std::decay<TServiceImpl>::type>::value>::type,
+              typename = typename std::enable_if<std::is_base_of<TService,
+                                                                 typename std::decay<TNullService>::type>::value>::type>
+    void Provide(TServiceImpl* service);
     void ProvideDirect(bool init = true);
   };
 
@@ -45,7 +49,7 @@ namespace lpe
     static Locator<TestManager> Test;
 #endif
 
-    static Locator<utils::ResourceManager> ResourceManager;
+    static Locator<utils::IResourceManager, utils::NullResourceManager> ResourceManager;
   };
 
 #ifdef ENABLE_TEST_MANAGER

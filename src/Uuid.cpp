@@ -3,6 +3,22 @@
 #include <sstream>
 #include <iomanip>
 
+lpe::utils::Uuid::Uuid(const Uuid& other)
+{
+  this->data = other.data;
+}
+
+lpe::utils::Uuid::Uuid(Uuid&& other) noexcept
+{
+  this->data = other.data;
+}
+
+lpe::utils::Uuid& lpe::utils::Uuid::operator=(Uuid&& other) noexcept
+{
+  this->data = other.data;
+  return *this;
+}
+
 lpe::utils::Uuid lpe::utils::Uuid::GetNew()
 {
   Uuid uuid;
@@ -13,7 +29,6 @@ lpe::utils::Uuid lpe::utils::Uuid::GetNew()
     i = (mt.Next() % 0xFF) & 0xFF;
   }
 
-  uuid.initialized = true;
   return uuid;
 }
 
