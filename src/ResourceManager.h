@@ -38,7 +38,7 @@ namespace lpe
       ResourceManager(ResourceManager&& other) noexcept;
       ResourceManager& operator=(const ResourceManager& other);
       ResourceManager& operator=(ResourceManager&& other) noexcept;
-      ~ResourceManager() override;
+      ~ResourceManager() override = default;
 
       void Initialize() override;
       void Close() override;

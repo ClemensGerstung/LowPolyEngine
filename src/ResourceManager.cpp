@@ -19,10 +19,6 @@ lpe::utils::ResourceManager& lpe::utils::ResourceManager::operator=(ResourceMana
   return *this;
 }
 
-lpe::utils::ResourceManager::~ResourceManager()
-{
-}
-
 void lpe::utils::ResourceManager::Initialize()
 {
 }

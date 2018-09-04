@@ -33,8 +33,5 @@ int main()
 void OnResourceLoaded(const char* stream,
                       uint64_t size)
 {
-  std::vector<char> data;
-  data.insert(std::begin(data),
-              stream,
-              (stream + size));
+  std::cout << "loaded: " << size << "b" << std::endl;
 }
