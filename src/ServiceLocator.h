@@ -4,6 +4,7 @@
 #include "Uuid.h"
 #include "ServiceBase.h"
 #include "ResourceManager.h"
+#include "LogManager.h"
 
 #ifdef ENABLE_TEST_MANAGER
 class TestManager;
@@ -11,18 +12,6 @@ class TestManager;
 
 namespace lpe
 {
-  namespace utils
-  {
-    namespace log
-    {
-      class ILogManager;
-      class NullLogManager;
-    }
-
-    class IResourceManager;
-    class NullResourceManager;
-  }
-
   template <typename TService, typename TNullService = NullService>
   class Locator
   {
