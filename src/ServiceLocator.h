@@ -13,6 +13,12 @@ namespace lpe
 {
   namespace utils
   {
+    namespace log
+    {
+      class ILogManager;
+      class NullLogManager;
+    }
+
     class IResourceManager;
     class NullResourceManager;
   }
@@ -50,6 +56,7 @@ namespace lpe
 #endif
 
     static Locator<utils::IResourceManager, utils::NullResourceManager> ResourceManager;
+    static Locator<utils::log::ILogManager, utils::log::NullLogManager> LogManager;
   };
 
 #ifdef ENABLE_TEST_MANAGER

@@ -1,6 +1,7 @@
 #pragma once
 
 lpe::Locator<lpe::utils::IResourceManager, lpe::utils::NullResourceManager> lpe::ServiceLocator::ResourceManager = {};
+lpe::Locator<lpe::utils::log::ILogManager, lpe::utils::log::NullLogManager> lpe::ServiceLocator::LogManager = { };
 
 template <typename TService, typename TNullService>
 std::weak_ptr<TService> lpe::Locator<TService, TNullService>::Get() const
