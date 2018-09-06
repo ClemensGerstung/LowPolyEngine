@@ -32,6 +32,10 @@ namespace lpe
         Event<ILogManager, LogEventArgs> log;
       public:
         ILogManager() = default;
+        ILogManager(const ILogManager& other) = default;
+        ILogManager(ILogManager&& other) noexcept = default;
+        ILogManager& operator=(const ILogManager& other) = default;
+        ILogManager& operator=(ILogManager&& other) noexcept = default;
         virtual ~ILogManager() = default;
 
         virtual void Log(const std::string& message) = 0;
@@ -42,6 +46,10 @@ namespace lpe
       {
       public:
         LogManager() = default;
+        LogManager(const LogManager& other) = default;
+        LogManager(LogManager&& other) noexcept = default;
+        LogManager& operator=(const LogManager& other) = default;
+        LogManager& operator=(LogManager&& other) noexcept = default;
         ~LogManager() override = default;
 
         void Initialize() override;

@@ -1,9 +1,21 @@
 #define ENABLE_TEST_MANAGER
+#define TEST_MANAGER ITestManager
+#define NULL_TEST_MANAGER NullTestManager
 
 #include "../src/lpe.h"
 #include <iostream>
 
-class TestManager : public lpe::ServiceBase
+class TEST_MANAGER : public lpe::ServiceBase
+{
+  
+};
+
+class NULL_TEST_MANAGER : public TEST_MANAGER
+{
+  
+};
+
+class TestManager : public TEST_MANAGER
 {
 private:
   uint32_t value;
@@ -26,9 +38,9 @@ public:
 int main()
 {
   {
-    //TestManager manager;
-    //manager.Initialize();
-    lpe::ServiceLocator::Test.ProvideDirect();
+    TestManager manager;
+    manager.Initialize();
+    lpe::ServiceLocator::Test.Provide<>(&manager);
   }
 
   {

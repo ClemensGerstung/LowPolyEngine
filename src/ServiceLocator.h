@@ -6,8 +6,17 @@
 #include "ResourceManager.h"
 #include "LogManager.h"
 
+#ifndef TEST_MANAGER
+#define TEST_MANAGER ITestManager
+#endif
+
+#ifndef NULL_TEST_MANAGER
+#define NULL_TEST_MANAGER NullTestManager
+#endif
+
 #ifdef ENABLE_TEST_MANAGER
-class TestManager;
+class TEST_MANAGER;
+class NULL_TEST_MANAGER;
 #endif
 
 namespace lpe
@@ -17,7 +26,7 @@ namespace lpe
   {
   protected:
     std::shared_ptr<TService> service;
-    TNullService nullService;
+    //TNullService nullService;
   public:
     Locator() = default;
     Locator(const Locator& other) = delete;
@@ -34,14 +43,13 @@ namespace lpe
               typename = typename std::enable_if<std::is_base_of<TService,
                                                                  typename std::decay<TNullService>::type>::value>::type>
     void Provide(TServiceImpl* service);
-    void ProvideDirect(bool init = true);
   };
 
   class ServiceLocator
   {
   public:
 #ifdef ENABLE_TEST_MANAGER
-    static Locator<TestManager> Test;
+    static Locator<TEST_MANAGER, NULL_TEST_MANAGER> Test;
 #endif
 
     static Locator<utils::IResourceManager, utils::NullResourceManager> ResourceManager;
@@ -49,7 +57,7 @@ namespace lpe
   };
 
 #ifdef ENABLE_TEST_MANAGER
-  Locator<TestManager> ServiceLocator::Test = {};
+  Locator<TEST_MANAGER, NULL_TEST_MANAGER> ServiceLocator::Test = {};
 #endif
 }
 

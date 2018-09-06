@@ -20,8 +20,6 @@ namespace lpe
       const static EventArgs Empty;
     };
 
-    const EventArgs EventArgs::Empty = {};
-
     template <typename TSender,
               typename TArgs = EventArgs,
               typename = typename std::enable_if<std::is_base_of<EventArgs,

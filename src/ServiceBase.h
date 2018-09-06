@@ -6,10 +6,10 @@ namespace lpe
   {
   public:
     ServiceBase() = default;
-    ServiceBase(const ServiceBase& other) = delete;
-    ServiceBase(ServiceBase&& other) noexcept = delete;
-    ServiceBase& operator=(const ServiceBase& other) = delete;
-    ServiceBase& operator=(ServiceBase&& other) noexcept = delete;
+    ServiceBase(const ServiceBase& other) = default;
+    ServiceBase(ServiceBase&& other) noexcept = default;
+    ServiceBase& operator=(const ServiceBase& other) = default;
+    ServiceBase& operator=(ServiceBase&& other) noexcept = default;
     virtual ~ServiceBase() = default;
 
     virtual void Initialize() = 0;
@@ -20,10 +20,10 @@ namespace lpe
   {
   public:
     NullService() = default;
-    NullService(const NullService& other) = delete;
-    NullService(NullService&& other) noexcept = delete;
-    NullService& operator=(const NullService& other) = delete;
-    NullService& operator=(NullService&& other) noexcept = delete;
+    NullService(const NullService& other) = default;
+    NullService(NullService&& other) noexcept = default;
+    NullService& operator=(const NullService& other) = default;
+    NullService& operator=(NullService&& other) noexcept = default;
     ~NullService() override = default;
 
     void Initialize() override
