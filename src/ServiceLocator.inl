@@ -1,10 +1,7 @@
 #pragma once
 
-lpe::Locator<lpe::utils::IResourceManager, lpe::utils::NullResourceManager> lpe::ServiceLocator::ResourceManager = {};
-lpe::Locator<lpe::utils::log::ILogManager, lpe::utils::log::NullLogManager> lpe::ServiceLocator::LogManager = { };
-
-template <typename TService, typename TNullService>
-std::weak_ptr<TService> lpe::Locator<TService, TNullService>::Get() const
+template <typename TService>
+std::weak_ptr<TService> lpe::Locator<TService>::Get() const
 {
   return service;
 }
@@ -23,9 +20,9 @@ std::weak_ptr<TService> lpe::Locator<TService, TNullService>::Get() const
 //  }
 //}
 
-template<typename TService, typename TNullService>
-template<typename TServiceImpl, typename, typename>
-void lpe::Locator<TService, TNullService>::Provide(TServiceImpl * service)
+template<typename TService>
+template<typename TServiceImpl, typename>
+void lpe::Locator<TService>::Provide(TServiceImpl * service)
 {
   if (service == nullptr)
   {

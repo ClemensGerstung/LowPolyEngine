@@ -87,3 +87,10 @@ lpe::utils::Uuid lpe::utils::Resource::GetUuid() const
   return uuid;
 }
 
+uint64_t lpe::utils::Resource::GetData(const char* data) const
+{
+  data = this->data.data();
+
+  return this->data.size();
+}
+

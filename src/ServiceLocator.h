@@ -21,7 +21,7 @@ class NULL_TEST_MANAGER;
 
 namespace lpe
 {
-  template <typename TService, typename TNullService = NullService>
+  template <typename TService>
   class Locator
   {
   protected:
@@ -29,19 +29,17 @@ namespace lpe
     //TNullService nullService;
   public:
     Locator() = default;
-    Locator(const Locator& other) = delete;
-    Locator(Locator&& other) noexcept = delete;
-    Locator& operator=(const Locator& other) = delete;
-    Locator& operator=(Locator&& other) noexcept = delete;
+    Locator(const Locator& other) = default;
+    Locator(Locator&& other) noexcept = default;
+    Locator& operator=(const Locator& other) = default;
+    Locator& operator=(Locator&& other) noexcept = default;
     ~Locator() = default;
 
     std::weak_ptr<TService> Get() const;
 
     template <typename TServiceImpl,
               typename = typename std::enable_if<std::is_base_of<TService,
-                                                                 typename std::decay<TServiceImpl>::type>::value>::type,
-              typename = typename std::enable_if<std::is_base_of<TService,
-                                                                 typename std::decay<TNullService>::type>::value>::type>
+                                                                 typename std::decay<TServiceImpl>::type>::value>::type>
     void Provide(TServiceImpl* service);
   };
 
@@ -49,15 +47,15 @@ namespace lpe
   {
   public:
 #ifdef ENABLE_TEST_MANAGER
-    static Locator<TEST_MANAGER, NULL_TEST_MANAGER> Test;
+    static Locator<TEST_MANAGER> Test;
 #endif
 
-    static Locator<utils::IResourceManager, utils::NullResourceManager> ResourceManager;
-    static Locator<utils::log::ILogManager, utils::log::NullLogManager> LogManager;
+    static Locator<utils::IResourceManager> ResourceManager;
+    static Locator<utils::log::ILogManager> LogManager;
   };
 
 #ifdef ENABLE_TEST_MANAGER
-  Locator<TEST_MANAGER, NULL_TEST_MANAGER> ServiceLocator::Test = {};
+  Locator<TEST_MANAGER> ServiceLocator::Test = {};
 #endif
 }
 

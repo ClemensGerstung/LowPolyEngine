@@ -8,6 +8,7 @@
 #include "ResourceManager.h"
 #include "LogManager.h"
 #include "RenderManager.h"
+#include "RenderObject.h"
 
 namespace lpe
 {

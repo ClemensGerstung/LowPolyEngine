@@ -38,9 +38,9 @@ std::weak_ptr<lpe::utils::Resource> lpe::utils::ResourceManager::Load(const char
   ptr->Load(fileName,
             loaded);
 
-  resources.emplace(uuid, ptr);
-
-  return resources.at(uuid);
+  resources.insert(std::make_pair(uuid, ptr));
+  
+  return resources[uuid];
 }
 
 std::weak_ptr<lpe::utils::Resource> lpe::utils::ResourceManager::Get(const Uuid& uuid) const

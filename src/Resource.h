@@ -31,6 +31,7 @@ namespace lpe
                                          uint64_t)>& loaded = nullptr);
 
       Uuid GetUuid() const;
+      uint64_t GetData(const char* data) const;
     };
   }
 }
