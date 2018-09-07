@@ -38,8 +38,9 @@ std::weak_ptr<lpe::utils::Resource> lpe::utils::ResourceManager::Load(const char
   ptr->Load(fileName,
             loaded);
 
-  resources.insert(std::make_pair(uuid, ptr));
-  
+  resources.emplace(uuid,
+                    ptr);
+
   return resources[uuid];
 }
 
@@ -57,5 +58,6 @@ void lpe::utils::ResourceManager::Add(const Resource& resource)
   Uuid uuid = resource.GetUuid();
   auto ptr = std::make_shared<Resource>(resource);
 
-  resources.emplace(uuid, ptr);
+  resources.emplace(uuid,
+                    ptr);
 }
