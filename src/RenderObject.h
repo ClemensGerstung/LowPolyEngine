@@ -3,6 +3,7 @@
 #include "Resource.h"
 #include <glm/glm.hpp>
 #include <map>
+#include <vulkan/vulkan.hpp>
 
 namespace lpe
 {
@@ -136,6 +137,8 @@ namespace lpe
 
       void AddTarget(const std::weak_ptr<RenderTarget>& target);
       void AddTarget(std::weak_ptr<RenderTarget>&& target);
+
+      void Render(vk::CommandBuffer buffer);
     };
   }
 }
