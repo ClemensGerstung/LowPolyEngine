@@ -7,7 +7,7 @@ namespace lpe
   {
     struct Attachment
     {
-      vk::Image Image;
+      vk::ImageView ImageView;
       uint32_t Index;
       vk::ImageLayout Layout;
       vk::AttachmentDescriptionFlags Flags;
@@ -26,7 +26,7 @@ namespace lpe
       Attachment& operator=(const Attachment& other) = default;
       Attachment& operator=(Attachment&& other) noexcept = default;
 
-      Attachment(const vk::Image& image,
+      Attachment(const vk::ImageView& imageView,
                  uint32_t index,
                  vk::ImageLayout layout,
                  const vk::AttachmentDescriptionFlags& flags,
@@ -62,6 +62,7 @@ namespace lpe
     enum class RenderPassState
     {
       Creating,
+      Created,
       Recording,
       Ended
     };
@@ -120,7 +121,10 @@ namespace lpe
                                                  vk::DependencyFlags dependencyFlags) const;
 
       const vk::RenderPass& Create(vk::Device device);
-      const vk::Framebuffer& CreateFrameBuffer(vk::Device device);
+      const vk::Framebuffer& CreateFrameBuffer(vk::Device device,
+                                               uint32_t width,
+                                               uint32_t height,
+                                               uint32_t layers);
       bool Begin(vk::CommandBuffer cmdBuffer,
                  vk::Rect2D renderArea,
                  std::vector<vk::ClearValue> clearValues,

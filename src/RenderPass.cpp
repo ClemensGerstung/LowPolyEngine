@@ -12,12 +12,12 @@ vk::AttachmentDescription lpe::render::Attachment::GetAttachmentDescription() co
 
 lpe::render::Attachment::operator bool() const
 {
-  return Image && Flags;
+  return ImageView && Flags;
 }
 
 bool lpe::render::Attachment::operator!() const
 {
-  return !(Image && Flags);
+  return !(ImageView && Flags);
 }
 
 void lpe::render::RenderPass::FillAttachments(std::vector<vk::AttachmentReference>& attachments,
@@ -48,6 +48,8 @@ void lpe::render::RenderPass::FillAttachments(std::vector<vk::AttachmentReferenc
 
 const vk::RenderPass& lpe::render::RenderPass::Create(vk::Device device)
 {
+  assert(state == RenderPassState::Creating);
+
   std::vector<vk::AttachmentReference> inputAttachments;
   std::vector<vk::AttachmentReference> colorAttachments;
   std::vector<vk::AttachmentReference> resolveAttachments;
@@ -137,5 +139,58 @@ const vk::RenderPass& lpe::render::RenderPass::Create(vk::Device device)
                                         nullptr,
                                         &renderPass);
 
+  assert(result == vk::Result::eSuccess);
+
+  state = RenderPassState::Created;
+
   return renderPass;
+}
+
+const vk::Framebuffer& lpe::render::RenderPass::CreateFrameBuffer(vk::Device device,
+                                                                  uint32_t width,
+                                                                  uint32_t height,
+                                                                  uint32_t layers)
+{
+  assert(state == RenderPassState::Created && renderPass);
+
+  std::vector<vk::ImageView> views;
+  views.resize(attachments.size());
+
+  for (uint32_t i = 0; i < attachments.size(); ++i)
+  {
+    auto attachment = attachments[i];
+    if (attachment.Index != i)
+    {
+      auto iterator = std::find_if(std::begin(this->attachments),
+                                   std::end(this->attachments),
+                                   [index = i](const Attachment& attachment)
+                                   {
+                                     return attachment.Index == index;
+                                   });
+
+      if (iterator != std::end(this->attachments))
+      {
+        attachment = *iterator;
+      }
+    }
+
+    views[i] = attachment.ImageView;
+  }
+
+  vk::FramebufferCreateInfo createInfo =
+  {
+    {},
+    renderPass,
+    static_cast<uint32_t>(views.size()),
+    views.data(),
+    width,
+    height,
+    layers
+  };
+
+  auto result = device.createFramebuffer(&createInfo, nullptr, &currentFrameBuffer);
+
+  assert(result == vk::Result::eSuccess);
+  
+  return currentFrameBuffer;
 }
