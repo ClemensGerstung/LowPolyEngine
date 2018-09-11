@@ -54,7 +54,8 @@ namespace lpe
       std::vector<uint32_t> InputAttachmentIndices;
       std::vector<uint32_t> ColorAttachmentIndices;
       std::vector<uint32_t> ResolveAttachmentIndices;
-      uint32_t DepthAttachmentIndices;
+      std::vector<uint32_t> PreserveAttachmentIndices;
+      uint32_t DepthAttachmentIndex;
       vk::PipelineBindPoint BindPoint;
     };
 
@@ -76,6 +77,9 @@ namespace lpe
       vk::Framebuffer currentFrameBuffer;
       vk::CommandBuffer currentCmdBuffer;
       RenderPassState state;
+
+      void FillAttachments(std::vector<vk::AttachmentReference>& attachments,
+                           const std::vector<uint32_t>& indices);
     public:
       RenderPass() = default;
       RenderPass(const RenderPass& other);
@@ -107,16 +111,16 @@ namespace lpe
       void AddSubpass(const SubpassParameters& attachment);
       void AddSubpass(SubpassParameters&& attachment);
 
-      vk::SubpassDependency AddSubpassDependency(uint32_t srcSubpass_ = 0,
-                                                 uint32_t dstSubpass_ = 0,
-                                                 vk::PipelineStageFlags srcStageMask_ = vk::PipelineStageFlags(),
-                                                 vk::PipelineStageFlags dstStageMask_ = vk::PipelineStageFlags(),
-                                                 vk::AccessFlags srcAccessMask_ = vk::AccessFlags(),
-                                                 vk::AccessFlags dstAccessMask_ = vk::AccessFlags(),
-                                                 vk::DependencyFlags dependencyFlags_ = vk::DependencyFlags()) const;
+      vk::SubpassDependency AddSubpassDependency(uint32_t srcSubpass,
+                                                 uint32_t dstSubpass,
+                                                 vk::PipelineStageFlags srcStageMask,
+                                                 vk::PipelineStageFlags dstStageMask,
+                                                 vk::AccessFlags srcAccessMask,
+                                                 vk::AccessFlags dstAccessMask,
+                                                 vk::DependencyFlags dependencyFlags) const;
 
-      vk::RenderPass& Create(vk::Device device) const;
-      vk::Framebuffer& CreateFrameBuffer(vk::Device device) const;
+      const vk::RenderPass& Create(vk::Device device);
+      const vk::Framebuffer& CreateFrameBuffer(vk::Device device);
       bool Begin(vk::CommandBuffer cmdBuffer,
                  vk::Rect2D renderArea,
                  std::vector<vk::ClearValue> clearValues,

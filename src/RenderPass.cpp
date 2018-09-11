@@ -20,4 +20,122 @@ bool lpe::render::Attachment::operator!() const
   return !(Image && Flags);
 }
 
+void lpe::render::RenderPass::FillAttachments(std::vector<vk::AttachmentReference>& attachments,
+                                              const std::vector<uint32_t>& indices)
+{
+  for (auto&& inputIndex : indices)
+  {
+    auto attachment = this->attachments[inputIndex];
 
+    if (attachment.Index != inputIndex)
+    {
+      auto iterator = std::find_if(std::begin(this->attachments),
+                                   std::end(this->attachments),
+                                   [index = inputIndex](const Attachment& attachment)
+                                   {
+                                     return attachment.Index == index;
+                                   });
+
+      if (iterator != std::end(this->attachments))
+      {
+        attachment = *iterator;
+      }
+    }
+
+    attachments.emplace_back(attachment.GetAttachmentReference());
+  }
+}
+
+const vk::RenderPass& lpe::render::RenderPass::Create(vk::Device device)
+{
+  std::vector<vk::AttachmentReference> inputAttachments;
+  std::vector<vk::AttachmentReference> colorAttachments;
+  std::vector<vk::AttachmentReference> resolveAttachments;
+  vk::AttachmentReference depthAttachment;
+
+  std::vector<vk::SubpassDescription> subpassDescriptions;
+  std::vector<vk::AttachmentDescription> attachmentDescriptions;
+
+  attachmentDescriptions.resize(attachments.size());
+
+  for (auto&& subpass : subpasses)
+  {
+    inputAttachments.clear();
+    colorAttachments.clear();
+    resolveAttachments.clear();
+    depthAttachment = VK_NULL_HANDLE;
+
+    auto attachment = attachments[subpass.DepthAttachmentIndex];
+    if (attachment.Index != subpass.DepthAttachmentIndex)
+    {
+      auto iterator = std::find_if(std::begin(attachments),
+                                   std::end(attachments),
+                                   [index = subpass.DepthAttachmentIndex](const Attachment& attachment)
+                                   {
+                                     return attachment.Index == index;
+                                   });
+
+      if (iterator != std::end(attachments))
+      {
+        attachment = *iterator;
+      }
+    }
+    depthAttachment = attachment.GetAttachmentReference();
+
+    FillAttachments(inputAttachments,
+                    subpass.InputAttachmentIndices);
+    FillAttachments(colorAttachments,
+                    subpass.ColorAttachmentIndices);
+    FillAttachments(resolveAttachments,
+                    subpass.ResolveAttachmentIndices);
+
+    subpassDescriptions.emplace_back(vk::SubpassDescriptionFlags(),
+                                     subpass.BindPoint,
+                                     static_cast<uint32_t>(inputAttachments.size()),
+                                     inputAttachments.data(),
+                                     static_cast<uint32_t>(colorAttachments.size()),
+                                     colorAttachments.data(),
+                                     resolveAttachments.data(),
+                                     &depthAttachment,
+                                     static_cast<uint32_t>(subpass.PreserveAttachmentIndices.size()),
+                                     subpass.PreserveAttachmentIndices.data());
+  }
+
+  for (uint32_t i = 0; i < attachments.size(); ++i)
+  {
+    auto attachment = attachments[i];
+    if (attachment.Index != i)
+    {
+      auto iterator = std::find_if(std::begin(this->attachments),
+                                   std::end(this->attachments),
+                                   [index = i](const Attachment& attachment)
+                                   {
+                                     return attachment.Index == index;
+                                   });
+
+      if (iterator != std::end(this->attachments))
+      {
+        attachment = *iterator;
+      }
+    }
+
+    attachmentDescriptions[i] = attachment.GetAttachmentDescription();
+  }
+
+  vk::RenderPassCreateInfo createInfo =
+  {
+    {},
+    static_cast<uint32_t>(attachmentDescriptions.size()),
+    attachmentDescriptions.data(),
+    static_cast<uint32_t>(subpassDescriptions.size()),
+    subpassDescriptions.data(),
+    static_cast<uint32_t>(subpassDependencies.size()),
+    subpassDependencies.data()
+  };
+
+  auto result = device.createRenderPass(&createInfo,
+                                        nullptr,
+                                        &renderPass);
+
+  return renderPass;
+}
