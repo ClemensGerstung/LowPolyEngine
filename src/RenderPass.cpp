@@ -188,9 +188,72 @@ const vk::Framebuffer& lpe::render::RenderPass::CreateFrameBuffer(vk::Device dev
     layers
   };
 
-  auto result = device.createFramebuffer(&createInfo, nullptr, &currentFrameBuffer);
+  auto result = device.createFramebuffer(&createInfo,
+                                         nullptr,
+                                         &currentFrameBuffer);
 
   assert(result == vk::Result::eSuccess);
-  
+
   return currentFrameBuffer;
+}
+
+void lpe::render::RenderPass::Begin(vk::CommandBuffer cmdBuffer,
+                                    vk::Rect2D renderArea,
+                                    std::vector<vk::ClearValue> clearValues,
+                                    vk::SubpassContents contents)
+{
+  assert((state == RenderPassState::Created || state == RenderPassState::Ended) && currentFrameBuffer && renderPass);
+
+  vk::RenderPassBeginInfo beginInfo =
+  {
+    renderPass,
+    currentFrameBuffer,
+    renderArea,
+    static_cast<uint32_t>(clearValues.size()),
+    clearValues.data()
+  };
+
+  cmdBuffer.beginRenderPass(&beginInfo,
+                            contents);
+
+  currentCmdBuffer = cmdBuffer;
+
+  state = RenderPassState::Recording;
+}
+
+void lpe::render::RenderPass::NextSubpass(vk::SubpassContents contents)
+{
+  assert(state == RenderPassState::Recording && currentFrameBuffer && renderPass && currentCmdBuffer);
+
+  currentCmdBuffer.nextSubpass(contents);
+}
+
+void lpe::render::RenderPass::End(vk::Device device)
+{
+  assert(state == RenderPassState::Recording && currentCmdBuffer && currentFrameBuffer);
+
+  currentCmdBuffer.endRenderPass();
+
+  device.destroyFramebuffer(currentFrameBuffer,
+                            nullptr);
+  currentFrameBuffer = nullptr;
+  currentCmdBuffer = nullptr;
+
+  state = RenderPassState::Ended;
+}
+
+void lpe::render::RenderPass::Destroy(vk::Device device)
+{
+  assert(state == RenderPassState::Ended && renderPass);
+
+  if (currentFrameBuffer)
+  {
+    device.destroyFramebuffer(currentFrameBuffer,
+                              nullptr);
+    currentFrameBuffer = nullptr;
+  }
+
+  device.destroyRenderPass(renderPass,
+                           nullptr);
+  renderPass = nullptr;
 }

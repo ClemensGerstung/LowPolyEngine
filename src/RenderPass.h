@@ -125,12 +125,14 @@ namespace lpe
                                                uint32_t width,
                                                uint32_t height,
                                                uint32_t layers);
-      bool Begin(vk::CommandBuffer cmdBuffer,
+      void Begin(vk::CommandBuffer cmdBuffer,
                  vk::Rect2D renderArea,
                  std::vector<vk::ClearValue> clearValues,
                  vk::SubpassContents contents);
-      bool NextSubpass(vk::SubpassContents contents);
-      bool End();
+      void NextSubpass(vk::SubpassContents contents);
+      void End(vk::Device device);
+
+      void Destroy(vk::Device device);
     };
   }
 }
