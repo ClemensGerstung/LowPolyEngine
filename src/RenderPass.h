@@ -100,7 +100,7 @@ namespace lpe
       RenderPass(RenderPass&& other) noexcept;
       RenderPass& operator=(const RenderPass& other);
       RenderPass& operator=(RenderPass&& other) noexcept;
-      ~RenderPass() = delete;
+      ~RenderPass() = default;
 
       void AddAttachment(const vk::ImageView& view,
                          uint32_t index,

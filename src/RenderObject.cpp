@@ -53,9 +53,19 @@ void lpe::render::Texture::SetImage(const std::weak_ptr<utils::Resource>& image)
   this->image = image;
 }
 
+std::weak_ptr<lpe::utils::Resource> lpe::render::Texture::GetImage() const
+{
+  return image;
+}
+
 void lpe::render::Texture::SetColor(glm::vec4 color)
 {
   this->color = color;
+}
+
+glm::vec4 lpe::render::Texture::GetColor() const
+{
+  return color;
 }
 
 lpe::render::Material::Material(const Material& other)

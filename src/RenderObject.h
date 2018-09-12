@@ -26,10 +26,11 @@ namespace lpe
       void LoadImage(const char* fileName);
       void SetImage(std::weak_ptr<utils::Resource>&& image);
       void SetImage(const std::weak_ptr<utils::Resource>& image);
+      std::weak_ptr<utils::Resource> GetImage() const;
 
       void SetColor(glm::vec4 color);
+      glm::vec4 GetColor() const;
 
-      void LinkVkImage(/*TODO: std::weak_ptr<Image> buffer*/);
     };
 
     class Material
@@ -98,8 +99,6 @@ namespace lpe
       void SetTessControlShader(const RenderResource& tessControlShader);
       void SetFragmentShader(RenderResource&& fragmentShader);
       void SetFragmentShader(const RenderResource& fragmentShader);
-
-      void LinkVkBuffer(/*TODO: std::weak_ptr<Buffer> buffer*/);
 
       void SetTransform(glm::mat4 transform);
       glm::mat4 Transform(glm::mat4 transform);
