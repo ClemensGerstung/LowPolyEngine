@@ -1,6 +1,5 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
-#include "Resource.h"
 #include "RenderObject.h"
 
 namespace lpe
@@ -9,10 +8,12 @@ namespace lpe
   {
     class VkTexture
     {
-    private:
+    protected:
       vk::Image image;
       vk::ImageView view;
       vk::DeviceMemory& memory;
+
+      uint32_t requestedComponents;
     public:
       VkTexture() = default;
       VkTexture(const VkTexture& other);
@@ -21,10 +22,20 @@ namespace lpe
       VkTexture& operator=(VkTexture&& other) noexcept;
       virtual ~VkTexture() = default;
 
+      void RequestedComponents(uint32_t channels);
+      uint32_t RequestedComponents() const;
+
       virtual void Create(vk::Device device, const std::weak_ptr<Texture>& texture) = 0;
+      virtual void Destroy(vk::Device device) = 0;
     };
 
     class VkTexture2D : public VkTexture
+    {
+    public:
+      void Create(vk::Device device, const std::weak_ptr<Texture>& texture) override;
+    };
+
+    class VkCubeTexture : public VkTexture
     {
     public:
       void Create(vk::Device device, const std::weak_ptr<Texture>& texture) override;

@@ -28,7 +28,7 @@ void lpe::utils::ResourceManager::Close()
 }
 
 std::weak_ptr<lpe::utils::Resource> lpe::utils::ResourceManager::Load(const char* fileName,
-                                                                      const std::function<void(const char*,
+                                                                      const std::function<void(const uint8_t*,
                                                                                                uint64_t)>& loaded)
 {
   Uuid uuid = Uuid::GetNew();

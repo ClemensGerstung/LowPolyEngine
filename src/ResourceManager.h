@@ -20,7 +20,7 @@ namespace lpe
       virtual ~IResourceManager() override = default;
 
       virtual std::weak_ptr<Resource> Load(const char* fileName,
-                                           const std::function<void(const char*,
+                                           const std::function<void(const uint8_t*,
                                                                     uint64_t)>& loaded = nullptr) = 0;
       virtual std::weak_ptr<Resource> Get(const Uuid& uuid) const = 0;
       virtual void Add(const Resource& resource) = 0;
@@ -44,42 +44,10 @@ namespace lpe
       void Close() override;
 
       std::weak_ptr<Resource> Load(const char* fileName,
-                                   const std::function<void(const char*,
+                                   const std::function<void(const uint8_t*,
                                                             uint64_t)>& loaded) override;
       std::weak_ptr<Resource> Get(const Uuid& uuid) const override;
       void Add(const Resource& resource) override;
-    };
-
-    class NullResourceManager : public IResourceManager
-    {
-    public:
-
-      NullResourceManager() = default;
-      ~NullResourceManager() override = default;
-
-      void Initialize() override
-      {
-      }
-
-      void Close() override
-      {
-      }
-
-      std::weak_ptr<Resource> Load(const char* fileName,
-                                   const std::function<void(const char*,
-                                                            uint64_t)>& loaded) override
-      {
-        return std::make_shared<Resource>();
-      }
-
-      std::weak_ptr<Resource> Get(const Uuid& uuid) const override
-      {
-        return std::make_shared<Resource>();
-      }
-
-      void Add(const Resource& resource) override
-      {
-      }
     };
   }
 }

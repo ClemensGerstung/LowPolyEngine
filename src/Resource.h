@@ -16,7 +16,7 @@ namespace lpe
       Uuid uuid;
       std::string physicalName;
       std::weak_ptr<IResourceManager> manager;
-      std::vector<char> data;
+      std::vector<uint8_t> data;
     public:
       Resource(const std::shared_ptr<IResourceManager>& manager, const Uuid& uuid);
       Resource();
@@ -27,11 +27,11 @@ namespace lpe
       ~Resource();
 
       void Load(const char* fileName,
-                const std::function<void(const char*,
+                const std::function<void(const uint8_t*,
                                          uint64_t)>& loaded = nullptr);
 
       Uuid GetUuid() const;
-      uint64_t GetData(const char* data) const;
+      uint64_t GetData(const uint8_t** data) const;
     };
   }
 }

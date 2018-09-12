@@ -4,7 +4,8 @@
 #include <fstream>
 #include <cassert>
 
-lpe::utils::Resource::Resource(const std::shared_ptr<IResourceManager>& manager, const Uuid& uuid)
+lpe::utils::Resource::Resource(const std::shared_ptr<IResourceManager>& manager,
+                               const Uuid& uuid)
   : uuid(uuid)
 {
   this->manager = manager;
@@ -17,7 +18,7 @@ lpe::utils::Resource::Resource()
   this->data = {};
 }
 
-lpe::utils::Resource::Resource(const Resource & resource)
+lpe::utils::Resource::Resource(const Resource& resource)
 {
   this->uuid = resource.uuid;
   this->data = resource.data;
@@ -25,7 +26,7 @@ lpe::utils::Resource::Resource(const Resource & resource)
   this->physicalName = resource.physicalName;
 }
 
-lpe::utils::Resource::Resource(Resource && resource) noexcept
+lpe::utils::Resource::Resource(Resource&& resource) noexcept
 {
   this->uuid = std::move(resource.uuid);
   this->data = std::move(resource.data);
@@ -33,7 +34,7 @@ lpe::utils::Resource::Resource(Resource && resource) noexcept
   this->physicalName = std::move(resource.physicalName);
 }
 
-lpe::utils::Resource & lpe::utils::Resource::operator=(const Resource & resource)
+lpe::utils::Resource& lpe::utils::Resource::operator=(const Resource& resource)
 {
   this->uuid = resource.uuid;
   this->data = resource.data;
@@ -43,7 +44,7 @@ lpe::utils::Resource & lpe::utils::Resource::operator=(const Resource & resource
   return *this;
 }
 
-lpe::utils::Resource & lpe::utils::Resource::operator=(Resource && resource) noexcept
+lpe::utils::Resource& lpe::utils::Resource::operator=(Resource&& resource) noexcept
 {
   this->uuid = std::move(resource.uuid);
   this->data = std::move(resource.data);
@@ -60,20 +61,26 @@ lpe::utils::Resource::~Resource()
 }
 
 void lpe::utils::Resource::Load(const char* fileName,
-                                const std::function<void(const char*,
+                                const std::function<void(const uint8_t*,
                                                          uint64_t)>& loaded)
 {
+  std::vector<char> loadedData;
   this->physicalName = fileName;
   std::ifstream ifs(fileName,
                     std::ios::binary | std::ios::ate);
   uint64_t size = ifs.tellg();
   data.resize(size);
+  loadedData.resize(size);
 
   ifs.seekg(0,
             std::ios::beg);
-  ifs.read(data.data(),
+  ifs.read(loadedData.data(),
            size);
   ifs.close();
+
+  memcpy(data.data(),
+         loadedData.data(),
+         sizeof(uint8_t) * size);
 
   if (loaded != nullptr)
   {
@@ -87,10 +94,9 @@ lpe::utils::Uuid lpe::utils::Resource::GetUuid() const
   return uuid;
 }
 
-uint64_t lpe::utils::Resource::GetData(const char* data) const
+uint64_t lpe::utils::Resource::GetData(const uint8_t** data) const
 {
-  data = this->data.data();
+  *data = this->data.data();
 
   return this->data.size();
 }
-
