@@ -1,5 +1,32 @@
 #include "RenderPass.h"
 
+lpe::render::Attachment::Attachment(const vk::ImageView& imageView,
+                                    uint32_t index,
+                                    vk::ImageLayout layout,
+                                    const vk::AttachmentDescriptionFlags& flags,
+                                    vk::Format format,
+                                    vk::SampleCountFlagBits samples,
+                                    vk::AttachmentLoadOp loadOp,
+                                    vk::AttachmentStoreOp storeOp,
+                                    vk::AttachmentLoadOp stencilLoadOp,
+                                    vk::AttachmentStoreOp stencilStoreOp,
+                                    vk::ImageLayout initialLayout,
+                                    vk::ImageLayout finalLayout)
+  : ImageView(imageView),
+    Index(index),
+    Layout(layout),
+    Flags(flags),
+    Format(format),
+    Samples(samples),
+    LoadOp(loadOp),
+    StoreOp(storeOp),
+    StencilLoadOp(stencilLoadOp),
+    StencilStoreOp(stencilStoreOp),
+    InitialLayout(initialLayout),
+    FinalLayout(finalLayout)
+{
+}
+
 vk::AttachmentReference lpe::render::Attachment::GetAttachmentReference() const
 {
   return { Index, Layout };
@@ -18,6 +45,65 @@ lpe::render::Attachment::operator bool() const
 bool lpe::render::Attachment::operator!() const
 {
   return !(ImageView && Flags);
+}
+
+lpe::render::SubpassParameters::SubpassParameters(const std::vector<uint32_t>& inputAttachmentIndices,
+                                                  const std::vector<uint32_t>& colorAttachmentIndices,
+                                                  const std::vector<uint32_t>& resolveAttachmentIndices,
+                                                  const std::vector<uint32_t>& preserveAttachmentIndices,
+                                                  uint32_t depthAttachmentIndex,
+                                                  vk::PipelineBindPoint bindPoint)
+  : InputAttachmentIndices(inputAttachmentIndices),
+    ColorAttachmentIndices(colorAttachmentIndices),
+    ResolveAttachmentIndices(resolveAttachmentIndices),
+    PreserveAttachmentIndices(preserveAttachmentIndices),
+    DepthAttachmentIndex(depthAttachmentIndex),
+    BindPoint(bindPoint)
+{
+}
+
+lpe::render::SubpassParameters::SubpassParameters(const SubpassParameters& other)
+  : InputAttachmentIndices(other.InputAttachmentIndices),
+    ColorAttachmentIndices(other.ColorAttachmentIndices),
+    ResolveAttachmentIndices(other.ResolveAttachmentIndices),
+    PreserveAttachmentIndices(other.PreserveAttachmentIndices),
+    DepthAttachmentIndex(other.DepthAttachmentIndex),
+    BindPoint(other.BindPoint)
+{
+}
+
+lpe::render::SubpassParameters::SubpassParameters(SubpassParameters&& other) noexcept
+  : InputAttachmentIndices(std::move(other.InputAttachmentIndices)),
+    ColorAttachmentIndices(std::move(other.ColorAttachmentIndices)),
+    ResolveAttachmentIndices(std::move(other.ResolveAttachmentIndices)),
+    PreserveAttachmentIndices(std::move(other.PreserveAttachmentIndices)),
+    DepthAttachmentIndex(other.DepthAttachmentIndex),
+    BindPoint(other.BindPoint)
+{
+}
+
+lpe::render::SubpassParameters& lpe::render::SubpassParameters::operator=(const SubpassParameters& other)
+{
+  if (this == &other) return *this;
+  InputAttachmentIndices = other.InputAttachmentIndices;
+  ColorAttachmentIndices = other.ColorAttachmentIndices;
+  ResolveAttachmentIndices = other.ResolveAttachmentIndices;
+  PreserveAttachmentIndices = other.PreserveAttachmentIndices;
+  DepthAttachmentIndex = other.DepthAttachmentIndex;
+  BindPoint = other.BindPoint;
+  return *this;
+}
+
+lpe::render::SubpassParameters& lpe::render::SubpassParameters::operator=(SubpassParameters&& other) noexcept
+{
+  if (this == &other) return *this;
+  InputAttachmentIndices = std::move(other.InputAttachmentIndices);
+  ColorAttachmentIndices = std::move(other.ColorAttachmentIndices);
+  ResolveAttachmentIndices = std::move(other.ResolveAttachmentIndices);
+  PreserveAttachmentIndices = std::move(other.PreserveAttachmentIndices);
+  DepthAttachmentIndex = other.DepthAttachmentIndex;
+  BindPoint = other.BindPoint;
+  return *this;
 }
 
 void lpe::render::RenderPass::FillAttachments(std::vector<vk::AttachmentReference>& attachments,
@@ -44,6 +130,134 @@ void lpe::render::RenderPass::FillAttachments(std::vector<vk::AttachmentReferenc
 
     attachments.emplace_back(attachment.GetAttachmentReference());
   }
+}
+
+lpe::render::RenderPass::RenderPass()
+{
+  subpassDependencies = {};
+  attachments = {};
+  subpasses = {};
+  renderPass = nullptr;
+  currentFrameBuffer = nullptr;
+  currentCmdBuffer = nullptr;
+  state = RenderPassState::Creating;
+}
+
+lpe::render::RenderPass::RenderPass(const RenderPass& other)
+{
+  this->operator=(other);
+}
+
+lpe::render::RenderPass::RenderPass(RenderPass&& other) noexcept
+{
+  this->operator=(std::move(other));
+}
+
+lpe::render::RenderPass& lpe::render::RenderPass::operator=(const RenderPass& other)
+{
+  this->subpassDependencies = { other.subpassDependencies };
+  this->attachments = { other.attachments };
+  this->subpasses = { other.subpasses };
+
+  this->renderPass = other.renderPass;
+  this->currentFrameBuffer = other.currentFrameBuffer;
+  this->currentCmdBuffer = other.currentCmdBuffer;
+  this->state = other.state;
+
+  return *this;
+}
+
+lpe::render::RenderPass& lpe::render::RenderPass::operator=(RenderPass&& other) noexcept
+{
+  this->subpassDependencies = std::move(other.subpassDependencies);
+  this->attachments = std::move(other.attachments);
+  this->subpasses = std::move(other.subpasses);
+
+  this->renderPass = other.renderPass;
+  this->currentFrameBuffer = other.currentFrameBuffer;
+  this->currentCmdBuffer = other.currentCmdBuffer;
+  this->state = other.state;
+
+  return *this;
+}
+
+void lpe::render::RenderPass::AddAttachment(const vk::ImageView& view,
+                                            uint32_t index,
+                                            vk::ImageLayout layout,
+                                            const vk::AttachmentDescriptionFlags& flags,
+                                            vk::Format format,
+                                            vk::SampleCountFlagBits samples,
+                                            vk::AttachmentLoadOp loadOp,
+                                            vk::AttachmentStoreOp storeOp,
+                                            vk::AttachmentLoadOp stencilLoadOp,
+                                            vk::AttachmentStoreOp stencilStoreOp,
+                                            vk::ImageLayout initialLayout,
+                                            vk::ImageLayout finalLayout)
+{
+  attachments.emplace_back(view,
+                           index,
+                           layout,
+                           flags,
+                           format,
+                           samples,
+                           loadOp,
+                           storeOp,
+                           stencilLoadOp,
+                           stencilStoreOp,
+                           initialLayout,
+                           finalLayout);
+}
+
+void lpe::render::RenderPass::AddAttachment(const Attachment& attachment)
+{
+  attachments.push_back(attachment);
+}
+
+void lpe::render::RenderPass::AddAttachment(Attachment&& attachment)
+{
+  attachments.push_back(attachment);
+}
+
+void lpe::render::RenderPass::AddSubpass(vk::PipelineBindPoint bindPoint,
+                                         std::vector<uint32_t> inputAttachments,
+                                         std::vector<uint32_t> colorAttachments,
+                                         std::vector<uint32_t> resolveAttachments,
+                                         uint32_t depthAttachment,
+                                         std::vector<uint32_t> preserveAttachments)
+{
+  subpasses.emplace_back(inputAttachments,
+                         colorAttachments,
+                         resolveAttachments,
+                         preserveAttachments,
+                         depthAttachment,
+                         bindPoint);
+}
+
+void lpe::render::RenderPass::AddSubpass(const SubpassParameters& attachment)
+{
+  subpasses.push_back(attachment);
+}
+
+void lpe::render::RenderPass::AddSubpass(SubpassParameters&& attachment)
+{
+  subpasses.push_back(attachment);
+}
+
+void lpe::render::RenderPass::AddSubpassDependency(uint32_t srcSubpass,
+                                                   uint32_t dstSubpass,
+                                                   vk::PipelineStageFlags srcStageMask,
+                                                   vk::PipelineStageFlags dstStageMask,
+                                                   vk::AccessFlags srcAccessMask,
+                                                   vk::AccessFlags dstAccessMask,
+                                                   vk::DependencyFlags dependencyFlags)
+{
+  subpassDependencies.emplace_back(srcSubpass,
+                                   dstSubpass,
+                                   srcStageMask,
+                                   dstStageMask,
+                                   srcAccessMask,
+                                   dstAccessMask,
+                                   dependencyFlags);
 }
 
 const vk::RenderPass& lpe::render::RenderPass::Create(vk::Device device)
