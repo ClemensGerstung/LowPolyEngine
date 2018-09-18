@@ -42,11 +42,37 @@ namespace lpe
     class VkMemoryManagement
     {
     private:
+      union Mapping
+      {
+        vk::Image image;
+        vk::Buffer buffer;
+
+        bool operator<(const Mapping& other) const
+        {
+          if(buffer && other.buffer)
+          {
+            return buffer < other.buffer;
+          }
+
+          if(image && other.image)
+          {
+            return image < other.image;
+          }
+
+          return false;
+        }
+      };
+
+      struct ChunkOffset
+      {
+        std::unique_ptr<Chunk> chunk;
+        vk::DeviceSize offset;
+      };
+
       vk::DeviceSize defaultSize;
       vk::Device device;
       std::vector<Chunk> chunks;
-      std::map<vk::Image, Chunk*> imageMappings;
-      std::map<vk::Buffer, Chunk*> bufferMappings;
+      std::map<Mapping, ChunkOffset> mappings;
 
       Chunk& GetCurrentChunk(vk::PhysicalDevice physicalDevice,
                              vk::MemoryRequirements requirements,

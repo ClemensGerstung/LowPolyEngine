@@ -161,8 +161,12 @@ void lpe::render::VkMemoryManagement::Bind(vk::PhysicalDevice physicalDevice,
                          offset);
   chunk.ChangeUsage(requirements.size);
 
-  imageMappings.insert(std::make_pair(image,
-                                      &chunk));
+  Mapping m = { image };
+  ChunkOffset co = { nullptr, offset };
+  co.chunk.reset(&chunk);
+
+  mappings.insert(std::make_pair(m,
+                                 co));
 }
 
 void lpe::render::VkMemoryManagement::Bind(vk::PhysicalDevice physicalDevice,
@@ -181,6 +185,13 @@ void lpe::render::VkMemoryManagement::Bind(vk::PhysicalDevice physicalDevice,
                           offset);
   chunk.ChangeUsage(requirements.size);
 
-  bufferMappings.insert(std::make_pair(buffer,
-                                       &chunk));
+  // fu c++...
+  Mapping m = { nullptr };
+  m.buffer = buffer;
+
+  ChunkOffset co = { nullptr, offset };
+  co.chunk.reset(&chunk);
+
+  mappings.insert(std::make_pair(m,
+                                 co));
 }
