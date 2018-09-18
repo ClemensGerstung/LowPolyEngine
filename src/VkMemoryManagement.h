@@ -65,8 +65,15 @@ namespace lpe
 
       struct ChunkOffset
       {
-        std::unique_ptr<Chunk> chunk;
+        Chunk* chunk;
         vk::DeviceSize offset;
+
+        ChunkOffset() = default;
+        ChunkOffset(const ChunkOffset& other) = default;
+        ChunkOffset(ChunkOffset&& other) noexcept = default;
+        ChunkOffset& operator=(const ChunkOffset& other) = default;
+        ChunkOffset& operator=(ChunkOffset&& other) noexcept = default;
+        ~ChunkOffset() = default;
       };
 
       vk::DeviceSize defaultSize;
