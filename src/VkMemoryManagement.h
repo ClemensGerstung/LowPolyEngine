@@ -1,5 +1,6 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
+#include <map>
 
 namespace lpe
 {
@@ -32,6 +33,9 @@ namespace lpe
       void SetUsage(vk::DeviceSize usage);
       void ChangeUsage(vk::DeviceSize delta);
       bool HasSpaceLeft(vk::DeviceSize delta) const;
+
+      operator bool() const;
+      bool operator!() const;
     };
 
     class VkMemoryManagement
@@ -39,12 +43,29 @@ namespace lpe
     private:
       vk::DeviceSize defaultSize;
       vk::Device device;
+      std::vector<Chunk> chunks;
+      std::map<vk::Image, Chunk*> imageMappings;
+      std::map<vk::Buffer, Chunk*> bufferMappings;
+
+      Chunk& GetCurrentChunk(vk::PhysicalDevice physicalDevice,
+                             vk::MemoryRequirements requirements,
+                             vk::MemoryPropertyFlagBits properties);
     public:
-      VkMemoryManagement();
+      VkMemoryManagement() = default;
       ~VkMemoryManagement();
 
-      void Map(vk::Image image);
-      void Map(vk::Buffer buffer);
+      void Create(vk::Device device,
+                  vk::DeviceSize defaultSize);
+
+      void Bind(vk::PhysicalDevice physicalDevice,
+                vk::Image image,
+                vk::MemoryPropertyFlagBits properties = vk::MemoryPropertyFlagBits::eDeviceLocal);
+      void Bind(vk::PhysicalDevice physicalDevice,
+                vk::Buffer buffer,
+                vk::MemoryPropertyFlagBits properties = vk::MemoryPropertyFlagBits::eDeviceLocal);
+
+      void Free(vk::Image image);
+      void Free(vk::Buffer buffer);
     };
   }
 }
