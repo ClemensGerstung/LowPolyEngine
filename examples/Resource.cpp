@@ -1,7 +1,7 @@
 #include "../src/lpe.h"
 #include <iostream>
 
-void OnResourceLoaded(const char* stream,
+void OnResourceLoaded(const uint8_t* stream,
                       uint64_t size);
 
 int main()
@@ -30,7 +30,7 @@ int main()
   return 0;
 }
 
-void OnResourceLoaded(const char* stream,
+void OnResourceLoaded(const uint8_t* stream,
                       uint64_t size)
 {
   std::cout << "loaded: " << size << "b" << std::endl;

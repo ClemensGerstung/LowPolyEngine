@@ -28,7 +28,11 @@ void lpe::render::VkTexture2D::Create(vk::Device device,
       {},
       vk::ImageType::e2D,
       this->format,
-      { width, height, 1 },
+      { 
+        static_cast<uint32_t>(width), 
+        static_cast<uint32_t>(height),
+        1 
+      },
       this->level,
       this->layers,
       this->samples,

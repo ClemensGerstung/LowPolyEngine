@@ -32,14 +32,5 @@ int main()
   _MK_PTR(lpe::render::RenderObject, o);
   o->AddTarget(r);
 
-  lpe::render::VkTexture2D texture = {};
-  texture.SetSamples(vk::SampleCountFlagBits::e2)
-         .SetFormat(vk::Format::eR8G8B8A8Unorm)
-         .SetLayers(1)
-         .SetMipLevels(1)
-         .SetTiling(vk::ImageTiling::eLinear)
-         .SetUsage(vk::ImageUsageFlagBits::eSampled | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eInputAttachment)
-         .Create({}, t);
-
   return 0;
 }
