@@ -1,6 +1,16 @@
 #include "VkMemoryManagement.h"
 #include "ServiceLocator.h"
 
+lpe::render::Chunk::Chunk()
+  : memory(nullptr),
+    size(VK_WHOLE_SIZE),
+    alignment(VK_WHOLE_SIZE),
+    properties(),
+    device(nullptr),
+    usage(0)
+{
+}
+
 lpe::render::Chunk::~Chunk()
 {
   assert(!memory);
@@ -88,6 +98,11 @@ bool lpe::render::Chunk::operator!() const
   return !memory;
 }
 
+lpe::render::Chunk::operator vk::DeviceMemory() const
+{
+  return memory;
+}
+
 lpe::render::Chunk& lpe::render::VkMemoryManagement::GetCurrentChunk(vk::PhysicalDevice physicalDevice,
                                                                      vk::MemoryRequirements requirements,
                                                                      vk::MemoryPropertyFlagBits properties)
@@ -134,8 +149,38 @@ void lpe::render::VkMemoryManagement::Bind(vk::PhysicalDevice physicalDevice,
                                            vk::Image image,
                                            vk::MemoryPropertyFlagBits properties)
 {
+  assert(device);
+
   auto requirements = device.getImageMemoryRequirements(image);
   auto chunk = GetCurrentChunk(physicalDevice,
                                requirements,
                                properties);
+  auto offset = chunk.GetUsage();
+  device.bindImageMemory(image,
+                         chunk,
+                         offset);
+  chunk.ChangeUsage(requirements.size);
+
+  imageMappings.insert(std::make_pair(image,
+                                      &chunk));
+}
+
+void lpe::render::VkMemoryManagement::Bind(vk::PhysicalDevice physicalDevice,
+                                           vk::Buffer buffer,
+                                           vk::MemoryPropertyFlagBits properties)
+{
+  assert(device);
+
+  auto requirements = device.getBufferMemoryRequirements(buffer);
+  auto chunk = GetCurrentChunk(physicalDevice,
+                               requirements,
+                               properties);
+  auto offset = chunk.GetUsage();
+  device.bindBufferMemory(buffer,
+                          chunk,
+                          offset);
+  chunk.ChangeUsage(requirements.size);
+
+  bufferMappings.insert(std::make_pair(buffer,
+                                       &chunk));
 }

@@ -14,9 +14,9 @@ namespace lpe
       vk::DeviceSize alignment;
       vk::MemoryPropertyFlagBits properties;
       vk::Device device;
-      vk::DeviceSize usage = 0;
+      vk::DeviceSize usage;
     public:
-      Chunk() = default;
+      Chunk();
       Chunk(const Chunk& other) = default;
       Chunk(Chunk&& other) noexcept = default;
       Chunk& operator=(const Chunk& other) = default;
@@ -36,6 +36,7 @@ namespace lpe
 
       operator bool() const;
       bool operator!() const;
+      operator vk::DeviceMemory() const;
     };
 
     class VkMemoryManagement
@@ -52,7 +53,7 @@ namespace lpe
                              vk::MemoryPropertyFlagBits properties);
     public:
       VkMemoryManagement() = default;
-      ~VkMemoryManagement();
+      ~VkMemoryManagement() = default;
 
       void Create(vk::Device device,
                   vk::DeviceSize defaultSize);
