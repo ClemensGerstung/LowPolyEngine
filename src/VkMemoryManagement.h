@@ -9,12 +9,28 @@ namespace lpe
     class Chunk
     {
     private:
+      struct Range
+      {
+        vk::DeviceSize Begin;
+        vk::DeviceSize End;
+
+        Range() = default;
+        Range(vk::DeviceSize begin,
+              vk::DeviceSize end)
+          : Begin(begin),
+            End(end)
+        {
+        }
+      };
+
       vk::DeviceMemory memory;
       vk::DeviceSize size;
       vk::DeviceSize alignment;
       vk::MemoryPropertyFlagBits properties;
       vk::Device device;
       vk::DeviceSize usage;
+      std::vector<Range> allocations;
+      std::vector<Range> freed;
     public:
       Chunk();
       Chunk(const Chunk& other) = default;
@@ -30,13 +46,14 @@ namespace lpe
       void Destroy();
 
       vk::DeviceSize GetUsage() const;
-      void SetUsage(vk::DeviceSize usage);
-      void ChangeUsage(vk::DeviceSize delta);
       bool HasSpaceLeft(vk::DeviceSize delta) const;
 
       operator bool() const;
       bool operator!() const;
       operator vk::DeviceMemory() const;
+
+      void MoveMarker(vk::DeviceSize size);
+      void FreeMarker(vk::DeviceSize offset);
     };
 
     class VkMemoryManagement
@@ -47,20 +64,7 @@ namespace lpe
         vk::Image image;
         vk::Buffer buffer;
 
-        bool operator<(const Mapping& other) const
-        {
-          if(buffer && other.buffer)
-          {
-            return buffer < other.buffer;
-          }
-
-          if(image && other.image)
-          {
-            return image < other.image;
-          }
-
-          return false;
-        }
+        bool operator<(const Mapping& other) const;
       };
 
       struct ChunkOffset
@@ -91,12 +95,12 @@ namespace lpe
       void Create(vk::Device device,
                   vk::DeviceSize defaultSize);
 
-      void Bind(vk::PhysicalDevice physicalDevice,
-                vk::Image image,
-                vk::MemoryPropertyFlagBits properties = vk::MemoryPropertyFlagBits::eDeviceLocal);
-      void Bind(vk::PhysicalDevice physicalDevice,
-                vk::Buffer buffer,
-                vk::MemoryPropertyFlagBits properties = vk::MemoryPropertyFlagBits::eDeviceLocal);
+      vk::DeviceSize Bind(vk::PhysicalDevice physicalDevice,
+                          vk::Image image,
+                          vk::MemoryPropertyFlagBits properties = vk::MemoryPropertyFlagBits::eDeviceLocal);
+      vk::DeviceSize Bind(vk::PhysicalDevice physicalDevice,
+                          vk::Buffer buffer,
+                          vk::MemoryPropertyFlagBits properties = vk::MemoryPropertyFlagBits::eDeviceLocal);
 
       void Free(vk::Image image);
       void Free(vk::Buffer buffer);

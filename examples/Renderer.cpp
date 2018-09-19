@@ -3,12 +3,22 @@
 
 #include <stb_image.h>
 #include "../src/VkTexture.h"
+#include "../src/VkMemoryManagement.h"
 
 #define _MK_PTR(T, n) std::shared_ptr<T> n = std::make_shared<T>()
 
 
 int main()
 {
+  lpe::render::Chunk chunk = {};
+  chunk.MoveMarker(200);
+  chunk.MoveMarker(100);
+  chunk.MoveMarker(150);
+
+  chunk.FreeMarker(200);
+  chunk.FreeMarker(0);
+  chunk.FreeMarker(300);
+
   lpe::Initialize();
 
   auto resourceManager = lpe::ServiceLocator::ResourceManager.Get()
