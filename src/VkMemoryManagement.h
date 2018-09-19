@@ -15,6 +15,7 @@ namespace lpe
         vk::DeviceSize End;
 
         Range() = default;
+
         Range(vk::DeviceSize begin,
               vk::DeviceSize end)
           : Begin(begin),
@@ -24,7 +25,7 @@ namespace lpe
       };
 
       vk::DeviceMemory memory;
-      vk::DeviceSize size;
+
       vk::DeviceSize alignment;
       vk::MemoryPropertyFlagBits properties;
       vk::Device device;
@@ -32,6 +33,9 @@ namespace lpe
       std::vector<Range> allocations;
       std::vector<Range> freed;
     public:
+      // TODO: make private, just for tests
+      vk::DeviceSize size;
+
       Chunk();
       Chunk(const Chunk& other) = default;
       Chunk(Chunk&& other) noexcept = default;
@@ -52,7 +56,7 @@ namespace lpe
       bool operator!() const;
       operator vk::DeviceMemory() const;
 
-      void MoveMarker(vk::DeviceSize size);
+      vk::DeviceSize MoveMarker(vk::DeviceSize size);
       void FreeMarker(vk::DeviceSize offset);
     };
 

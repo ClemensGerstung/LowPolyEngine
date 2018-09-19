@@ -11,11 +11,15 @@
 int main()
 {
   lpe::render::Chunk chunk = {};
+  chunk.size = 500;
   chunk.MoveMarker(200);
   chunk.MoveMarker(100);
   chunk.MoveMarker(150);
 
   chunk.FreeMarker(200);
+
+  auto offset = chunk.MoveMarker(100);
+
   chunk.FreeMarker(0);
   chunk.FreeMarker(300);
 
