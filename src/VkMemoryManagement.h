@@ -107,6 +107,10 @@ namespace lpe
                              vk::MemoryPropertyFlagBits properties);
     public:
       VkMemoryManagement() = default;
+      VkMemoryManagement(const VkMemoryManagement& other);
+      VkMemoryManagement(VkMemoryManagement&& other) noexcept;
+      VkMemoryManagement& operator=(const VkMemoryManagement& other);
+      VkMemoryManagement& operator=(VkMemoryManagement&& other) noexcept;
       ~VkMemoryManagement() = default;
 
       void Create(vk::Device device,

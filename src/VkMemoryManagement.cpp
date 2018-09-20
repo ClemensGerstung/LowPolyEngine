@@ -304,6 +304,42 @@ lpe::render::Chunk& lpe::render::VkMemoryManagement::GetCurrentChunk(vk::Physica
   return chunk;
 }
 
+lpe::render::VkMemoryManagement::VkMemoryManagement(const VkMemoryManagement& other)
+  : defaultSize(other.defaultSize),
+    device(other.device),
+    chunks(other.chunks),
+    mappings(other.mappings)
+{
+}
+
+lpe::render::VkMemoryManagement::VkMemoryManagement(VkMemoryManagement&& other) noexcept
+  : defaultSize(other.defaultSize),
+    device(std::move(other.device)),
+    chunks(std::move(other.chunks)),
+    mappings(std::move(other.mappings))
+{
+}
+
+lpe::render::VkMemoryManagement& lpe::render::VkMemoryManagement::operator=(const VkMemoryManagement& other)
+{
+  if (this == &other) return *this;
+  defaultSize = other.defaultSize;
+  device = other.device;
+  chunks = other.chunks;
+  mappings = other.mappings;
+  return *this;
+}
+
+lpe::render::VkMemoryManagement& lpe::render::VkMemoryManagement::operator=(VkMemoryManagement&& other) noexcept
+{
+  if (this == &other) return *this;
+  defaultSize = other.defaultSize;
+  device = std::move(other.device);
+  chunks = std::move(other.chunks);
+  mappings = std::move(other.mappings);
+  return *this;
+}
+
 void lpe::render::VkMemoryManagement::Create(vk::Device device,
                                              vk::DeviceSize defaultSize)
 {
@@ -473,7 +509,9 @@ vk::DeviceSize lpe::render::VkStackAllocator::Push(vk::PhysicalDevice physicalDe
 
 vk::DeviceSize lpe::render::VkStackAllocator::Pop(bool marker)
 {
-  offset = marker ? this->marker : 0;
+  offset = marker ?
+             this->marker :
+             0;
 
   return offset;
 }
