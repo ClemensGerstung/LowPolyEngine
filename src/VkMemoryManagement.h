@@ -6,6 +6,20 @@ namespace lpe
 {
   namespace render
   {
+    namespace utils
+    {
+      inline bool CheckMemoryType(uint32_t types,
+                                  uint32_t type,
+                                  vk::MemoryType memoryTypes[32],
+                                  vk::MemoryPropertyFlagBits properties);
+      inline void AllocateDeviceMemory(vk::Device device,
+                                       vk::PhysicalDevice physicalDevice,
+                                       vk::MemoryRequirements requirements,
+                                       vk::MemoryPropertyFlagBits properties,
+                                       vk::DeviceSize size,
+                                       vk::DeviceMemory* memory);
+    }
+
     class Chunk
     {
     private:
@@ -25,7 +39,7 @@ namespace lpe
       };
 
       vk::DeviceMemory memory;
-
+      vk::DeviceSize size;
       vk::DeviceSize alignment;
       vk::MemoryPropertyFlagBits properties;
       vk::Device device;
@@ -33,9 +47,6 @@ namespace lpe
       std::vector<Range> allocations;
       std::vector<Range> freed;
     public:
-      // TODO: make private, just for tests
-      vk::DeviceSize size;
-
       Chunk();
       Chunk(const Chunk& other) = default;
       Chunk(Chunk&& other) noexcept = default;
@@ -100,14 +111,53 @@ namespace lpe
                   vk::DeviceSize defaultSize);
 
       vk::DeviceSize Bind(vk::PhysicalDevice physicalDevice,
-                          vk::Image image,
+                          vk::Image& image,
                           vk::MemoryPropertyFlagBits properties = vk::MemoryPropertyFlagBits::eDeviceLocal);
       vk::DeviceSize Bind(vk::PhysicalDevice physicalDevice,
-                          vk::Buffer buffer,
+                          vk::Buffer& buffer,
                           vk::MemoryPropertyFlagBits properties = vk::MemoryPropertyFlagBits::eDeviceLocal);
 
       void Free(vk::Image image);
       void Free(vk::Buffer buffer);
+    };
+
+    enum class MarkerPosition
+    {
+      None,
+      Before,
+      After
+    };
+
+    class VkStackAllocator
+    {
+    private:
+      vk::DeviceSize size;
+      vk::DeviceSize offset;
+      vk::DeviceSize marker;
+      vk::DeviceMemory memory;
+      vk::Device device;
+      uint32_t memoryType;
+    public:
+      VkStackAllocator() = default;
+      VkStackAllocator(const VkStackAllocator& other) = default;
+      VkStackAllocator(VkStackAllocator&& other) noexcept = default;
+      VkStackAllocator& operator=(const VkStackAllocator& other) = default;
+      VkStackAllocator& operator=(VkStackAllocator&& other) noexcept = default;
+      ~VkStackAllocator() = default;
+
+      void Create(vk::Device device,
+                  vk::PhysicalDevice physicalDevice,
+                  vk::DeviceSize size,
+                  vk::MemoryPropertyFlagBits properties,
+                  vk::MemoryRequirements requirements);
+      void Destroy();
+
+      vk::DeviceSize Push(vk::Buffer& buffer, MarkerPosition pos = MarkerPosition::None);
+      vk::DeviceSize Push(vk::Image& image, MarkerPosition pos = MarkerPosition::None);
+      vk::DeviceSize Pop(bool marker);
+
+      void SetMarker(vk::DeviceSize offset);
+      void RemoveMarker();
     };
   }
 }
