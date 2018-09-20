@@ -8,16 +8,18 @@ namespace lpe
   {
     namespace utils
     {
-      inline bool CheckMemoryType(uint32_t types,
-                                  uint32_t type,
-                                  vk::MemoryType memoryTypes[32],
-                                  vk::MemoryPropertyFlagBits properties);
+      inline int32_t GetMemoryType(vk::PhysicalDeviceMemoryProperties deviceProperties,
+                                   vk::MemoryRequirements requirements,
+                                   vk::MemoryPropertyFlagBits properties,
+                                   uint32_t typeOffset = 0);
+
       inline void AllocateDeviceMemory(vk::Device device,
                                        vk::PhysicalDevice physicalDevice,
                                        vk::MemoryRequirements requirements,
                                        vk::MemoryPropertyFlagBits properties,
                                        vk::DeviceSize size,
-                                       vk::DeviceMemory* memory);
+                                       vk::DeviceMemory* memory,
+                                       uint32_t* type);
     }
 
     class Chunk
@@ -136,6 +138,7 @@ namespace lpe
       vk::DeviceSize marker;
       vk::DeviceMemory memory;
       vk::Device device;
+      vk::MemoryPropertyFlagBits properties;
       uint32_t memoryType;
     public:
       VkStackAllocator() = default;
@@ -152,9 +155,15 @@ namespace lpe
                   vk::MemoryRequirements requirements);
       void Destroy();
 
-      vk::DeviceSize Push(vk::Buffer& buffer, MarkerPosition pos = MarkerPosition::None);
-      vk::DeviceSize Push(vk::Image& image, MarkerPosition pos = MarkerPosition::None);
-      vk::DeviceSize Pop(bool marker);
+      vk::DeviceSize Push(vk::PhysicalDevice physicalDevice,
+                          vk::Buffer& buffer,
+                          MarkerPosition pos = MarkerPosition::None);
+      // StackAllocator is mainly for hostvisible|hostcoherent memory
+      // though it can be implemented if needed
+      //vk::DeviceSize Push(vk::PhysicalDevice physicalDevice,
+      //                    vk::Image& image,
+      //                    MarkerPosition pos = MarkerPosition::None);
+      vk::DeviceSize Pop(bool marker = true);
 
       void SetMarker(vk::DeviceSize offset);
       void RemoveMarker();

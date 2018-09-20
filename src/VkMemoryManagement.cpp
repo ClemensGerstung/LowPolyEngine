@@ -1,12 +1,22 @@
 #include "VkMemoryManagement.h"
 #include "ServiceLocator.h"
 
-bool lpe::render::utils::CheckMemoryType(uint32_t types,
-                                         uint32_t type,
-                                         vk::MemoryType memoryTypes[32],
-                                         vk::MemoryPropertyFlagBits properties)
+
+int32_t lpe::render::utils::GetMemoryType(vk::PhysicalDeviceMemoryProperties deviceProperties,
+                                          vk::MemoryRequirements requirements,
+                                          vk::MemoryPropertyFlagBits properties,
+                                          uint32_t typeOffset)
 {
-  return (types & (1 << type)) && (memoryTypes[type].propertyFlags & properties) == properties;
+  for (uint32_t type = typeOffset; type < deviceProperties.memoryTypeCount; ++type)
+  {
+    if ((requirements.memoryTypeBits & (1 << type)) &&
+      (deviceProperties.memoryTypes[type].propertyFlags & properties) == properties)
+    {
+      return static_cast<int32_t>(type);
+    }
+  }
+
+  return -1;
 }
 
 void lpe::render::utils::AllocateDeviceMemory(vk::Device device,
@@ -14,32 +24,29 @@ void lpe::render::utils::AllocateDeviceMemory(vk::Device device,
                                               vk::MemoryRequirements requirements,
                                               vk::MemoryPropertyFlagBits properties,
                                               vk::DeviceSize size,
-                                              vk::DeviceMemory* memory)
+                                              vk::DeviceMemory* memory,
+                                              uint32_t* type)
 {
-  auto deviceMemoryProperties = physicalDevice.getMemoryProperties();
-
-  for (uint32_t type = 0; type < deviceMemoryProperties.memoryTypeCount; ++type)
+  *type = 0;
+  vk::Result result = vk::Result::eSuccess;
+  do
   {
-    if (utils::CheckMemoryType(requirements.memoryTypeBits,
-                               type,
-                               deviceMemoryProperties.memoryTypes,
-                               properties))
-    {
-      vk::MemoryAllocateInfo allocInfo =
-      {
-        size,
-        type
-      };
+    *type = GetMemoryType(physicalDevice.getMemoryProperties(),
+                          requirements,
+                          properties,
+                          *type);
 
-      auto result = device.allocateMemory(&allocInfo,
-                                          nullptr,
-                                          memory);
-      if (result == vk::Result::eSuccess)
-      {
-        break;
-      }
-    }
+    vk::MemoryAllocateInfo allocateInfo =
+    {
+      size + (size % requirements.alignment),
+      *type
+    };
+
+    result = device.allocateMemory(&allocateInfo,
+                                   nullptr,
+                                   memory);
   }
+  while (result != vk::Result::eSuccess);
 }
 
 lpe::render::Chunk::Chunk()
@@ -71,12 +78,14 @@ const vk::DeviceMemory& lpe::render::Chunk::Create(vk::Device device,
   assert(this->device);
   assert(this->size > 0);
 
+  uint32_t type;
   utils::AllocateDeviceMemory(device,
                               physicalDevice,
                               requirements,
                               properties,
                               this->size,
-                              &this->memory);
+                              &this->memory,
+                              &type);
 
   assert(this->memory);
 
@@ -386,4 +395,96 @@ void lpe::render::VkMemoryManagement::Free(vk::Buffer buffer)
   {
     chunk->Destroy();
   }
+}
+
+void lpe::render::VkStackAllocator::Create(vk::Device device,
+                                           vk::PhysicalDevice physicalDevice,
+                                           vk::DeviceSize size,
+                                           vk::MemoryPropertyFlagBits properties,
+                                           vk::MemoryRequirements requirements)
+{
+  assert(device);
+  assert(!memory);
+  assert(size > 0);
+
+  this->device = device;
+  this->size = size;
+  this->memory = nullptr;
+  this->properties = properties;
+  this->offset = 0;
+  this->marker = 0;
+
+  utils::AllocateDeviceMemory(device,
+                              physicalDevice,
+                              requirements,
+                              properties,
+                              this->size,
+                              &this->memory,
+                              &memoryType);
+
+  assert(memory);
+}
+
+void lpe::render::VkStackAllocator::Destroy()
+{
+  assert(memory);
+  assert(device);
+  assert(offset == 0);
+
+  device.freeMemory(memory,
+                    nullptr);
+  memory = nullptr;
+}
+
+vk::DeviceSize lpe::render::VkStackAllocator::Push(vk::PhysicalDevice physicalDevice,
+                                                   vk::Buffer& buffer,
+                                                   MarkerPosition pos)
+{
+  auto requirements = device.getBufferMemoryRequirements(buffer);
+  auto deviceProperties = physicalDevice.getMemoryProperties();
+  vk::DeviceSize begin = offset;
+
+  assert((begin + requirements.size) < size);
+
+  offset = offset + requirements.size;
+
+  int32_t type = utils::GetMemoryType(deviceProperties,
+                                      requirements,
+                                      properties);
+
+  assert(type >= 0 &&
+    ((static_cast<uint32_t>(type)) == memoryType));
+
+  device.bindBufferMemory(buffer,
+                          memory,
+                          begin);
+
+  if (pos == MarkerPosition::Before)
+  {
+    marker = begin;
+  }
+  else if (pos == MarkerPosition::After)
+  {
+    marker = offset;
+  }
+
+  return begin;
+}
+
+vk::DeviceSize lpe::render::VkStackAllocator::Pop(bool marker)
+{
+  offset = marker ? this->marker : 0;
+
+  return offset;
+}
+
+void lpe::render::VkStackAllocator::SetMarker(vk::DeviceSize offset)
+{
+  assert(offset < this->offset);
+  marker = offset;
+}
+
+void lpe::render::VkStackAllocator::RemoveMarker()
+{
+  marker = 0;
 }
