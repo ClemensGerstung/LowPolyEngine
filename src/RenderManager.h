@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ServiceBase.h"
+#include "VkMemoryManagement.h"
 
 namespace lpe
 {
@@ -16,7 +17,8 @@ namespace lpe
 
     class VulkanManager : public IRenderManager
     {
-
+      VkMemoryManagement dynamicMemory;
+      VkStackAllocator stackAllocator;
     };
   }
 }

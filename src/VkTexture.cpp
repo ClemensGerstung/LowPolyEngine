@@ -64,6 +64,8 @@ void lpe::render::VkTexture::TransitionLayout(vk::CommandBuffer buffer,
   uint32_t newQueueFamilyIndex,
   vk::ImageAspectFlags aspect)
 {
+  assert(currentAccess);
+  
   vk::ImageMemoryBarrier barrier = {
     this->currentAccess,
     newAccess,
@@ -90,6 +92,10 @@ void lpe::render::VkTexture::TransitionLayout(vk::CommandBuffer buffer,
     nullptr,
     1,
     &barrier);
+
+  currentAccess = newAccess;
+  currentLayout = newLayout;
+  currentQueueFamilyIndex = newQueueFamilyIndex;
 }
 
 lpe::render::Attachment & lpe::render::VkTexture::GetAttachment(uint32_t index,
@@ -116,3 +122,71 @@ lpe::render::Attachment & lpe::render::VkTexture::GetAttachment(uint32_t index,
 
   return this->attachment;
 }
+
+lpe::render::VkTexture & lpe::render::VkTexture::RequestedComponents(uint32_t channels)
+{
+  this->requestedComponents = channels;
+  return *this;
+}
+
+uint32_t lpe::render::VkTexture::RequestedComponents() const
+{
+  return this->requestedComponents;
+}
+
+lpe::render::VkTexture & lpe::render::VkTexture::SetFormat(vk::Format format)
+{
+  this->format = format;
+
+  return *this;
+}
+
+lpe::render::VkTexture & lpe::render::VkTexture::SetMipLevels(uint32_t levels)
+{
+  this->level = levels;
+  return *this;
+}
+
+lpe::render::VkTexture & lpe::render::VkTexture::SetLayers(uint32_t layers)
+{
+  this->layers = layers;
+  return *this;
+}
+
+lpe::render::VkTexture & lpe::render::VkTexture::SetSamples(vk::SampleCountFlagBits samples)
+{
+  this->samples = samples;
+  return *this;
+}
+
+lpe::render::VkTexture & lpe::render::VkTexture::SetTiling(vk::ImageTiling tiling)
+{
+  this->tiling = tiling;
+  return *this;
+}
+
+lpe::render::VkTexture & lpe::render::VkTexture::SetUsage(vk::ImageUsageFlags usage)
+{
+  this->usage = usage;
+  return *this;
+}
+
+lpe::render::VkTexture & lpe::render::VkTexture::SetAccess(vk::AccessFlags access)
+{
+  this->currentAccess = access;
+  return *this;
+}
+
+lpe::render::VkTexture & lpe::render::VkTexture::SetLayout(vk::ImageLayout layout)
+{
+  this->currentLayout = layout;
+  return *this;
+}
+
+lpe::render::VkTexture & lpe::render::VkTexture::SetQueueFamily(uint32_t queueFamilyIndex)
+{
+  this->currentQueueFamilyIndex = queueFamilyIndex;
+  return *this;
+}
+
+

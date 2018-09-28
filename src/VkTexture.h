@@ -34,7 +34,7 @@ namespace lpe
       VkTexture& operator=(VkTexture&& other) noexcept;
       virtual ~VkTexture() = default;
 
-      void RequestedComponents(uint32_t channels);
+      VkTexture& RequestedComponents(uint32_t channels);
       uint32_t RequestedComponents() const;
 
       VkTexture& SetFormat(vk::Format format);
@@ -43,6 +43,9 @@ namespace lpe
       VkTexture& SetSamples(vk::SampleCountFlagBits samples);
       VkTexture& SetTiling(vk::ImageTiling tiling);
       VkTexture& SetUsage(vk::ImageUsageFlags usage);
+      VkTexture& SetAccess(vk::AccessFlags access);
+      VkTexture& SetLayout(vk::ImageLayout layout);
+      VkTexture& SetQueueFamily(uint32_t queueFamilyIndex);
 
       virtual void Create(vk::Device device,
         const std::weak_ptr<Texture>& texture) = 0;
