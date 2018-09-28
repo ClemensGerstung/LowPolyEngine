@@ -1,5 +1,4 @@
 #include "../src/lpe.h"
-#include "../src/RenderPass.h"
 
 #include <stb_image.h>
 #include "../src/VkTexture.h"

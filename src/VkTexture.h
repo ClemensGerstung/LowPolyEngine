@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.hpp>
 #include "RenderObject.h"
+#include "VkAttachment.h"
 
 namespace lpe
 {
@@ -9,6 +10,7 @@ namespace lpe
     class VkTexture
     {
     protected:
+      vk::Device device;
       vk::Image image;
       vk::ImageView view;
       vk::DeviceMemory& memory;
@@ -20,6 +22,10 @@ namespace lpe
       vk::SampleCountFlagBits samples;
       vk::ImageTiling tiling;
       vk::ImageUsageFlags usage;
+      Attachment attachment;
+      vk::AccessFlags currentAccess;
+      vk::ImageLayout currentLayout;
+      uint32_t currentQueueFamilyIndex;
     public:
       VkTexture();
       VkTexture(const VkTexture& other);
@@ -31,16 +37,32 @@ namespace lpe
       void RequestedComponents(uint32_t channels);
       uint32_t RequestedComponents() const;
 
-      virtual VkTexture& SetFormat(vk::Format format);
-      virtual VkTexture& SetMipLevels(uint32_t levels);
+      VkTexture& SetFormat(vk::Format format);
+      VkTexture& SetMipLevels(uint32_t levels);
       virtual VkTexture& SetLayers(uint32_t layers);
-      virtual VkTexture& SetSamples(vk::SampleCountFlagBits samples);
-      virtual VkTexture& SetTiling(vk::ImageTiling tiling);
-      virtual VkTexture& SetUsage(vk::ImageUsageFlags usage);
+      VkTexture& SetSamples(vk::SampleCountFlagBits samples);
+      VkTexture& SetTiling(vk::ImageTiling tiling);
+      VkTexture& SetUsage(vk::ImageUsageFlags usage);
 
       virtual void Create(vk::Device device,
-                          const std::weak_ptr<Texture>& texture) = 0;
-      virtual void Destroy(vk::Device device) = 0;
+        const std::weak_ptr<Texture>& texture) = 0;
+      virtual void Destroy() = 0;
+
+      void TransitionLayout(vk::CommandBuffer buffer,
+        vk::PipelineStageFlags srcStages,
+        vk::PipelineStageFlags dstStages,
+        vk::AccessFlags newAccess,
+        vk::ImageLayout newLayout,
+        uint32_t newQueueFamilyIndex,
+        vk::ImageAspectFlags aspect);
+      Attachment& GetAttachment(uint32_t index,
+        vk::ImageLayout layout,
+        vk::AttachmentLoadOp loadOp,
+        vk::AttachmentStoreOp storeOp,
+        vk::AttachmentLoadOp stencilLoadOp,
+        vk::AttachmentStoreOp stencilStoreOp,
+        vk::ImageLayout initialLayout,
+        vk::ImageLayout finalLayout);
     };
 
     class VkTexture2D : public VkTexture
@@ -49,16 +71,15 @@ namespace lpe
 
     public:
       void Create(vk::Device device,
-                  const std::weak_ptr<Texture>& texture) override;
-
-      void Destroy(vk::Device device) override;
+        const std::weak_ptr<Texture>& texture) override;
+      void Destroy() override;
     };
 
     class VkCubeTexture : public VkTexture
     {
     public:
       void Create(vk::Device device,
-                  const std::weak_ptr<Texture>& texture) override;
+        const std::weak_ptr<Texture>& texture) override;
     };
   }
 }

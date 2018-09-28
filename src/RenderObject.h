@@ -9,6 +9,8 @@ namespace lpe
 {
   namespace render
   {
+    class VkMemoryManagement;
+
     class Texture
     {
     private:
@@ -39,6 +41,8 @@ namespace lpe
     private:
       std::weak_ptr<Texture> albedo;
       std::weak_ptr<Texture> normal;
+      std::weak_ptr<Texture> light;
+      std::weak_ptr<Texture> displacement;
 
       // +x, -x, +y, -y, +z, -z
       std::array<std::weak_ptr<Texture>, 6> environment;
@@ -50,16 +54,18 @@ namespace lpe
       Material& operator=(Material&& other) noexcept;
       ~Material();
 
-      void SetAlbedo(std::weak_ptr<Texture>&& albedo);
-      void SetAlbedo(const std::weak_ptr<Texture>& albedo);
-      void SetNormal(std::weak_ptr<Texture>&& normal);
-      void SetNormal(const std::weak_ptr<Texture>& normal);
-      void SetEnvironmentXP(std::weak_ptr<Texture>&& xp);
-      void SetEnvironmentXN(const std::weak_ptr<Texture>& xn);
-      void SetEnvironmentYP(std::weak_ptr<Texture>&& yp);
-      void SetEnvironmentYN(const std::weak_ptr<Texture>& yn);
-      void SetEnvironmentZP(std::weak_ptr<Texture>&& zp);
-      void SetEnvironmentZN(const std::weak_ptr<Texture>& zn);
+      Material& SetAlbedo(std::weak_ptr<Texture>&& albedo);
+      Material& SetAlbedo(const std::weak_ptr<Texture>& albedo);
+      Material& SetNormal(std::weak_ptr<Texture>&& normal);
+      Material& SetNormal(const std::weak_ptr<Texture>& normal);
+      Material& SetEnvironmentXP(std::weak_ptr<Texture>&& xp);
+      Material& SetEnvironmentXN(const std::weak_ptr<Texture>& xn);
+      Material& SetEnvironmentYP(std::weak_ptr<Texture>&& yp);
+      Material& SetEnvironmentYN(const std::weak_ptr<Texture>& yn);
+      Material& SetEnvironmentZP(std::weak_ptr<Texture>&& zp);
+      Material& SetEnvironmentZN(const std::weak_ptr<Texture>& zn);
+
+      void Create(const VkMemoryManagement& memory);
     };
 
     class RenderTarget

@@ -1,4 +1,4 @@
-#include "RenderPass.h"
+#include "VkRenderPass.h"
 
 lpe::render::Attachment::Attachment(const vk::ImageView& imageView,
                                     uint32_t index,

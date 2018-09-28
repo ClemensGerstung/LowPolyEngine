@@ -110,54 +110,74 @@ lpe::render::Material::~Material()
   }
 }
 
-void lpe::render::Material::SetAlbedo(std::weak_ptr<Texture>&& albedo)
+lpe::render::Material& lpe::render::Material::SetAlbedo(std::weak_ptr<Texture>&& albedo)
 {
   this->albedo = albedo;
+
+  return *this;
 }
 
-void lpe::render::Material::SetAlbedo(const std::weak_ptr<Texture>& albedo)
+lpe::render::Material& lpe::render::Material::SetAlbedo(const std::weak_ptr<Texture>& albedo)
 {
   this->albedo = albedo;
+
+  return *this;
 }
 
-void lpe::render::Material::SetNormal(std::weak_ptr<Texture>&& normal)
+lpe::render::Material& lpe::render::Material::SetNormal(std::weak_ptr<Texture>&& normal)
 {
   this->normal = normal;
+
+  return *this;
 }
 
-void lpe::render::Material::SetNormal(const std::weak_ptr<Texture>& normal)
+lpe::render::Material& lpe::render::Material::SetNormal(const std::weak_ptr<Texture>& normal)
 {
   this->normal = normal;
+
+  return *this;
 }
 
-void lpe::render::Material::SetEnvironmentXP(std::weak_ptr<Texture>&& xp)
+lpe::render::Material& lpe::render::Material::SetEnvironmentXP(std::weak_ptr<Texture>&& xp)
 {
   this->environment[0] = xp;
+
+  return *this;
 }
 
-void lpe::render::Material::SetEnvironmentXN(const std::weak_ptr<Texture>& xn)
+lpe::render::Material& lpe::render::Material::SetEnvironmentXN(const std::weak_ptr<Texture>& xn)
 {
   this->environment[1] = xn;
+
+  return *this;
 }
 
-void lpe::render::Material::SetEnvironmentYP(std::weak_ptr<Texture>&& yp)
+lpe::render::Material& lpe::render::Material::SetEnvironmentYP(std::weak_ptr<Texture>&& yp)
 {
   this->environment[2] = yp;
+
+  return *this;
 }
 
-void lpe::render::Material::SetEnvironmentYN(const std::weak_ptr<Texture>& yn)
+lpe::render::Material& lpe::render::Material::SetEnvironmentYN(const std::weak_ptr<Texture>& yn)
 {
   this->environment[3] = yn;
+
+  return *this;
 }
 
-void lpe::render::Material::SetEnvironmentZP(std::weak_ptr<Texture>&& zp)
+lpe::render::Material& lpe::render::Material::SetEnvironmentZP(std::weak_ptr<Texture>&& zp)
 {
   this->environment[4] = zp;
+
+  return *this;
 }
 
-void lpe::render::Material::SetEnvironmentZN(const std::weak_ptr<Texture>& zn)
+lpe::render::Material& lpe::render::Material::SetEnvironmentZN(const std::weak_ptr<Texture>& zn)
 {
   this->environment[5] = zn;
+
+  return *this;
 }
 
 lpe::render::RenderTarget::RenderTarget(const RenderTarget& other)
