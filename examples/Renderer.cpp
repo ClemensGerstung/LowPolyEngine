@@ -9,6 +9,9 @@
 
 int main()
 {
+  lpe::render::VulkanManager renderer = {};
+  renderer.Initialize();
+
   lpe::Initialize();
 
   auto resourceManager = lpe::ServiceLocator::ResourceManager.Get()

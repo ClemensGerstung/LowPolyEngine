@@ -15,7 +15,7 @@ namespace lpe
     {
     private:
       glm::vec4 color;
-      std::weak_ptr<utils::Resource> image;
+      std::weak_ptr<lpe::utils::Resource> image;
     public:
       Texture() = default;
       Texture(const Texture& other);
@@ -24,11 +24,11 @@ namespace lpe
       Texture& operator=(Texture&& other) noexcept;
       ~Texture();
 
-      void LoadImage(const utils::Uuid& uuid);
+      void LoadImage(const lpe::utils::Uuid& uuid);
       void LoadImage(const char* fileName);
-      void SetImage(std::weak_ptr<utils::Resource>&& image);
-      void SetImage(const std::weak_ptr<utils::Resource>& image);
-      std::weak_ptr<utils::Resource> GetImage() const;
+      void SetImage(std::weak_ptr<lpe::utils::Resource>&& image);
+      void SetImage(const std::weak_ptr<lpe::utils::Resource>& image);
+      std::weak_ptr<lpe::utils::Resource> GetImage() const;
 
       void SetColor(glm::vec4 color);
       glm::vec4 GetColor() const;
@@ -71,9 +71,9 @@ namespace lpe
     class RenderTarget
     {
     private:
-      using RenderResource = std::weak_ptr<utils::Resource>;
+      using RenderResource = std::weak_ptr<lpe::utils::Resource>;
 
-      utils::Uuid uuid;
+      lpe::utils::Uuid uuid;
       RenderResource mesh;
       std::weak_ptr<Material> material;
       RenderResource vertexShader;
@@ -116,14 +116,14 @@ namespace lpe
       glm::mat4 GetTransform(glm::mat4 p = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 }) const;
       glm::vec3 GetPosition(glm::vec3 p = { 0, 0, 0 }) const;
 
-      void SetUuid(const utils::Uuid& uuid);
-      utils::Uuid GetUuid() const;
+      void SetUuid(const lpe::utils::Uuid& uuid);
+      lpe::utils::Uuid GetUuid() const;
     };
 
     class RenderObject
     {
     private:
-      std::map<utils::Uuid, std::vector<std::weak_ptr<RenderTarget>>> parts;
+      std::map<lpe::utils::Uuid, std::vector<std::weak_ptr<RenderTarget>>> parts;
 
       glm::vec3 position;
       glm::mat4 matrix;
