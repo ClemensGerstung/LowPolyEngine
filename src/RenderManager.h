@@ -26,6 +26,16 @@ namespace lpe
       VkMemoryManagement dynamicMemory;
       VkStackAllocator stackAllocator;
 
+      std::vector<const char*> instanceExtensions;
+      std::vector<const char*> deviceExtensions;
+      std::vector<const char*> layers;
+
+      const char* applicationName;
+      uint32_t applicationVersion;
+
+      bool CheckInstanceExtensions();
+      bool CheckInstanceLayers();
+
     public:
       VulkanManager();
       
@@ -33,9 +43,13 @@ namespace lpe
       void Close() override;
       void Draw() override;
 
+      VulkanManager& SetApplicationName(const char* applicationName);
+      VulkanManager& SetApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch);
+
       VulkanManager& SetDefaultMemoryChunkSize(vk::DeviceSize defaultSize);
-      VulkanManager& AddLayer(const char* layerName);
-      VulkanManager& AddExtension(const char* extensionName);
+      VulkanManager& AddInstanceLayer(const char* layerName);
+      VulkanManager& AddInstanceExtension(const char* extensionName);
+      VulkanManager& AddDeviceExtension(const char* extensionName);
 
       lpe::utils::SimplePointer<VkMemoryManagement> GetDeviceMemory() const;
       lpe::utils::SimplePointer<VkStackAllocator> GetHostMemory() const;

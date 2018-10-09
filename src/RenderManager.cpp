@@ -1,71 +1,74 @@
+#include "ServiceLocator.h"
 #include "RenderManager.h"
 
 lpe::render::VulkanManager::VulkanManager()
   : device(nullptr),
-    defaultSize(0)
+  defaultSize(0)
 {
 }
 
 void lpe::render::VulkanManager::Initialize()
 {
+  auto logger = ServiceLocator::LogManager.Get().lock();
+  assert(logger);
+
+  if (!(VK_API_VERSION_1_1 <= vk::enumerateInstanceVersion()))
+  {
+    logger->Log("Vulkan API 1.1 not supported! Check your drivers.");
+
+    return;
+  }
+
   vk::ApplicationInfo appInfo = {
-    "tbd.",
-    0,
+    applicationName,
+    applicationVersion,
     "lpe",
     VK_MAKE_VERSION(0, 1, 0),
     VK_API_VERSION_1_1
   };
 
-  auto versions = vk::enumerateInstanceVersion();
-  auto extensions = vk::enumerateInstanceExtensionProperties();
-  auto layers = vk::enumerateInstanceLayerProperties();
+  if (!CheckInstanceExtensions())
+  {
+    logger->Log("Some required Extensions are not supported.");
 
-  std::vector<const char*> requiredExtensions = {};
-  requiredExtensions.push_back("VK_KHR_device_group_creation");
-  requiredExtensions.push_back("VK_KHR_surface");
-  requiredExtensions.push_back("VK_KHR_win32_surface");
-  //requiredExtensions.push_back("VK_EXT_debug_report");
+    return;
+  }
+
+  if (!CheckInstanceLayers())
+  {
+    logger->Log("Some required Layers are not supported.");
+
+    return;
+  }
 
   vk::InstanceCreateInfo instanceCreateInfo = {
     {},
     &appInfo,
-    0,
-    nullptr,
-    static_cast<uint32_t>(requiredExtensions.size()),
-    requiredExtensions.data()
+    static_cast<uint32_t>(layers.size()),
+    layers.data(),
+    static_cast<uint32_t>(instanceExtensions.size()),
+    instanceExtensions.data()
   };
 
-  assert(vk::createInstance(&instanceCreateInfo, nullptr, &instance) == vk::Result::eSuccess);
+  if (vk::createInstance(&instanceCreateInfo, nullptr, &instance) != vk::Result::eSuccess)
+  {
+    logger->Log("Could not create Instance. Is Vulkan even supported on your Device?");
 
-  uint32_t count;
-  vkEnumeratePhysicalDeviceGroups(instance, &count, nullptr);
-
-  std::vector<VkPhysicalDeviceGroupProperties> props = {};
-  props.resize(count);
-  vkEnumeratePhysicalDeviceGroups(instance, &count, props.data());
+    return;
+  }
 
   auto physicalDevices = instance.enumeratePhysicalDevices();
 
-  vk::DeviceCreateInfo info = {
-  
-  };
-
-  VkDeviceGroupDeviceCreateInfoKHR deviceGroupInfo = { VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO_KHR };
-  if (props.size() > 0 && 
-      props[0].physicalDeviceCount > 1) {
-    deviceGroupInfo.physicalDeviceCount = props[0].physicalDeviceCount;
-    deviceGroupInfo.pPhysicalDevices = props[0].physicalDevices;
-
-    info.pNext = &deviceGroupInfo;
-  }
+  auto ext1 = physicalDevices[0].enumerateDeviceExtensionProperties();
+  auto ext2 = physicalDevices[1].enumerateDeviceExtensionProperties();
 
   if (defaultSize == 0)
   {
     defaultSize = 128 * 1024 * 1024;  // 128 MiB
   }
 
-  dynamicMemory.Create(device, 
-                       defaultSize);
+  dynamicMemory.Create(device,
+    defaultSize);
 }
 
 void lpe::render::VulkanManager::Close()
@@ -81,12 +84,73 @@ lpe::render::VulkanManager & lpe::render::VulkanManager::SetDefaultMemoryChunkSi
   return *this;
 }
 
-lpe::render::VulkanManager & lpe::render::VulkanManager::AddLayer(const char * layerName)
+lpe::render::VulkanManager & lpe::render::VulkanManager::AddInstanceLayer(const char * layerName)
+{
+  this->layers.push_back(layerName);
+  return *this;
+}
+
+lpe::render::VulkanManager & lpe::render::VulkanManager::AddInstanceExtension(const char * extensionName)
+{
+  this->instanceExtensions.push_back(extensionName);
+  return *this;
+}
+
+lpe::render::VulkanManager & lpe::render::VulkanManager::AddDeviceExtension(const char * extensionName)
 {
   return *this;
 }
 
-lpe::render::VulkanManager & lpe::render::VulkanManager::AddExtension(const char * extensionName)
+lpe::render::VulkanManager & lpe::render::VulkanManager::SetApplicationName(const char* applicationName)
 {
+  this->applicationName = applicationName;
   return *this;
+}
+
+lpe::render::VulkanManager & lpe::render::VulkanManager::SetApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch)
+{
+  this->applicationVersion = VK_MAKE_VERSION(major, minor, patch);
+  return *this;
+}
+
+bool lpe::render::VulkanManager::CheckInstanceExtensions()
+{
+  auto extensions = vk::enumerateInstanceExtensionProperties();
+  bool result = true;
+
+  for (auto&& required : instanceExtensions)
+  {
+    auto found = std::find_if(std::begin(extensions),
+      std::end(extensions),
+      [required = required](const vk::ExtensionProperties& extension)
+    {
+      return strcmp(required,
+        extension.extensionName) == 0;
+    });
+
+    result &= (std::end(extensions) != found);
+  }
+
+  return result;
+}
+
+bool lpe::render::VulkanManager::CheckInstanceLayers()
+{
+  auto layerProperties = vk::enumerateInstanceLayerProperties();
+  bool result = true;
+
+  for (auto&& required : layers)
+  {
+    auto found = std::find_if(std::begin(layerProperties),
+      std::end(layerProperties),
+      [required = required](const vk::LayerProperties& layer)
+    {
+      return strcmp(required,
+        layer.layerName) == 0;
+    });
+
+    result &= (std::end(layerProperties) != found);
+  }
+
+  return result;
 }

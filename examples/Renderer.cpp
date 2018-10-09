@@ -10,7 +10,10 @@
 int main()
 {
   lpe::render::VulkanManager renderer = {};
-  renderer.Initialize();
+  renderer.AddInstanceExtension("VK_KHR_device_group_creation")
+          .AddInstanceExtension("VK_KHR_surface2")
+          .AddInstanceExtension("VK_KHR_win32_surface")
+          .Initialize();
 
   lpe::Initialize();
 
@@ -34,6 +37,9 @@ int main()
 
   _MK_PTR(lpe::render::RenderObject, o);
   o->AddTarget(r);
+
+  
+  
 
   return 0;
 }
