@@ -12,7 +12,7 @@ void lpe::render::VulkanManager::Initialize()
   auto logger = ServiceLocator::LogManager.Get().lock();
   assert(logger);
 
-  if (!(VK_API_VERSION_1_1 <= vk::enumerateInstanceVersion()))
+  if (VK_API_VERSION_1_1 > vk::enumerateInstanceVersion())
   {
     logger->Log("Vulkan API 1.1 not supported! Check your drivers.");
 
@@ -57,10 +57,18 @@ void lpe::render::VulkanManager::Initialize()
     return;
   }
 
-  auto physicalDevices = instance.enumeratePhysicalDevices();
+  PickPhysicalDevice();
 
-  auto ext1 = physicalDevices[0].enumerateDeviceExtensionProperties();
-  auto ext2 = physicalDevices[1].enumerateDeviceExtensionProperties();
+  vk::DeviceCreateInfo createInfo = {
+    {},
+    0,
+    nullptr,
+    0,
+    nullptr,
+    static_cast<uint32_t>(deviceExtensions.size()),
+    deviceExtensions.data(),
+
+  };
 
   if (defaultSize == 0)
   {
@@ -73,6 +81,23 @@ void lpe::render::VulkanManager::Initialize()
 
 void lpe::render::VulkanManager::Close()
 {
+    device.waitIdle();
+
+    device.destroy();
+    instance.destroy();
+
+    device = nullptr;
+    instance = nullptr;
+}
+
+void lpe::render::VulkanManager::PickPhysicalDevice() {
+  assert(instance);
+  auto physicalDevices = instance.enumeratePhysicalDevices();
+
+  for(auto&& physicalDevice : physicalDevices)
+  {
+
+  }
 }
 
 void lpe::render::VulkanManager::Draw()

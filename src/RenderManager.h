@@ -35,6 +35,7 @@ namespace lpe
 
       bool CheckInstanceExtensions();
       bool CheckInstanceLayers();
+      void PickPhysicalDevice();
 
     public:
       VulkanManager();

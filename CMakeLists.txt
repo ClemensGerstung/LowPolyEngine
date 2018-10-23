@@ -10,8 +10,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Static Library Link to make .exe copyable under Windows
-if (WIN32)
-    set(CMAKE_EXE_LINKER_FLAGS -static)
+if(WIN32)
+  set(CMAKE_EXE_LINKER_FLAGS -static)
 endif()
 
 # Only necessary under Windows
@@ -41,13 +41,11 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 #GLFW Build through CMake (Loads and links Vulkan as well)
 add_subdirectory("external/glfw" glfw_local)
 
-file(GLOB_RECURSE lpe_includes include/*)
 file(GLOB_RECURSE lpe_sources src/*)
-file(GLOB_RECURSE lpe_example_sources examples/*)
+file(GLOB lpe_example_sources examples/*)
 #Source Files Maybe use GLOB?
-set(SOURCE_FILES ${lpe_sources} ${lpe_includes})
+set(SOURCE_FILES ${lpe_sources})
 
-include_directories(include)
 include_directories(test)
 
 add_library(LowPolyEngine ${SOURCE_FILES})
@@ -55,8 +53,23 @@ add_library(LowPolyEngine ${SOURCE_FILES})
 # ${VULKAN_LIBRARY} gets definied by glfw
 target_link_libraries(LowPolyEngine glfw ${VULKAN_LIBRARY} glm stb)
 
-foreach(loop ${lpe_example_sources})
-    get_filename_component(loopFileName ${loop} NAME)
-    add_executable(LowPolyEngineExample_${loopFileName} ${loop})
-    target_link_libraries(LowPolyEngineExample_${loopFileName} LowPolyEngine)
-endforeach(loop)
+#if(NOT LPE_DISABLE_EXAMPLES)
+  foreach(folder ${lpe_example_sources})
+    if(IS_DIRECTORY ${folder})
+      get_filename_component(example_name ${folder} NAME)
+
+      file(GLOB_RECURSE example_source ${folder}/*)
+
+      add_executable(LPExample_${example_name} ${example_source})
+      target_link_libraries(LPExample_${example_name} LowPolyEngine)
+    endif()
+  endforeach(folder)
+#endif()
+
+if(NOT LPE_DISABLE_TESTS)
+  add_subdirectory("external/googletest" gtest_local)
+  file(GLOB lpe_tests tests/*)
+
+  add_executable(LPE_Test ${lpe_tests})
+  target_link_libraries(LPE_Test LowPolyEngine gtest)
+endif()
