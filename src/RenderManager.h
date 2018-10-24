@@ -11,7 +11,7 @@ namespace lpe
     class IRenderManager : public ServiceBase
     {
     public:
-      virtual ~IRenderManager() = default;
+      ~IRenderManager() override = default;
 
       virtual void Draw() = 0;
     };

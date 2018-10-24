@@ -8,7 +8,7 @@ std::weak_ptr<TService> lpe::Locator<TService>::Get() const
 
 //template <typename TService, typename TNullService>
 //template <typename>
-//void lpe::Locator<TService, TNullService>::Provide(TService* service)
+//void src::Locator<TService, TNullService>::Provide(TService* service)
 //{
 //  if (service == nullptr)
 //  {

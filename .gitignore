@@ -265,9 +265,6 @@ __pycache__/
 cmake-build-debug/
 external/
 
-*_.h
-*_.cpp
-
 #exclude visual studio project files
 *.sln
 *.vcxproj
@@ -317,3 +314,4 @@ uninstall.vcxproj.filters
 /LowPolyEngine.cbp
 /lib
 /*.filters
+/venv

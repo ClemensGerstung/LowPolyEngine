@@ -2,7 +2,7 @@
 #define TEST_MANAGER ITestManager
 #define NULL_TEST_MANAGER NullTestManager
 
-#include "../src/lpe.h"
+#include "../include/lpe/lpe.h"
 #include <iostream>
 
 class TEST_MANAGER : public lpe::ServiceBase

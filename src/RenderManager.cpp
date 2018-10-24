@@ -22,7 +22,7 @@ void lpe::render::VulkanManager::Initialize()
   vk::ApplicationInfo appInfo = {
     applicationName,
     applicationVersion,
-    "lpe",
+    "src",
     VK_MAKE_VERSION(0, 1, 0),
     VK_API_VERSION_1_1
   };
