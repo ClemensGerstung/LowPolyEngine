@@ -3,6 +3,7 @@
 #include "ServiceBase.h"
 #include "VkMemoryManagement.h"
 #include "utils.h"
+#include <GLFW/glfw3.h>
 
 namespace lpe
 {
@@ -20,6 +21,7 @@ namespace lpe
     {
     private:
       vk::Instance instance;
+      vk::SurfaceKHR surface;
       vk::PhysicalDevice physicalDevice;
       vk::Device device;
       vk::DeviceSize defaultSize;
@@ -30,6 +32,7 @@ namespace lpe
       std::vector<const char*> deviceExtensions;
       std::vector<const char*> layers;
 
+      GLFWwindow* window;
       const char* applicationName;
       uint32_t applicationVersion;
 
@@ -51,6 +54,7 @@ namespace lpe
       VulkanManager& AddInstanceLayer(const char* layerName);
       VulkanManager& AddInstanceExtension(const char* extensionName);
       VulkanManager& AddDeviceExtension(const char* extensionName);
+      VulkanManager& LinkGlfwWindow(GLFWwindow* window);
 
       lpe::utils::SimplePointer<VkMemoryManagement> GetDeviceMemory() const;
       lpe::utils::SimplePointer<VkStackAllocator> GetHostMemory() const;

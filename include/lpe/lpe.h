@@ -18,6 +18,8 @@ namespace lpe
 {
   inline void Initialize()
   {
+    assert(glfwInit() == GLFW_TRUE);
+
     utils::ResourceManager resourceManager ={};
     resourceManager.Initialize();
     ServiceLocator::ResourceManager.Provide<>(&resourceManager);

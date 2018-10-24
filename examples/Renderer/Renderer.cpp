@@ -8,10 +8,16 @@ int main()
 {
   lpe::Initialize();
 
+  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+  GLFWwindow* window = glfwCreateWindow(1920, 1080, "LPE - Example - Renderer", nullptr, nullptr);
+
   lpe::render::VulkanManager renderer = {};
   renderer.AddInstanceExtension("VK_KHR_device_group_creation")
           .AddInstanceExtension("VK_KHR_surface")
           .AddInstanceExtension("VK_KHR_win32_surface")
+          .LinkGlfwWindow(window)
           .Initialize();
 
   auto resourceManager = lpe::ServiceLocator::ResourceManager.Get()
