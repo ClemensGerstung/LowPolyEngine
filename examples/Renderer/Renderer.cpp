@@ -38,7 +38,7 @@ int main()
   assert(resourceManager);
 
   _MK_PTR(lpe::render::Texture, t);
-  t->SetImage(resourceManager->Load("textures/src.jpg"));
+  t->SetImage(resourceManager->Load("textures/lpe.jpg"));
   t->SetColor({0, 255, 0, 1});
 
   _MK_PTR(lpe::render::Material, m);
@@ -53,8 +53,6 @@ int main()
   _MK_PTR(lpe::render::RenderObject, o);
   o->AddTarget(r);
 
-  
-  
 
   return 0;
 }

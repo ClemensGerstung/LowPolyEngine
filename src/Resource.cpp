@@ -65,28 +65,23 @@ void lpe::utils::Resource::Load(const char* fileName,
                                 const std::function<void(const uint8_t*,
                                                          uint64_t)>& loaded)
 {
-  std::vector<char> loadedData;
   this->physicalName = fileName;
   std::ifstream ifs(fileName,
-                    std::ios::binary | std::ios::ate);
-  uint64_t size = ifs.gcount();
-  data.resize(size);
-  loadedData.resize(size);
+                    std::ios::binary);
 
-  ifs.seekg(0,
-            std::ios::beg);
-  ifs.read(loadedData.data(),
-           size);
-  ifs.close();
+  std::vector<char> loadedData((std::istreambuf_iterator<char>(ifs)),
+                                 std::istreambuf_iterator<char>());
 
+
+  data.reserve(loadedData.size());
   memcpy(data.data(),
          loadedData.data(),
-         sizeof(uint8_t) * size);
+         sizeof(uint8_t) * loadedData.size());
 
   if (loaded != nullptr)
   {
     loaded(data.data(),
-           size);
+           data.size());
   }
 }
 
