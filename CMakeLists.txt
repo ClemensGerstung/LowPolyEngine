@@ -19,7 +19,7 @@ if(WIN32)
 endif()
 
 # Only necessary under Windows
-include_directories("$ENV{VULKAN_SDK}/Include")
+include_directories("$ENV{VULKAN_SDK}/include")
 
 # Header only librarys (Should be precompiled)
 add_library(glm INTERFACE)

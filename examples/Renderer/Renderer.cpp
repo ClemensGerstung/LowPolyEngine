@@ -12,9 +12,7 @@ int main()
   assert(logger);
 
 
-
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+  glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
   GLFWwindow* window = glfwCreateWindow(1920, 1080, "LPE - Example - Renderer", nullptr, nullptr);
