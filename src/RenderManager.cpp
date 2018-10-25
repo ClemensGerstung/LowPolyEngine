@@ -58,7 +58,7 @@ void lpe::render::VulkanManager::Initialize() {
     return;
   }
 
-  this->surface = { surface };
+  this->surface = {surface};
 
   PickPhysicalDevice();
 
@@ -101,6 +101,38 @@ void lpe::render::VulkanManager::PickPhysicalDevice() {
 
   for (auto &&physicalDevice : physicalDevices) {
     auto queueProperties = physicalDevice.getQueueFamilyProperties();
+
+    for (uint32_t index = 0; index < queueProperties.size(); ++index)
+    {
+      auto& property = queueProperties[index];
+
+      if (property.queueCount > 0 && (property.queueFlags & vk::QueueFlagBits::eGraphics))
+      {
+        queueIndices.graphicsFamilyIndex = index;
+      }
+
+      if (property.queueCount > 0 && (property.queueFlags & vk::QueueFlagBits::eCompute))
+      {
+        queueIndices.computeFamilyIndex = index;
+      }
+
+      auto supports = physicalDevice.getSurfaceSupportKHR(index, surface);
+
+      if (property.queueCount > 0 && supports == VK_TRUE)
+      {
+        queueIndices.presentFamilyIndex = index;
+      }
+
+      if (queueIndices.graphicsFamilyIndex.has_value() &&
+          queueIndices.presentFamilyIndex.has_value() &&
+          queueIndices.computeFamilyIndex.has_value())
+      {
+        break;
+      }
+
+      index++;
+    }
+
     auto surfaceProperties = physicalDevice.getSurfaceCapabilitiesKHR(surface);
 
   }

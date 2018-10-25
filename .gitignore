@@ -315,3 +315,5 @@ uninstall.vcxproj.filters
 /lib
 /*.filters
 /venv
+/gtest_local
+/CTestTestfile.cmake

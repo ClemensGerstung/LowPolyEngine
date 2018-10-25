@@ -4,6 +4,7 @@
 #include "VkMemoryManagement.h"
 #include "utils.h"
 #include <GLFW/glfw3.h>
+#include <optional>
 
 namespace lpe
 {
@@ -35,6 +36,12 @@ namespace lpe
       GLFWwindow* window;
       const char* applicationName;
       uint32_t applicationVersion;
+
+      struct {
+        std::optional<uint32_t> graphicsFamilyIndex;
+        std::optional<uint32_t> presentFamilyIndex;
+        std::optional<uint32_t> computeFamilyIndex;
+      } queueIndices;
 
       bool CheckInstanceExtensions();
       bool CheckInstanceLayers();
