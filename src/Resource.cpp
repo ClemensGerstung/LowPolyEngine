@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <cassert>
+#include <string.h>
 
 lpe::utils::Resource::Resource(const std::shared_ptr<IResourceManager>& manager,
                                const Uuid& uuid)
@@ -68,7 +69,7 @@ void lpe::utils::Resource::Load(const char* fileName,
   this->physicalName = fileName;
   std::ifstream ifs(fileName,
                     std::ios::binary | std::ios::ate);
-  uint64_t size = ifs.tellg();
+  uint64_t size = ifs.gcount();
   data.resize(size);
   loadedData.resize(size);
 
