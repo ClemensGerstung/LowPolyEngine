@@ -62,6 +62,8 @@ void lpe::render::VulkanManager::Initialize() {
 
   PickPhysicalDevice();
 
+  assert(this->physicalDevice);
+
   vk::DeviceCreateInfo createInfo = {
     {},
     0,
@@ -101,6 +103,9 @@ void lpe::render::VulkanManager::PickPhysicalDevice() {
 
   for (auto &&physicalDevice : physicalDevices) {
     auto queueProperties = physicalDevice.getQueueFamilyProperties();
+    swapchainDetails.capabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
+    swapchainDetails.formats = physicalDevice.getSurfaceFormatsKHR(surface);
+    swapchainDetails.presentModes = physicalDevice.getSurfacePresentModesKHR(surface);
 
     for (uint32_t index = 0; index < queueProperties.size(); ++index)
     {
@@ -133,8 +138,15 @@ void lpe::render::VulkanManager::PickPhysicalDevice() {
       index++;
     }
 
-    auto surfaceProperties = physicalDevice.getSurfaceCapabilitiesKHR(surface);
-
+    if (swapchainDetails.capabilities.has_value() &&
+      swapchainDetails.formats.size() > 0 &&
+      swapchainDetails.presentModes.size() > 0 &&
+      queueIndices.graphicsFamilyIndex.has_value() &&
+      queueIndices.presentFamilyIndex.has_value())
+    {
+      this->physicalDevice = physicalDevice;
+      break;
+    }
   }
 }
 

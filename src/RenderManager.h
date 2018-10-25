@@ -5,6 +5,7 @@
 #include "utils.h"
 #include <GLFW/glfw3.h>
 #include <optional>
+#include <vulkan/vulkan.hpp>
 
 namespace lpe
 {
@@ -42,6 +43,12 @@ namespace lpe
         std::optional<uint32_t> presentFamilyIndex;
         std::optional<uint32_t> computeFamilyIndex;
       } queueIndices;
+
+      struct {
+        std::optional<vk::SurfaceCapabilitiesKHR> capabilities;
+        std::vector<vk::SurfaceFormatKHR> formats;
+        std::vector<vk::PresentModeKHR> presentModes;
+      } swapchainDetails;
 
       bool CheckInstanceExtensions();
       bool CheckInstanceLayers();
