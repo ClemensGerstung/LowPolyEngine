@@ -8,16 +8,26 @@ int main()
 {
   lpe::Initialize();
 
+  auto logger = lpe::ServiceLocator::LogManager.Get().lock();
+  assert(logger);
+
+
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
   GLFWwindow* window = glfwCreateWindow(1920, 1080, "LPE - Example - Renderer", nullptr, nullptr);
 
   lpe::render::VulkanManager renderer = {};
-  renderer.AddInstanceExtension("VK_KHR_device_group_creation")
-          .AddInstanceExtension("VK_KHR_surface")
-          .AddInstanceExtension("VK_KHR_win32_surface")
-          .LinkGlfwWindow(window)
+  renderer.AddInstanceExtension("VK_KHR_device_group_creation");
+
+  uint32_t count;
+  auto extensions = glfwGetRequiredInstanceExtensions(&count);
+  for (int i = 0; i < count; ++i) {
+    renderer.AddInstanceExtension(extensions[i]);
+    logger->Log(extensions[i]);
+  }
+
+  renderer.LinkGlfwWindow(window)
           .Initialize();
 
   auto resourceManager = lpe::ServiceLocator::ResourceManager.Get()
@@ -26,7 +36,7 @@ int main()
   assert(resourceManager);
 
   _MK_PTR(lpe::render::Texture, t);
-  t->SetImage(resourceManager->Load("textures/src.jpg"));
+  t->SetImage(resourceManager->Load("textures/lpe.jpg"));
   t->SetColor({0, 255, 0, 1});
 
   _MK_PTR(lpe::render::Material, m);
@@ -41,8 +51,6 @@ int main()
   _MK_PTR(lpe::render::RenderObject, o);
   o->AddTarget(r);
 
-  
-  
 
   return 0;
 }

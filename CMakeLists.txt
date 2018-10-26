@@ -19,7 +19,7 @@ if(WIN32)
 endif()
 
 # Only necessary under Windows
-include_directories("$ENV{VULKAN_SDK}/Include")
+include_directories("$ENV{VULKAN_SDK}/include")
 
 # Header only librarys (Should be precompiled)
 add_library(glm INTERFACE)
@@ -29,11 +29,14 @@ add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE "external/stb")
 
 # Assets
-file(GLOB_RECURSE assets/shaders assets/shaders/*.spv)
+file(GLOB_RECURSE shaders assets/shaders/*.spv)
 file(COPY ${shaders} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/shaders/)
 
-file(GLOB_RECURSE assets/models assets/models/*)
+file(GLOB_RECURSE models assets/models/*)
 file(COPY ${models} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models/)
+
+file(GLOB_RECURSE textures assets/textures/*)
+file(COPY ${textures} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/textures/)
 
 
 # Disable glfw Documentation, Tests and Examples
