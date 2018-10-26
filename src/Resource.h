@@ -33,6 +33,7 @@ namespace lpe
 
       Uuid GetUuid() const;
       uint64_t GetData(const uint8_t** data) const;
+      uint64_t GetSize() const;
     };
   }
 }

@@ -11,7 +11,6 @@ int main()
   auto logger = lpe::ServiceLocator::LogManager.Get().lock();
   assert(logger);
 
-
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
@@ -38,6 +37,9 @@ int main()
   _MK_PTR(lpe::render::Texture, t);
   t->SetImage(resourceManager->Load("textures/lpe.jpg"));
   t->SetColor({0, 255, 0, 1});
+
+  const uint8_t * data;
+  uint64_t size = t->GetImage().lock()->GetData(&data);
 
   _MK_PTR(lpe::render::Material, m);
   m->SetAlbedo(t);

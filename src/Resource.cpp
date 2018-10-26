@@ -73,7 +73,7 @@ void lpe::utils::Resource::Load(const char* fileName,
                                  std::istreambuf_iterator<char>());
 
 
-  data.reserve(loadedData.size());
+  data.resize(loadedData.size());
   memcpy(data.data(),
          loadedData.data(),
          sizeof(uint8_t) * loadedData.size());
