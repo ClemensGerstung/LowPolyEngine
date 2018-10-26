@@ -52,6 +52,11 @@ void lpe::render::VkTexture2D::Create(vk::Device device,
   }
 }
 
+void lpe::render::VkTexture2D::Destroy()
+{
+
+}
+
 void lpe::render::VkTexture::TransitionLayout(vk::CommandBuffer buffer,
                                               vk::PipelineStageFlags srcStages,
                                               vk::PipelineStageFlags dstStages,
@@ -170,6 +175,16 @@ lpe::render::VkTexture &lpe::render::VkTexture::SetLayout(vk::ImageLayout layout
 lpe::render::VkTexture &lpe::render::VkTexture::SetQueueFamily(uint32_t queueFamilyIndex) {
   this->currentQueueFamilyIndex = queueFamilyIndex;
   return *this;
+}
+
+lpe::render::VkTexture::VkTexture()
+{
+  device = nullptr;
+  image = nullptr;
+  view = nullptr;
+  memory = nullptr;
+
+  requestedComponents = STBI_rgb_alpha;
 }
 
 

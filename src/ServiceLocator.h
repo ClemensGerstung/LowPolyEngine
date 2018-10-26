@@ -5,6 +5,7 @@
 #include "ServiceBase.h"
 #include "ResourceManager.h"
 #include "LogManager.h"
+#include "RenderManager.h"
 
 #ifndef TEST_MANAGER
 #define TEST_MANAGER ITestManager
@@ -52,6 +53,7 @@ namespace lpe
 
     static Locator<utils::IResourceManager> ResourceManager;
     static Locator<utils::log::ILogManager> LogManager;
+    static Locator<render::IRenderManager> RenderManager;
   };
 
 #ifdef ENABLE_TEST_MANAGER

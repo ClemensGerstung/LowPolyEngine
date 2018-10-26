@@ -1,5 +1,7 @@
 #pragma once
 
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "../../src/ServiceLocator.h"
 #include "../../src/Uuid.h"
 #include "../../src/Event.h"

@@ -10,13 +10,13 @@ namespace lpe
     {
       inline int32_t GetMemoryType(vk::PhysicalDeviceMemoryProperties deviceProperties,
                                    vk::MemoryRequirements requirements,
-                                   vk::MemoryPropertyFlagBits properties,
+                                   vk::MemoryPropertyFlags properties,
                                    uint32_t typeOffset = 0);
 
       inline void AllocateDeviceMemory(vk::Device device,
                                        vk::PhysicalDevice physicalDevice,
                                        vk::MemoryRequirements requirements,
-                                       vk::MemoryPropertyFlagBits properties,
+                                       vk::MemoryPropertyFlags properties,
                                        vk::DeviceSize size,
                                        vk::DeviceMemory* memory,
                                        uint32_t* type);
@@ -142,7 +142,7 @@ namespace lpe
       vk::DeviceSize marker;
       vk::DeviceMemory memory;
       vk::Device device;
-      vk::MemoryPropertyFlagBits properties;
+      vk::MemoryPropertyFlags properties;
       uint32_t memoryType;
     public:
       VkStackAllocator() = default;
@@ -155,7 +155,7 @@ namespace lpe
       void Create(vk::Device device,
                   vk::PhysicalDevice physicalDevice,
                   vk::DeviceSize size,
-                  vk::MemoryPropertyFlagBits properties,
+                  vk::MemoryPropertyFlags properties,
                   vk::MemoryRequirements requirements);
       void Destroy();
 

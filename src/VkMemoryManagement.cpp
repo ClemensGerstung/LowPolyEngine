@@ -4,13 +4,13 @@
 
 int32_t lpe::render::utils::GetMemoryType(vk::PhysicalDeviceMemoryProperties deviceProperties,
                                           vk::MemoryRequirements requirements,
-                                          vk::MemoryPropertyFlagBits properties,
+                                          vk::MemoryPropertyFlags properties,
                                           uint32_t typeOffset)
 {
   for (uint32_t type = typeOffset; type < deviceProperties.memoryTypeCount; ++type)
   {
     if ((requirements.memoryTypeBits & (1 << type)) &&
-      (deviceProperties.memoryTypes[type].propertyFlags & properties) == properties)
+        (deviceProperties.memoryTypes[type].propertyFlags & properties) == properties)
     {
       return static_cast<int32_t>(type);
     }
@@ -22,10 +22,10 @@ int32_t lpe::render::utils::GetMemoryType(vk::PhysicalDeviceMemoryProperties dev
 void lpe::render::utils::AllocateDeviceMemory(vk::Device device,
                                               vk::PhysicalDevice physicalDevice,
                                               vk::MemoryRequirements requirements,
-                                              vk::MemoryPropertyFlagBits properties,
+                                              vk::MemoryPropertyFlags properties,
                                               vk::DeviceSize size,
-                                              vk::DeviceMemory* memory,
-                                              uint32_t* type)
+                                              vk::DeviceMemory *memory,
+                                              uint32_t *type)
 {
   *type = 0;
   vk::Result result = vk::Result::eSuccess;
@@ -37,16 +37,15 @@ void lpe::render::utils::AllocateDeviceMemory(vk::Device device,
                           *type);
 
     vk::MemoryAllocateInfo allocateInfo =
-    {
-      size + (size % requirements.alignment),
-      *type
-    };
+      {
+        size + (size % requirements.alignment),
+        *type
+      };
 
     result = device.allocateMemory(&allocateInfo,
                                    nullptr,
                                    memory);
-  }
-  while (result != vk::Result::eSuccess);
+  } while (result != vk::Result::eSuccess);
 }
 
 lpe::render::Chunk::Chunk()
@@ -64,7 +63,7 @@ lpe::render::Chunk::~Chunk()
   assert(!memory);
 }
 
-const vk::DeviceMemory& lpe::render::Chunk::Create(vk::Device device,
+const vk::DeviceMemory &lpe::render::Chunk::Create(vk::Device device,
                                                    vk::PhysicalDevice physicalDevice,
                                                    vk::MemoryRequirements requirements,
                                                    vk::MemoryPropertyFlagBits properties)
@@ -116,7 +115,7 @@ bool lpe::render::Chunk::HasSpaceLeft(vk::DeviceSize delta) const
 {
   bool result = false;
 
-  for (auto&& range : freed)
+  for (auto &&range : freed)
   {
     if ((range.End - range.Begin) >= delta)
     {
@@ -177,7 +176,7 @@ vk::DeviceSize lpe::render::Chunk::MoveMarker(vk::DeviceSize size)
 
   auto find = std::find_if(std::begin(freed),
                            std::end(freed),
-                           [begin = min->Begin](const Range& range)
+                           [begin = min->Begin](const Range &range)
                            {
                              return range.Begin == begin;
                            });
@@ -201,7 +200,7 @@ void lpe::render::Chunk::FreeMarker(vk::DeviceSize offset)
 {
   auto iter = std::find_if(std::begin(allocations),
                            std::end(allocations),
-                           [offset = offset](const Range& r)
+                           [offset = offset](const Range &r)
                            {
                              return r.Begin == offset;
                            });
@@ -210,14 +209,14 @@ void lpe::render::Chunk::FreeMarker(vk::DeviceSize offset)
 
   auto begin = std::find_if(std::begin(freed),
                             std::end(freed),
-                            [begin = iter->Begin](const Range& r)
+                            [begin = iter->Begin](const Range &r)
                             {
                               return begin == r.End;
                             });
 
   auto end = std::find_if(std::begin(freed),
                           std::end(freed),
-                          [end = iter->End](const Range& r)
+                          [end = iter->End](const Range &r)
                           {
                             return end == r.Begin;
                           });
@@ -239,7 +238,7 @@ void lpe::render::Chunk::FreeMarker(vk::DeviceSize offset)
   }
 
   if ((begin == std::end(freed)) &&
-    (end == std::end(freed)))
+      (end == std::end(freed)))
   {
     freed.emplace_back(iter->Begin,
                        iter->End);
@@ -253,7 +252,7 @@ void lpe::render::Chunk::FreeMarker(vk::DeviceSize offset)
   allocations.erase(iter);
 }
 
-bool lpe::render::VkMemoryManagement::Mapping::operator<(const Mapping& other) const
+bool lpe::render::VkMemoryManagement::Mapping::operator<(const Mapping &other) const
 {
   if (buffer && other.buffer)
   {
@@ -268,11 +267,11 @@ bool lpe::render::VkMemoryManagement::Mapping::operator<(const Mapping& other) c
   return false;
 }
 
-lpe::render::Chunk& lpe::render::VkMemoryManagement::GetCurrentChunk(vk::PhysicalDevice physicalDevice,
+lpe::render::Chunk &lpe::render::VkMemoryManagement::GetCurrentChunk(vk::PhysicalDevice physicalDevice,
                                                                      vk::MemoryRequirements requirements,
                                                                      vk::MemoryPropertyFlagBits properties)
 {
-  Chunk& chunk = chunks.back();
+  Chunk &chunk = chunks.back();
   if (!chunk)
   {
     if (!chunk.HasSpaceLeft(requirements.size))
@@ -304,7 +303,7 @@ lpe::render::Chunk& lpe::render::VkMemoryManagement::GetCurrentChunk(vk::Physica
   return chunk;
 }
 
-lpe::render::VkMemoryManagement::VkMemoryManagement(const VkMemoryManagement& other)
+lpe::render::VkMemoryManagement::VkMemoryManagement(const VkMemoryManagement &other)
   : defaultSize(other.defaultSize),
     device(other.device),
     chunks(other.chunks),
@@ -312,7 +311,7 @@ lpe::render::VkMemoryManagement::VkMemoryManagement(const VkMemoryManagement& ot
 {
 }
 
-lpe::render::VkMemoryManagement::VkMemoryManagement(VkMemoryManagement&& other) noexcept
+lpe::render::VkMemoryManagement::VkMemoryManagement(VkMemoryManagement &&other) noexcept
   : defaultSize(other.defaultSize),
     device(std::move(other.device)),
     chunks(std::move(other.chunks)),
@@ -320,9 +319,10 @@ lpe::render::VkMemoryManagement::VkMemoryManagement(VkMemoryManagement&& other) 
 {
 }
 
-lpe::render::VkMemoryManagement& lpe::render::VkMemoryManagement::operator=(const VkMemoryManagement& other)
+lpe::render::VkMemoryManagement &lpe::render::VkMemoryManagement::operator=(const VkMemoryManagement &other)
 {
-  if (this == &other) return *this;
+  if (this == &other)
+  { return *this; }
   defaultSize = other.defaultSize;
   device = other.device;
   chunks = other.chunks;
@@ -330,9 +330,10 @@ lpe::render::VkMemoryManagement& lpe::render::VkMemoryManagement::operator=(cons
   return *this;
 }
 
-lpe::render::VkMemoryManagement& lpe::render::VkMemoryManagement::operator=(VkMemoryManagement&& other) noexcept
+lpe::render::VkMemoryManagement &lpe::render::VkMemoryManagement::operator=(VkMemoryManagement &&other) noexcept
 {
-  if (this == &other) return *this;
+  if (this == &other)
+  { return *this; }
   defaultSize = other.defaultSize;
   device = std::move(other.device);
   chunks = std::move(other.chunks);
@@ -350,7 +351,7 @@ void lpe::render::VkMemoryManagement::Create(vk::Device device,
 }
 
 vk::DeviceSize lpe::render::VkMemoryManagement::Bind(vk::PhysicalDevice physicalDevice,
-                                                     vk::Image& image,
+                                                     vk::Image &image,
                                                      vk::MemoryPropertyFlagBits properties)
 {
   assert(device);
@@ -365,8 +366,8 @@ vk::DeviceSize lpe::render::VkMemoryManagement::Bind(vk::PhysicalDevice physical
                          chunk,
                          offset);
 
-  Mapping m = { image };
-  ChunkOffset co = { &chunk, offset };
+  Mapping m = {image};
+  ChunkOffset co = {&chunk, offset};
 
   mappings.insert(std::make_pair(m,
                                  co));
@@ -375,7 +376,7 @@ vk::DeviceSize lpe::render::VkMemoryManagement::Bind(vk::PhysicalDevice physical
 }
 
 vk::DeviceSize lpe::render::VkMemoryManagement::Bind(vk::PhysicalDevice physicalDevice,
-                                                     vk::Buffer& buffer,
+                                                     vk::Buffer &buffer,
                                                      vk::MemoryPropertyFlagBits properties)
 {
   assert(device);
@@ -391,10 +392,10 @@ vk::DeviceSize lpe::render::VkMemoryManagement::Bind(vk::PhysicalDevice physical
                           offset);
 
   // fu c++...
-  Mapping m = { nullptr };
+  Mapping m = {nullptr};
   m.buffer = buffer;
 
-  ChunkOffset co = { &chunk, offset };
+  ChunkOffset co = {&chunk, offset};
 
   mappings.insert(std::make_pair(m,
                                  co));
@@ -404,10 +405,10 @@ vk::DeviceSize lpe::render::VkMemoryManagement::Bind(vk::PhysicalDevice physical
 
 void lpe::render::VkMemoryManagement::Free(vk::Image image)
 {
-  Mapping m = { image };
+  Mapping m = {image};
   ChunkOffset chunkOffset = mappings.at(m);
 
-  Chunk* chunk = chunkOffset.chunk;
+  Chunk *chunk = chunkOffset.chunk;
   chunk->FreeMarker(chunkOffset.offset);
 
   if (chunk->GetUsage() == 0)
@@ -419,12 +420,12 @@ void lpe::render::VkMemoryManagement::Free(vk::Image image)
 void lpe::render::VkMemoryManagement::Free(vk::Buffer buffer)
 {
   // fu c++...
-  Mapping m = { nullptr };
+  Mapping m = {nullptr};
   m.buffer = buffer;
 
   ChunkOffset chunkOffset = mappings.at(m);
 
-  Chunk* chunk = chunkOffset.chunk;
+  Chunk *chunk = chunkOffset.chunk;
   chunk->FreeMarker(chunkOffset.offset);
 
   if (chunk->GetUsage() == 0)
@@ -436,7 +437,7 @@ void lpe::render::VkMemoryManagement::Free(vk::Buffer buffer)
 void lpe::render::VkStackAllocator::Create(vk::Device device,
                                            vk::PhysicalDevice physicalDevice,
                                            vk::DeviceSize size,
-                                           vk::MemoryPropertyFlagBits properties,
+                                           vk::MemoryPropertyFlags properties,
                                            vk::MemoryRequirements requirements)
 {
   assert(device);
@@ -473,14 +474,14 @@ void lpe::render::VkStackAllocator::Destroy()
 }
 
 vk::DeviceSize lpe::render::VkStackAllocator::Push(vk::PhysicalDevice physicalDevice,
-                                                   vk::Buffer& buffer,
+                                                   vk::Buffer &buffer,
                                                    MarkerPosition pos)
 {
   auto requirements = device.getBufferMemoryRequirements(buffer);
   auto deviceProperties = physicalDevice.getMemoryProperties();
   vk::DeviceSize begin = offset;
 
-  assert((begin + requirements.size) < size);
+  assert((begin + requirements.size) <= size);
 
   offset = offset + requirements.size;
 
@@ -489,7 +490,7 @@ vk::DeviceSize lpe::render::VkStackAllocator::Push(vk::PhysicalDevice physicalDe
                                       properties);
 
   assert(type >= 0 &&
-    ((static_cast<uint32_t>(type)) == memoryType));
+         ((static_cast<uint32_t>(type)) == memoryType));
 
   device.bindBufferMemory(buffer,
                           memory,
@@ -510,8 +511,8 @@ vk::DeviceSize lpe::render::VkStackAllocator::Push(vk::PhysicalDevice physicalDe
 vk::DeviceSize lpe::render::VkStackAllocator::Pop(bool marker)
 {
   offset = marker ?
-             this->marker :
-             0;
+           this->marker :
+           0;
 
   return offset;
 }

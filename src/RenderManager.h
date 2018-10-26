@@ -27,6 +27,7 @@ namespace lpe
       vk::PhysicalDevice physicalDevice;
       vk::Device device;
       vk::DeviceSize defaultSize;
+      vk::Buffer stackAllocatorBuffer;
       VkMemoryManagement dynamicMemory;
       VkStackAllocator stackAllocator;
 
@@ -74,6 +75,8 @@ namespace lpe
 
       lpe::utils::SimplePointer<VkMemoryManagement> GetDeviceMemory() const;
       lpe::utils::SimplePointer<VkStackAllocator> GetHostMemory() const;
+
+      operator vk::Device() const;
     };
   }
 }

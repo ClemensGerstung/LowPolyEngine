@@ -25,7 +25,7 @@ lpe::render::Texture::~Texture()
   image.reset();
 }
 
-void lpe::render::Texture::LoadImage(const utils::Uuid& uuid)
+void lpe::render::Texture::LoadImage(const lpe::utils::Uuid& uuid)
 {
   auto resourceManager = ServiceLocator::ResourceManager.Get()
                                                         .lock();
@@ -43,12 +43,12 @@ void lpe::render::Texture::LoadImage(const char* fileName)
   image = resourceManager->Load(fileName);
 }
 
-void lpe::render::Texture::SetImage(std::weak_ptr<utils::Resource>&& image)
+void lpe::render::Texture::SetImage(std::weak_ptr<lpe::utils::Resource>&& image)
 {
   this->image = image;
 }
 
-void lpe::render::Texture::SetImage(const std::weak_ptr<utils::Resource>& image)
+void lpe::render::Texture::SetImage(const std::weak_ptr<lpe::utils::Resource>& image)
 {
   this->image = image;
 }
@@ -334,7 +334,7 @@ glm::vec3 lpe::render::RenderTarget::GetPosition(glm::vec3 p) const
   return p + position;
 }
 
-void lpe::render::RenderTarget::SetUuid(const utils::Uuid & uuid)
+void lpe::render::RenderTarget::SetUuid(const lpe::utils::Uuid & uuid)
 {
   if(!this->uuid)
   {
@@ -391,7 +391,7 @@ void lpe::render::RenderObject::AddTarget(const std::weak_ptr<RenderTarget>& tar
 
   if(!uuid)
   {
-    uuid = utils::Uuid::GetNew();
+    uuid = lpe::utils::Uuid::GetNew();
     parts.insert(std::make_pair(uuid, std::vector<std::weak_ptr<RenderTarget>>()));
   }
 
