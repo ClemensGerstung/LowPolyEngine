@@ -34,6 +34,7 @@ namespace lpe
       std::vector<const char*> deviceExtensions;
       std::vector<const char*> layers;
 
+      vk::PhysicalDeviceFeatures requiredFeatures;
       GLFWwindow* window;
       const char* applicationName;
       uint32_t applicationVersion;
@@ -69,6 +70,7 @@ namespace lpe
       VulkanManager& AddInstanceExtension(const char* extensionName);
       VulkanManager& AddDeviceExtension(const char* extensionName);
       VulkanManager& LinkGlfwWindow(GLFWwindow* window);
+      VulkanManager& SetRequiredDeviceFeatures(const vk::PhysicalDeviceFeatures& features);
 
       lpe::utils::SimplePointer<VkMemoryManagement> GetDeviceMemory() const;
       lpe::utils::SimplePointer<VkStackAllocator> GetHostMemory() const;

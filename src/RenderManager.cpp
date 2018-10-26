@@ -1,6 +1,9 @@
 #include "ServiceLocator.h"
 #include "RenderManager.h"
 
+#include <set>
+#include <map>
+
 lpe::render::VulkanManager::VulkanManager()
   : device(nullptr),
     defaultSize(0) {
@@ -58,22 +61,44 @@ void lpe::render::VulkanManager::Initialize() {
     return;
   }
 
-  this->surface = {surface};
+  this->surface = surface;
 
   PickPhysicalDevice();
 
   assert(this->physicalDevice);
 
+  std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos = {};
+  std::map<uint32_t, uint32_t> queueCounts = {};
+  float prio = 1.0;
+
+  for (auto index : { queueIndices.computeFamilyIndex, queueIndices.presentFamilyIndex,  queueIndices.graphicsFamilyIndex })
+  {
+    queueCounts[index.value()]++;
+  }
+
+  queueCreateInfos.reserve(queueCounts.size());
+  for(auto&& pair : queueCounts)
+  {
+    queueCreateInfos.emplace_back(vk::DeviceQueueCreateFlagBits(), pair.first, pair.second, &prio);
+  }
+
   vk::DeviceCreateInfo createInfo = {
     {},
-    0,
-    nullptr,
+    static_cast<uint32_t >(queueCreateInfos.size()),
+    queueCreateInfos.data(),
     0,
     nullptr,
     static_cast<uint32_t>(deviceExtensions.size()),
     deviceExtensions.data(),
-
+    &requiredFeatures
   };
+
+  if(physicalDevice.createDevice(&createInfo, nullptr, &this->device) != vk::Result::eSuccess)
+  {
+    logger->Log("Could not create Device. Is Vulkan fully supported on your Device? (also check validation layers!)");
+
+    return;
+  }
 
   if (defaultSize == 0) {
     defaultSize = 128 * 1024 * 1024;  // 128 MiB
@@ -102,10 +127,12 @@ void lpe::render::VulkanManager::PickPhysicalDevice() {
   auto physicalDevices = instance.enumeratePhysicalDevices();
 
   for (auto &&physicalDevice : physicalDevices) {
+    auto extensions = physicalDevice.enumerateDeviceExtensionProperties();
     auto queueProperties = physicalDevice.getQueueFamilyProperties();
     swapchainDetails.capabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
     swapchainDetails.formats = physicalDevice.getSurfaceFormatsKHR(surface);
     swapchainDetails.presentModes = physicalDevice.getSurfacePresentModesKHR(surface);
+    std::vector<const char*> requiredExtensions = { deviceExtensions };
 
     for (uint32_t index = 0; index < queueProperties.size(); ++index)
     {
@@ -138,11 +165,27 @@ void lpe::render::VulkanManager::PickPhysicalDevice() {
       index++;
     }
 
+    for (auto &&extension : extensions)
+    {
+      auto iter = std::find_if(std::begin(requiredExtensions),
+                               std::end(requiredExtensions),
+                               [required = extension.extensionName](const char *extensionName)
+                               {
+                                 return strcmp(required, extensionName) == 0;
+                               });
+
+      if (iter != std::end(requiredExtensions))
+      {
+        requiredExtensions.erase(iter);
+      }
+    }
+
     if (swapchainDetails.capabilities.has_value() &&
-      swapchainDetails.formats.size() > 0 &&
-      swapchainDetails.presentModes.size() > 0 &&
-      queueIndices.graphicsFamilyIndex.has_value() &&
-      queueIndices.presentFamilyIndex.has_value())
+        !swapchainDetails.formats.empty() &&
+        !swapchainDetails.presentModes.empty() &&
+        queueIndices.graphicsFamilyIndex.has_value() &&
+        queueIndices.presentFamilyIndex.has_value() &&
+        requiredExtensions.empty())
     {
       this->physicalDevice = physicalDevice;
       break;
@@ -221,3 +264,11 @@ lpe::render::VulkanManager &lpe::render::VulkanManager::LinkGlfwWindow(GLFWwindo
   this->window = window;
   return *this;
 }
+
+lpe::render::VulkanManager &lpe::render::VulkanManager::SetRequiredDeviceFeatures(const vk::PhysicalDeviceFeatures &features)
+{
+  this->requiredFeatures = features;
+  return *this;
+}
+
+
