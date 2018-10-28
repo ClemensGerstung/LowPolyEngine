@@ -263,7 +263,7 @@ __pycache__/
 #internal x64 folder
 #cmake
 /cmake-build-debug
-/external
+/external/*
 
 #exclude visual studio project files
 *.sln

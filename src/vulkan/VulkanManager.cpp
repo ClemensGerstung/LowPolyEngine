@@ -1,4 +1,5 @@
 #include <set>
+#include <sstream>
 #include "../ServiceLocator.h"
 #include "VulkanManager.hpp"
 
@@ -11,7 +12,7 @@ void lpe::rendering::vulkan::VulkanManager::Initialize()
   this->logger = lpe::ServiceLocator::LogManager.Get().lock();
   assert(logger);
 
-  CreateInstance();
+  assert(CreateInstance());
 
   assert(base.instance);
 
@@ -22,26 +23,30 @@ void lpe::rendering::vulkan::VulkanManager::Initialize()
     return;
   }
 
-  PickPhysicalDevice();
+  assert(PickPhysicalDevice());
 
   assert(base.physicalDevice);
 
-  CreateDeviceAndGetQueues();
+  assert(CreateDeviceAndGetQueues());
 
   assert(device.device);
   assert(device.graphicsQueue);
   assert(device.presentQueue);
 
+  assert(CreateSwapchain(vk::PresentModeKHR::eImmediate,
+                         vk::Format::eR8G8B8A8Unorm,
+                         vk::ColorSpaceKHR::eSrgbNonlinear));
 
+  assert(swapchain.swapchain);
 }
 
-void lpe::rendering::vulkan::VulkanManager::CreateInstance()
+bool lpe::rendering::vulkan::VulkanManager::CreateInstance()
 {
   if (VK_API_VERSION_1_1 > vk::enumerateInstanceVersion())
   {
     logger->Log("Vulkan API 1.1 not supported! Check your drivers.");
 
-    return;
+    return false;
   }
 
   vk::ApplicationInfo appInfo = {
@@ -56,14 +61,14 @@ void lpe::rendering::vulkan::VulkanManager::CreateInstance()
   {
     logger->Log("Some required Extensions are not supported.");
 
-    return;
+    return false;
   }
 
   if (!CheckInstanceLayers())
   {
     logger->Log("Some required Layers are not supported.");
 
-    return;
+    return false;
   }
 
   vk::InstanceCreateInfo instanceCreateInfo = {
@@ -79,8 +84,10 @@ void lpe::rendering::vulkan::VulkanManager::CreateInstance()
   {
     logger->Log("Could not create Instance. Is Vulkan even supported on your Device?");
 
-    return;
+    return false;
   }
+
+  return true;
 }
 
 bool lpe::rendering::vulkan::VulkanManager::CheckInstanceExtensions()
@@ -129,21 +136,39 @@ void lpe::rendering::vulkan::VulkanManager::Close()
 {
   device.device.waitIdle();
 
-
+  device.device.destroySwapchainKHR(swapchain.swapchain);
   device.device.destroy();
   vkDestroySurfaceKHR(base.instance, base.surface, nullptr);
   base.instance.destroy();
 
+  swapchain = nullptr;
   device = nullptr;
   base = nullptr;
 }
 
-void lpe::rendering::vulkan::VulkanManager::PickPhysicalDevice()
+bool lpe::rendering::vulkan::VulkanManager::PickPhysicalDevice()
 {
   auto physicalDevices = base.instance.enumeratePhysicalDevices();
 
   for (auto &&physicalDevice : physicalDevices)
   {
+    auto properties = physicalDevice.getProperties();
+    std::stringstream string;
+    string << "GPU: " << properties.deviceID << std::endl
+           << "VendorID: " << properties.vendorID << std::endl
+           << "DeviceID: " << properties.deviceID << std::endl
+           << "DeviceType: " << vk::to_string(properties.deviceType) << std::endl
+           << "API-Version: " << VK_VERSION_MAJOR(properties.apiVersion) << "."
+                              << VK_VERSION_MINOR(properties.apiVersion) << "."
+                              << VK_VERSION_PATCH(properties.apiVersion) << std::endl
+           << "DeviceName: " << properties.deviceName  << std::endl
+           << "Driver-Version" << VK_VERSION_MAJOR(properties.driverVersion) << "."
+                               << VK_VERSION_MINOR(properties.driverVersion) << "."
+                               << VK_VERSION_PATCH(properties.driverVersion) << std::endl;
+
+    logger->Log(string.str());
+
+
     auto queueProperties = physicalDevice.getQueueFamilyProperties();
     auto extensions = physicalDevice.enumerateDeviceExtensionProperties();
     std::vector<const char *> requiredExtensions = {deviceExtensions};
@@ -206,9 +231,18 @@ void lpe::rendering::vulkan::VulkanManager::PickPhysicalDevice()
       break;
     }
   }
+
+  if(!base.physicalDevice)
+  {
+    logger->Log("No matching physical device found");
+
+    return false;
+  }
+
+  return true;
 }
 
-void lpe::rendering::vulkan::VulkanManager::CreateDeviceAndGetQueues()
+bool lpe::rendering::vulkan::VulkanManager::CreateDeviceAndGetQueues()
 {
 
   std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos = {};
@@ -244,7 +278,7 @@ void lpe::rendering::vulkan::VulkanManager::CreateDeviceAndGetQueues()
   {
     logger->Log("Could not create Device. Is Vulkan fully supported on your Device? (also check validation layers!)");
 
-    return;
+    return false;
   }
 
   if (queueIndices.graphicsQueueIndex)
@@ -269,6 +303,130 @@ void lpe::rendering::vulkan::VulkanManager::CreateDeviceAndGetQueues()
     device.computeQueue = device.device.getQueue(index, 0);
     device.computeQueue.queueFamilyIndex = index;
   }
+
+  return true;
+}
+
+bool lpe::rendering::vulkan::VulkanManager::CreateSwapchain(vk::PresentModeKHR preferredMode,
+                                                            vk::Format preferredFormat,
+                                                            vk::ColorSpaceKHR preferredColorSpace)
+{
+  vk::SwapchainKHR old = swapchain.swapchain;
+  auto presentModes = base.physicalDevice.getSurfacePresentModesKHR(base.surface);
+  auto formats = base.physicalDevice.getSurfaceFormatsKHR(base.surface);
+  swapchain.capabilities = base.physicalDevice.getSurfaceCapabilitiesKHR(base.surface);
+
+  auto iter = std::find_if(std::begin(presentModes),
+                           std::end(presentModes),
+                           [preferred = preferredMode](const vk::PresentModeKHR &mode)
+                           {
+                             return preferred == mode;
+                           });
+
+  swapchain.presentMode = (iter != std::end(presentModes)) ? preferredMode : vk::PresentModeKHR::eFifo;
+
+  uint32_t imageCount = swapchain.capabilities.minImageCount + 1;
+  if (swapchain.capabilities.maxImageCount > 0 && imageCount > swapchain.capabilities.maxImageCount)
+  {
+    imageCount = swapchain.capabilities.maxImageCount;
+  }
+
+  // if formats only contains one element which is VK_FORMAT_UNDEFINED we can choose whatever we want
+  if (formats.size() == 1 && formats[0].format == vk::Format::eUndefined)
+  {
+    swapchain.format = {
+      preferredFormat,
+      preferredColorSpace
+    };
+  }
+  else
+  {
+    // simply use first format in list
+    // if preferred format wasn't found at least we have a default format which we can use!
+    // TODO: check if formats > 0?
+    swapchain.format = formats[0];
+
+    for (auto &&format : formats)
+    {
+      if (format.format == preferredFormat && format.colorSpace == preferredColorSpace)
+      {
+        swapchain.format = format;
+        break;
+      }
+    }
+  }
+
+  int width, height;
+  glfwGetWindowSize(window, &width, &height);
+
+  if (swapchain.capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+  {
+    swapchain.extent = swapchain.capabilities.currentExtent;
+  }
+  else
+  {
+    swapchain.extent = vk::Extent2D {
+      static_cast<uint32_t >(width),
+      static_cast<uint32_t >(height)
+    };
+
+    swapchain.extent.width = std::max(swapchain.capabilities.minImageExtent.width,
+                                      std::max(swapchain.capabilities.maxImageExtent.width,
+                                               swapchain.extent.width));
+    swapchain.extent.height = std::max(swapchain.capabilities.minImageExtent.height,
+                                       std::max(swapchain.capabilities.maxImageExtent.height,
+                                                swapchain.extent.height));
+  }
+
+  vk::SwapchainCreateInfoKHR createInfo = {
+    {},
+    base.surface,
+    imageCount,
+    swapchain.format.format,
+    swapchain.format.colorSpace,
+    swapchain.extent,
+    1,
+    vk::ImageUsageFlagBits::eColorAttachment,
+    vk::SharingMode::eExclusive,
+    0,
+    nullptr,
+    swapchain.capabilities.currentTransform,
+    vk::CompositeAlphaFlagBitsKHR::eOpaque,
+    swapchain.presentMode,
+    VK_TRUE,
+    old
+  };
+
+  if(device.presentQueue.queueFamilyIndex != device.graphicsQueue.queueFamilyIndex)
+  {
+    std::array<uint32_t, 2> queueFamilies = {
+      device.presentQueue.queueFamilyIndex,
+      device.graphicsQueue.queueFamilyIndex
+    };
+    createInfo.setImageSharingMode(vk::SharingMode::eConcurrent)
+              .setQueueFamilyIndexCount(static_cast<uint32_t >(queueFamilies.size()))
+              .setPQueueFamilyIndices(queueFamilies.data());
+  }
+
+  auto result = device.device.createSwapchainKHR(&createInfo, nullptr, &swapchain.swapchain);
+  if(result != vk::Result::eSuccess)
+  {
+    logger->Log("Could not create swapchain.");
+
+    return false;
+  }
+
+  if(old)
+  {
+    device.device.destroySwapchainKHR(old, nullptr);
+  }
+
+  return true;
+}
+
+void lpe::rendering::vulkan::VulkanManager::Draw()
+{
+
 }
 
 lpe::rendering::vulkan::VulkanQueue &lpe::rendering::vulkan::VulkanQueue::operator=(std::nullptr_t)
@@ -318,5 +476,13 @@ bool lpe::rendering::vulkan::VulkanQueue::operator!() const
 lpe::rendering::vulkan::VulkanQueue &lpe::rendering::vulkan::VulkanQueue::operator=(vk::Queue queue)
 {
   this->queue = queue;
+  return *this;
+}
+
+lpe::rendering::vulkan::VulkanSwapchain& lpe::rendering::vulkan::VulkanSwapchain::operator=(std::nullptr_t)
+{
+  swapchain = nullptr;
+  images.clear();
+
   return *this;
 }

@@ -17,6 +17,9 @@ int main()
 //  GLFWwindow *window = glfwCreateWindow(1920, 1080, "LPE - Example - Renderer", nullptr, nullptr);
 
   lpe::rendering::vulkan::VulkanManager renderer = {};
+  renderer.Initialize();
+
+
 //  renderer.AddInstanceExtension("VK_KHR_device_group_creation");
 //
 //  uint32_t count;
