@@ -3,13 +3,14 @@
 #include "ServiceBase.h"
 #include "VkMemoryManagement.h"
 #include "utils.h"
+#include "RenderObject.h"
 #include <GLFW/glfw3.h>
 #include <optional>
 #include <vulkan/vulkan.hpp>
 
 namespace lpe
 {
-  namespace render
+  namespace rendering
   {
     class IRenderManager : public ServiceBase
     {
@@ -17,9 +18,11 @@ namespace lpe
       ~IRenderManager() override = default;
 
       virtual void Draw() = 0;
+
+      virtual void AddRenderObject(std::weak_ptr<lpe::rendering::RenderObject> renderObject);
     };
 
-    class VulkanManager : public IRenderManager
+    /*class VulkanManager : public IRenderManager
     {
     private:
       vk::Instance instance;
@@ -73,10 +76,7 @@ namespace lpe
       VulkanManager& LinkGlfwWindow(GLFWwindow* window);
       VulkanManager& SetRequiredDeviceFeatures(const vk::PhysicalDeviceFeatures& features);
 
-      lpe::utils::SimplePointer<VkMemoryManagement> GetDeviceMemory() const;
-      lpe::utils::SimplePointer<VkStackAllocator> GetHostMemory() const;
-
       operator vk::Device() const;
-    };
+    };*/
   }
 }

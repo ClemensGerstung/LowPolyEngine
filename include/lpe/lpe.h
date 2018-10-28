@@ -15,6 +15,7 @@
 #include "../../src/VkMemoryManagement.h"
 #include "../../src/VkRenderPass.h"
 #include "../../src/VkTexture.h"
+#include "../../src/vulkan/VulkanManager.hpp"
 
 namespace lpe
 {

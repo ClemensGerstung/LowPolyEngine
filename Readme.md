@@ -1,7 +1,7 @@
 ﻿# LowPolyEngine
 
-Simple render engine written in C++ and Vulkan as graphics API.  
-Will be optimized to render low poly games like this:  
+Simple rendering engine written in C++ and Vulkan as graphics API.
+Will be optimized to rendering low poly games like this:
 https://twitter.com/HumpaLumpa007/status/683763245493137408
 
 Always feel free to complete the feature lists!
@@ -10,7 +10,7 @@ See [my thoughts](somethoughts.md) about this engine (might be outdated).
 
 ## Wanted Main Features
 
-### 1. Simple API to create a window and add items to render
+### 1. Simple API to create a window and add items to rendering
 
 You can create a ```lpe::Window``` and add some ```lpe::RenderObjects``` to it.  
 These Objects can have several instances which are rendered separately (see [instancing](https://en.wikipedia.org/wiki/Geometry_instancing)).
@@ -67,7 +67,7 @@ int main()
             }
           }
         
-          window.Render();  // render...
+          window.Render();  // rendering...
         }
     }
     catch (std::runtime_error e)

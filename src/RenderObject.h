@@ -7,7 +7,7 @@
 
 namespace lpe
 {
-  namespace render
+  namespace rendering
   {
     class VkMemoryManagement;
 

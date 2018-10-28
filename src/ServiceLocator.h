@@ -53,7 +53,7 @@ namespace lpe
 
     static Locator<utils::IResourceManager> ResourceManager;
     static Locator<utils::log::ILogManager> LogManager;
-    static Locator<render::IRenderManager> RenderManager;
+    static Locator<rendering::IRenderManager> RenderManager;
   };
 
 #ifdef ENABLE_TEST_MANAGER

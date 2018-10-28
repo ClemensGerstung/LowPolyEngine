@@ -5,7 +5,7 @@
 
 namespace lpe
 {
-  namespace render
+  namespace rendering
   {
     struct SubpassParameters
     {

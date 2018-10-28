@@ -6,7 +6,7 @@
 
 namespace lpe
 {
-  namespace render
+  namespace rendering
   {
     class VkTexture
     {

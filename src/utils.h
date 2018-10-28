@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 namespace lpe
 {
   namespace utils
@@ -13,5 +15,6 @@ namespace lpe
 
     template<typename TType>
     using SimplePointer = std::unique_ptr<TType, Deleter<TType>>;
+
   }
 }

@@ -4,7 +4,7 @@
 
 namespace lpe
 {
-  namespace render
+  namespace rendering
   {
     struct Attachment
     {

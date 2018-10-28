@@ -2,7 +2,7 @@ In this file I'll describe my thoughts about this engine, what it's supposed to 
 
 ## Wanted features
 
-### Simple API to create a window and add items to render
+### Simple API to create a window and add items to rendering
 
 As a client of this lib I want a simple interface to create a Window (which will be a ```GLFWwindow``` internally).  
 To show the window just call the ```Render()``` function in a loop while the Window is open.
@@ -13,7 +13,7 @@ lpe::Window window = { "Hello Vulkan lpe", 800, 600, false };
 
 while(window.IsOpen())
 {
-    // add things to render path...
+    // add things to rendering path...
     
     window.Render();
 }
@@ -21,7 +21,7 @@ while(window.IsOpen())
 
 This is also the current status quo.
 
-To add items to render there should be a method like ```AddRender{Object}(...)``` or ```Draw{Object}(...)``` *(I'm not sure about that)*.  
+To add items to rendering there should be a method like ```AddRender{Object}(...)``` or ```Draw{Object}(...)``` *(I'm not sure about that)*.
 These Methods should have some overloads *(not overlords)*.
 
 #### 2D Methods
@@ -40,8 +40,8 @@ Other option is ```lpe::DrawType::Fill```.
 
 #### 3D Methods
 
-* ```AddRenderObject({"../assets/objects/tree.obj", "../assets/textures/tree.jpg"})```: This will render a 3D object on the screen. It'll create a new C++ object of type ```RenderObject```. It'll also be rendered in the center of the screen because (0|0|0) is in the center. Also keep in mind that Vulkan coorination system is from *-1* to *1*. So your model should be normaliyed to this size.
-* ```AddRenderVertices({ {0.5, 0.5, 0.5}, {0.75, 0.5, 0.5}, {0.75, 0.75, 0.5}, {0.5, 0.75, 0.5} }, true)```: This works like the 2D version but every vertex needs a Y-position. Keep also in mind that the position goes frm *-1* to *1*. This method need to triangulate the vertices to get the render indices to push it properly to the graphics card
+* ```AddRenderObject({"../assets/objects/tree.obj", "../assets/textures/tree.jpg"})```: This will rendering a 3D object on the screen. It'll create a new C++ object of type ```RenderObject```. It'll also be rendered in the center of the screen because (0|0|0) is in the center. Also keep in mind that Vulkan coorination system is from *-1* to *1*. So your model should be normaliyed to this size.
+* ```AddRenderVertices({ {0.5, 0.5, 0.5}, {0.75, 0.5, 0.5}, {0.75, 0.75, 0.5}, {0.5, 0.75, 0.5} }, true)```: This works like the 2D version but every vertex needs a Y-position. Keep also in mind that the position goes frm *-1* to *1*. This method need to triangulate the vertices to get the rendering indices to push it properly to the graphics card
 
 2D and 3D methods can be combined.
 
@@ -83,7 +83,7 @@ In this section I want to describe and discuss some technical features of the
 
 This might be a bit tricky because first I have to pick every GPU with vulkan support and not only the first one which is suitable.  
 
-The "easiest" way would be to create for each physical device a logical device and a swapchain. Build for each device the render chain and 
+The "easiest" way would be to create for each physical device a logical device and a swapchain. Build for each device the rendering chain and
 in ```DrawFrame``` cramp all swapchains into the ```vk::PresentInfoKHR``` (or ```VkPresentInfoKHR```).
 
 If this (or another way which I maybe find in the future) would work it would not really matter which GPUs (different vendors, different generations) you put into your computer i'll just work.

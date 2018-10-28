@@ -1,7 +1,8 @@
 #include "VkTexture.h"
+#include "ServiceLocator.h"
 #include <stb_image.h>
 
-void lpe::render::VkTexture2D::Create(vk::Device device,
+void lpe::rendering::VkTexture2D::Create(vk::Device device,
                                       const std::weak_ptr<Texture> &texture) {
   auto ptr = texture.lock();
   assert(ptr);
@@ -46,18 +47,21 @@ void lpe::render::VkTexture2D::Create(vk::Device device,
     assert(result == vk::Result::eSuccess);
 
 
+
+
+
     stbi_image_free(stbImage);
   } else {
 
   }
 }
 
-void lpe::render::VkTexture2D::Destroy()
+void lpe::rendering::VkTexture2D::Destroy()
 {
 
 }
 
-void lpe::render::VkTexture::TransitionLayout(vk::CommandBuffer buffer,
+void lpe::rendering::VkTexture::TransitionLayout(vk::CommandBuffer buffer,
                                               vk::PipelineStageFlags srcStages,
                                               vk::PipelineStageFlags dstStages,
                                               vk::AccessFlags newAccess,
@@ -98,7 +102,7 @@ void lpe::render::VkTexture::TransitionLayout(vk::CommandBuffer buffer,
   currentQueueFamilyIndex = newQueueFamilyIndex;
 }
 
-lpe::render::Attachment &lpe::render::VkTexture::GetAttachment(uint32_t index,
+lpe::rendering::Attachment &lpe::rendering::VkTexture::GetAttachment(uint32_t index,
                                                                vk::ImageLayout layout,
                                                                vk::AttachmentLoadOp loadOp,
                                                                vk::AttachmentStoreOp storeOp,
@@ -122,62 +126,62 @@ lpe::render::Attachment &lpe::render::VkTexture::GetAttachment(uint32_t index,
   return this->attachment;
 }
 
-lpe::render::VkTexture &lpe::render::VkTexture::RequestedComponents(uint32_t channels) {
+lpe::rendering::VkTexture &lpe::rendering::VkTexture::RequestedComponents(uint32_t channels) {
   this->requestedComponents = channels;
   return *this;
 }
 
-uint32_t lpe::render::VkTexture::RequestedComponents() const {
+uint32_t lpe::rendering::VkTexture::RequestedComponents() const {
   return this->requestedComponents;
 }
 
-lpe::render::VkTexture &lpe::render::VkTexture::SetFormat(vk::Format format) {
+lpe::rendering::VkTexture &lpe::rendering::VkTexture::SetFormat(vk::Format format) {
   this->format = format;
 
   return *this;
 }
 
-lpe::render::VkTexture &lpe::render::VkTexture::SetMipLevels(uint32_t levels) {
+lpe::rendering::VkTexture &lpe::rendering::VkTexture::SetMipLevels(uint32_t levels) {
   this->level = levels;
   return *this;
 }
 
-lpe::render::VkTexture &lpe::render::VkTexture::SetLayers(uint32_t layers) {
+lpe::rendering::VkTexture &lpe::rendering::VkTexture::SetLayers(uint32_t layers) {
   this->layers = layers;
   return *this;
 }
 
-lpe::render::VkTexture &lpe::render::VkTexture::SetSamples(vk::SampleCountFlagBits samples) {
+lpe::rendering::VkTexture &lpe::rendering::VkTexture::SetSamples(vk::SampleCountFlagBits samples) {
   this->samples = samples;
   return *this;
 }
 
-lpe::render::VkTexture &lpe::render::VkTexture::SetTiling(vk::ImageTiling tiling) {
+lpe::rendering::VkTexture &lpe::rendering::VkTexture::SetTiling(vk::ImageTiling tiling) {
   this->tiling = tiling;
   return *this;
 }
 
-lpe::render::VkTexture &lpe::render::VkTexture::SetUsage(vk::ImageUsageFlags usage) {
+lpe::rendering::VkTexture &lpe::rendering::VkTexture::SetUsage(vk::ImageUsageFlags usage) {
   this->usage = usage;
   return *this;
 }
 
-lpe::render::VkTexture &lpe::render::VkTexture::SetAccess(vk::AccessFlags access) {
+lpe::rendering::VkTexture &lpe::rendering::VkTexture::SetAccess(vk::AccessFlags access) {
   this->currentAccess = access;
   return *this;
 }
 
-lpe::render::VkTexture &lpe::render::VkTexture::SetLayout(vk::ImageLayout layout) {
+lpe::rendering::VkTexture &lpe::rendering::VkTexture::SetLayout(vk::ImageLayout layout) {
   this->currentLayout = layout;
   return *this;
 }
 
-lpe::render::VkTexture &lpe::render::VkTexture::SetQueueFamily(uint32_t queueFamilyIndex) {
+lpe::rendering::VkTexture &lpe::rendering::VkTexture::SetQueueFamily(uint32_t queueFamilyIndex) {
   this->currentQueueFamilyIndex = queueFamilyIndex;
   return *this;
 }
 
-lpe::render::VkTexture::VkTexture()
+lpe::rendering::VkTexture::VkTexture()
 {
   device = nullptr;
   image = nullptr;

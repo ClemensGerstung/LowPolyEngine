@@ -1,16 +1,17 @@
 #include "ServiceLocator.h"
 #include "RenderManager.h"
+#include "utils.h"
 
 #include <set>
 #include <map>
-
-lpe::render::VulkanManager::VulkanManager()
+/*
+lpe::rendering::VulkanManager::VulkanManager()
   : device(nullptr),
     defaultSize(0)
 {
 }
 
-void lpe::render::VulkanManager::Initialize()
+void lpe::rendering::VulkanManager::Initialize()
 {
   auto logger = ServiceLocator::LogManager.Get().lock();
   assert(logger);
@@ -134,7 +135,7 @@ void lpe::render::VulkanManager::Initialize()
   stackAllocator.Push(physicalDevice, stackAllocatorBuffer);
 }
 
-void lpe::render::VulkanManager::Close()
+void lpe::rendering::VulkanManager::Close()
 {
   device.waitIdle();
 
@@ -149,7 +150,7 @@ void lpe::render::VulkanManager::Close()
   instance = nullptr;
 }
 
-void lpe::render::VulkanManager::PickPhysicalDevice()
+void lpe::rendering::VulkanManager::PickPhysicalDevice()
 {
   assert(instance);
   auto physicalDevices = instance.enumeratePhysicalDevices();
@@ -222,45 +223,45 @@ void lpe::render::VulkanManager::PickPhysicalDevice()
   }
 }
 
-void lpe::render::VulkanManager::Draw()
+void lpe::rendering::VulkanManager::Draw()
 {
 }
 
-lpe::render::VulkanManager &lpe::render::VulkanManager::SetDefaultMemoryChunkSize(vk::DeviceSize defaultSize)
+lpe::rendering::VulkanManager &lpe::rendering::VulkanManager::SetDefaultMemoryChunkSize(vk::DeviceSize defaultSize)
 {
   return *this;
 }
 
-lpe::render::VulkanManager &lpe::render::VulkanManager::AddInstanceLayer(const char *layerName)
+lpe::rendering::VulkanManager &lpe::rendering::VulkanManager::AddInstanceLayer(const char *layerName)
 {
   this->layers.push_back(layerName);
   return *this;
 }
 
-lpe::render::VulkanManager &lpe::render::VulkanManager::AddInstanceExtension(const char *extensionName)
+lpe::rendering::VulkanManager &lpe::rendering::VulkanManager::AddInstanceExtension(const char *extensionName)
 {
   this->instanceExtensions.push_back(extensionName);
   return *this;
 }
 
-lpe::render::VulkanManager &lpe::render::VulkanManager::AddDeviceExtension(const char *extensionName)
+lpe::rendering::VulkanManager &lpe::rendering::VulkanManager::AddDeviceExtension(const char *extensionName)
 {
   return *this;
 }
 
-lpe::render::VulkanManager &lpe::render::VulkanManager::SetApplicationName(const char *applicationName)
+lpe::rendering::VulkanManager &lpe::rendering::VulkanManager::SetApplicationName(const char *applicationName)
 {
   this->applicationName = applicationName;
   return *this;
 }
 
-lpe::render::VulkanManager &lpe::render::VulkanManager::SetApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch)
+lpe::rendering::VulkanManager &lpe::rendering::VulkanManager::SetApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch)
 {
   this->applicationVersion = VK_MAKE_VERSION(major, minor, patch);
   return *this;
 }
 
-bool lpe::render::VulkanManager::CheckInstanceExtensions()
+bool lpe::rendering::VulkanManager::CheckInstanceExtensions()
 {
   auto extensions = vk::enumerateInstanceExtensionProperties();
   bool result = true;
@@ -281,7 +282,7 @@ bool lpe::render::VulkanManager::CheckInstanceExtensions()
   return result;
 }
 
-bool lpe::render::VulkanManager::CheckInstanceLayers()
+bool lpe::rendering::VulkanManager::CheckInstanceLayers()
 {
   auto layerProperties = vk::enumerateInstanceLayerProperties();
   bool result = true;
@@ -302,21 +303,22 @@ bool lpe::render::VulkanManager::CheckInstanceLayers()
   return result;
 }
 
-lpe::render::VulkanManager &lpe::render::VulkanManager::LinkGlfwWindow(GLFWwindow *window)
+lpe::rendering::VulkanManager &lpe::rendering::VulkanManager::LinkGlfwWindow(GLFWwindow *window)
 {
   this->window = window;
   return *this;
 }
 
-lpe::render::VulkanManager &lpe::render::VulkanManager::SetRequiredDeviceFeatures(const vk::PhysicalDeviceFeatures &features)
+lpe::rendering::VulkanManager &lpe::rendering::VulkanManager::SetRequiredDeviceFeatures(const vk::PhysicalDeviceFeatures &features)
 {
   this->requiredFeatures = features;
   return *this;
 }
 
-lpe::render::VulkanManager::operator vk::Device() const
+lpe::rendering::VulkanManager::operator vk::Device() const
 {
   return this->device;
 }
 
 
+*/
