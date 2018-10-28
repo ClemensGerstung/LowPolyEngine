@@ -262,53 +262,14 @@ __pycache__/
 
 #internal x64 folder
 #cmake
-cmake-build-debug/
-external/
+/cmake-build-debug
+/external
 
 #exclude visual studio project files
 *.sln
 *.vcxproj
 *.vcxproj.filter
-ALL_BUILD.vcxproj.filters
-CMakeCache.txt
-CMakeCCompiler.cmake
-CMakeCXXCompiler.cmake
-CMakeDetermineCompilerABI_C.bin
-CMakeDetermineCompilerABI_CXX.bin
-CMakeRCCompiler.cmake
-CMakeSystem.cmake
-CMakeCCompilerId.c
-CompilerIdC.exe
-CMakeCXXCompilerId.cpp
-CompilerIdCXX.exe
-VCTargetsPath.txt
-INSTALL_force.rule
-generate.stamp.rule
-TargetDirectories.txt
-cmake.check_cache
-uninstall.rule
-feature_tests.bin
-feature_tests.cxx
-generate.stamp
-generate.stamp.depend
-generate.stamp.list
-INSTALL.vcxproj.filters
-LowPolyEngine.vcxproj.filters
-LowPolyEngineTest.vcxproj.filters
-ZERO_CHECK.vcxproj.filters
-cmake_install.cmake
-glfw3Targets-debug.cmake
-glfw3Targets-minsizerel.cmake
-glfw3Targets-release.cmake
-glfw3Targets-relwithdebinfo.cmake
-glfw3Targets.cmake
-cmake_uninstall.cmake
-glfw.vcxproj.filters
-glfw3.pc
-glfw3Config.cmake
-glfw3ConfigVersion.cmake
-glfw_config.h
-uninstall.vcxproj.filters
+*.cmake
 /glfw_local
 /Makefile
 /LowPolyEngine.cbp
@@ -316,4 +277,3 @@ uninstall.vcxproj.filters
 /*.filters
 /venv
 /gtest_local
-/CTestTestfile.cmake
