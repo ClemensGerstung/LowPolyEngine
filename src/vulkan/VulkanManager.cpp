@@ -38,6 +38,8 @@ void lpe::rendering::vulkan::VulkanManager::Initialize()
                          vk::ColorSpaceKHR::eSrgbNonlinear));
 
   assert(swapchain.swapchain);
+
+
 }
 
 bool lpe::rendering::vulkan::VulkanManager::CreateInstance()
@@ -416,6 +418,8 @@ bool lpe::rendering::vulkan::VulkanManager::CreateSwapchain(vk::PresentModeKHR p
     return false;
   }
 
+  swapchain.images.resize(imageCount);
+
   if(old)
   {
     device.device.destroySwapchainKHR(old, nullptr);
@@ -477,6 +481,11 @@ lpe::rendering::vulkan::VulkanQueue &lpe::rendering::vulkan::VulkanQueue::operat
 {
   this->queue = queue;
   return *this;
+}
+
+lpe::rendering::vulkan::VulkanQueue::operator bool() const
+{
+  return queue;
 }
 
 lpe::rendering::vulkan::VulkanSwapchain& lpe::rendering::vulkan::VulkanSwapchain::operator=(std::nullptr_t)

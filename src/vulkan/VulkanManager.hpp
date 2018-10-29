@@ -16,6 +16,8 @@ namespace rendering
 namespace vulkan
 {
 
+class VulkanImage;
+
 struct VulkanBase
 {
   vk::Instance instance;
@@ -36,6 +38,7 @@ struct VulkanQueue
   explicit operator vk::Queue() const;
 
   bool operator!() const;
+  operator bool() const;
 };
 
 struct VulkanDevice
@@ -46,12 +49,6 @@ struct VulkanDevice
   VulkanQueue computeQueue;
 
   VulkanDevice &operator=(std::nullptr_t);
-};
-
-struct VulkanImage
-{
-  vk::Image image;
-  vk::ImageView imageView;
 };
 
 struct VulkanSwapchain
