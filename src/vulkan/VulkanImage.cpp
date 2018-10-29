@@ -50,35 +50,25 @@ bool lpe::rendering::vulkan::VulkanImage::Create(std::shared_ptr<lpe::rendering:
   this->logger = lpe::ServiceLocator::LogManager.Get();
   this->manager = manager;
   this->image = image;
-  vk::ImageViewCreateInfo createInfo = {
-    {},
-    image,
-    this->viewType,
-    this->format,
-    {
-      vk::ComponentSwizzle::eIdentity,
-      vk::ComponentSwizzle::eIdentity,
-      vk::ComponentSwizzle::eIdentity
-    },
-    {
-      this->aspectFlags,
-      this->baseMipLevel,
-      this->mipLevels,
-      this->baseLayer,
-      this->layers
-    }
-  };
 
   // maybe use this->manager instead?
   auto device = manager->GetDevice();
-  auto result = device.createImageView(&createInfo, nullptr, &this->imageView);
 
-  if(result != vk::Result::eSuccess)
+  if (lpe::rendering::vulkan::common::CreateImageView(device,
+                                                      image,
+                                                      this->imageView,
+                                                      this->viewType,
+                                                      this->format,
+                                                      this->aspectFlags,
+                                                      this->baseMipLevel,
+                                                      this->mipLevels,
+                                                      this->baseLayer,
+                                                      this->layers))
   {
     auto logPtr = logger.lock();
     if(logPtr)
     {
-      logPtr->Log("Could not create ImageView. Check validation layers! Result: " + vk::to_string(result));
+      logPtr->Log("Could not create ImageView. Check validation layers!");
     }
 
     return false;
@@ -90,9 +80,9 @@ bool lpe::rendering::vulkan::VulkanImage::Create(std::shared_ptr<lpe::rendering:
 lpe::rendering::vulkan::VulkanImage::VulkanImage()
 {
   this->format = vk::Format::eUndefined;
-  this->mipLevels = 1;
+  this->mipLevels = VK_REMAINING_MIP_LEVELS;
   this->baseMipLevel = 0;
-  this->layers = 1;
+  this->layers = VK_REMAINING_ARRAY_LAYERS;
   this->baseLayer = 0;
   this->samples = vk::SampleCountFlagBits::e1;
   this->tiling = vk::ImageTiling::eOptimal;
@@ -130,4 +120,44 @@ lpe::rendering::vulkan::VulkanImage& lpe::rendering::vulkan::VulkanImage::SetAsp
 {
   VulkanImage::aspectFlags = aspectFlags;
   return *this;
+}
+
+bool lpe::rendering::vulkan::common::CreateImageView(vk::Device device,
+                                                     vk::Image image,
+                                                     vk::ImageView& view,
+                                                     vk::ImageViewType viewType,
+                                                     vk::Format format,
+                                                     vk::ImageAspectFlags aspectFlags,
+                                                     uint32_t baseMipLevel,
+                                                     uint32_t mipLevels,
+                                                     uint32_t baseArrayLayer,
+                                                     uint32_t arrayLayers,
+                                                     vk::ComponentSwizzle r,
+                                                     vk::ComponentSwizzle g,
+                                                     vk::ComponentSwizzle b,
+                                                     vk::ComponentSwizzle a)
+{
+  vk::ImageViewCreateInfo createInfo = {
+    {},
+    image,
+    viewType,
+    format,
+    {
+      r,
+      g,
+      b,
+      a
+    },
+    {
+      aspectFlags,
+      baseMipLevel,
+      mipLevels,
+      baseArrayLayer,
+      arrayLayers
+    }
+  };
+
+  auto result = device.createImageView(&createInfo, nullptr, &view);
+
+  return result == vk::Result::eSuccess;
 }

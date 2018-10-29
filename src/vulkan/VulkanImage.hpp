@@ -3,6 +3,7 @@
 
 #include <vulkan/vulkan.hpp>
 #include "../LogManager.h"
+#include "../Resource.h"
 
 namespace lpe
 {
@@ -10,6 +11,23 @@ namespace rendering
 {
 namespace vulkan
 {
+namespace common
+{
+bool CreateImageView(vk::Device device,
+                     vk::Image image,
+                     vk::ImageView &view,
+                     vk::ImageViewType viewType,
+                     vk::Format format,
+                     vk::ImageAspectFlags aspectFlags,
+                     uint32_t baseMipLevel = 0,
+                     uint32_t mipLevels = VK_REMAINING_MIP_LEVELS,
+                     uint32_t baseArrayLayer = 0,
+                     uint32_t arrayLayers = VK_REMAINING_ARRAY_LAYERS,
+                     vk::ComponentSwizzle r = vk::ComponentSwizzle::eR,
+                     vk::ComponentSwizzle g = vk::ComponentSwizzle::eG,
+                     vk::ComponentSwizzle b = vk::ComponentSwizzle::eB,
+                     vk::ComponentSwizzle a = vk::ComponentSwizzle::eA);
+}
 
 class VulkanManager;
 
@@ -47,6 +65,9 @@ public:
    */
   bool Create(std::shared_ptr<VulkanManager>&& manager,
               vk::Image image);
+
+  bool Create(std::shared_ptr<VulkanManager>&& manager,
+              std::weak_ptr<lpe::utils::Resource> resource);
 
   VulkanImage& SetFormat(vk::Format format);
 
