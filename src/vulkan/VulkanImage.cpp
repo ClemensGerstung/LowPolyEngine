@@ -52,7 +52,7 @@ bool lpe::rendering::vulkan::VulkanImage::Create(std::shared_ptr<lpe::rendering:
   this->image = image;
 
   // maybe use this->manager instead?
-  auto device = manager->GetDevice();
+  this->device = manager->GetDevice();
 
   if (lpe::rendering::vulkan::common::CreateImageView(device,
                                                       image,
@@ -120,6 +120,26 @@ lpe::rendering::vulkan::VulkanImage& lpe::rendering::vulkan::VulkanImage::SetAsp
 {
   VulkanImage::aspectFlags = aspectFlags;
   return *this;
+}
+
+void lpe::rendering::vulkan::VulkanImage::Destroy()
+{
+  //auto renderer = manager.lock();
+
+  if(imageView)
+  {
+    device.destroyImageView(imageView);
+    imageView = nullptr;
+  }
+
+  if(image)
+  {
+    device.destroyImage(image);
+    image = nullptr;
+  }
+
+  device = nullptr;
+  manager.reset();
 }
 
 bool lpe::rendering::vulkan::common::CreateImageView(vk::Device device,

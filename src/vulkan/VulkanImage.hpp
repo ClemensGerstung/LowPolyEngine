@@ -37,6 +37,7 @@ private:
   std::weak_ptr<VulkanManager> manager;
   std::weak_ptr<lpe::utils::log::ILogManager> logger;
 
+  vk::Device device;  // hold actual VkDevice handle in case manager ptr gets lost
   vk::Image image;
   vk::ImageView imageView;
   vk::Format format;
@@ -68,6 +69,8 @@ public:
 
   bool Create(std::shared_ptr<VulkanManager>&& manager,
               std::weak_ptr<lpe::utils::Resource> resource);
+
+  void Destroy();
 
   VulkanImage& SetFormat(vk::Format format);
 

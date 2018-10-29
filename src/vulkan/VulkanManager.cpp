@@ -1,5 +1,6 @@
 #include <set>
 #include <sstream>
+#include <string>
 #include "../ServiceLocator.h"
 #include "VulkanBase.hpp"
 #include "VulkanManager.hpp"
@@ -40,7 +41,16 @@ void lpe::rendering::vulkan::VulkanManager::Initialize()
 
   assert(swapchain.swapchain);
 
+  auto swapchainImages = device.device.getSwapchainImagesKHR(swapchain.swapchain);
 
+  assert(swapchainImages.size() == swapchain.images.size());
+
+  for(unsigned i = 0; i < swapchainImages.size(); ++i)
+  {
+    auto& image = swapchain.images[i];
+    image.Create(std::shared_ptr<VulkanManager>(this),
+                 swapchainImages[i]);
+  }
 }
 
 bool lpe::rendering::vulkan::VulkanManager::CreateInstance()
@@ -90,6 +100,21 @@ bool lpe::rendering::vulkan::VulkanManager::CreateInstance()
     return false;
   }
 
+  // TODO: Check if validation is enabled!
+  VkDebugReportCallbackCreateInfoEXT debugReportCreateInfo = {};
+  debugReportCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+  debugReportCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
+  debugReportCreateInfo.pfnCallback = DebugCallback;
+
+  common::CreateCallbackEXT<VkDebugReportCallbackCreateInfoEXT,
+    VkDebugReportCallbackEXT,
+    PFN_vkCreateDebugReportCallbackEXT>(base.instance,
+                                        &debugReportCreateInfo,
+                                        nullptr,
+                                        &debugReportCallback,
+                                        "vkCreateDebugReportCallbackEXT");
+
+
   return true;
 }
 
@@ -138,6 +163,13 @@ bool lpe::rendering::vulkan::VulkanManager::CheckInstanceLayers()
 void lpe::rendering::vulkan::VulkanManager::Close()
 {
   device.device.waitIdle();
+
+  std::for_each(std::begin(swapchain.images),
+                std::end(swapchain.images),
+                [device = device.device](VulkanImage& image)
+                {
+                  image.Destroy();
+                });
 
   device.device.destroySwapchainKHR(swapchain.swapchain);
   device.device.destroy();
@@ -315,6 +347,16 @@ bool lpe::rendering::vulkan::VulkanManager::CreateSwapchain(vk::PresentModeKHR p
                                                             vk::ColorSpaceKHR preferredColorSpace)
 {
   vk::SwapchainKHR old = swapchain.swapchain;
+  if(old)
+  {
+    std::for_each(std::begin(swapchain.images),
+                  std::end(swapchain.images),
+                  [device = device.device](VulkanImage& image)
+                  {
+                    image.Destroy();
+                  });
+  }
+
   auto presentModes = base.physicalDevice.getSurfacePresentModesKHR(base.surface);
   auto formats = base.physicalDevice.getSurfaceFormatsKHR(base.surface);
   swapchain.capabilities = base.physicalDevice.getSurfaceCapabilitiesKHR(base.surface);
@@ -432,6 +474,68 @@ bool lpe::rendering::vulkan::VulkanManager::CreateSwapchain(vk::PresentModeKHR p
 void lpe::rendering::vulkan::VulkanManager::Draw()
 {
 
+}
+
+vk::Device lpe::rendering::vulkan::VulkanManager::GetDevice() const
+{
+  return device.device;
+}
+
+lpe::rendering::vulkan::VulkanManager& lpe::rendering::vulkan::VulkanManager::LinkGlfwWindow(GLFWwindow *window)
+{
+  VulkanManager::window = window;
+  return *this;
+}
+
+lpe::rendering::vulkan::VulkanManager& lpe::rendering::vulkan::VulkanManager::SetApplicationName(const char *applicationName)
+{
+  strcpy(this->applicationName,
+         applicationName);
+  return *this;
+}
+
+lpe::rendering::vulkan::VulkanManager& lpe::rendering::vulkan::VulkanManager::SetApplicationVersion(uint16_t major, uint16_t minor, uint16_t patch)
+{
+  this->applicationVersion = VK_MAKE_VERSION(major, minor, patch);
+  return *this;
+}
+
+lpe::rendering::vulkan::VulkanManager& lpe::rendering::vulkan::VulkanManager::AddInstanceLayer(const char *layerName)
+{
+  this->layers.emplace_back(layerName);
+  return *this;
+}
+
+lpe::rendering::vulkan::VulkanManager& lpe::rendering::vulkan::VulkanManager::AddInstanceExtension(const char *extensionName)
+{
+  this->instanceExtensions.emplace_back(extensionName);
+  return *this;
+}
+
+lpe::rendering::vulkan::VulkanManager& lpe::rendering::vulkan::VulkanManager::AddDeviceExtension(const char *extensionName)
+{
+  this->deviceExtensions.emplace_back(extensionName);
+  return *this;
+}
+
+VkBool32 lpe::rendering::vulkan::VulkanManager::DebugCallback(VkDebugReportFlagsEXT flags,
+                                                              VkDebugReportObjectTypeEXT objType,
+                                                              uint64_t obj,
+                                                              size_t location,
+                                                              int32_t code,
+                                                              const char *layerPrefix,
+                                                              const char *msg,
+                                                              void *userData)
+{
+  auto ptr = lpe::ServiceLocator::LogManager.Get()
+                                            .lock();
+  if (ptr)
+  {
+    // TODO: Check even more data
+    ptr->Log(msg);
+  }
+
+  return VK_FALSE;
 }
 
 lpe::rendering::vulkan::VulkanManager::QueueIndices::operator bool() const

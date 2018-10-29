@@ -21,8 +21,10 @@ private:
   VulkanDevice device;
   VulkanSwapchain swapchain;
 
+  VkDebugReportCallbackEXT debugReportCallback;
+
   GLFWwindow *window;
-  const char *applicationName;
+  char *applicationName;
   uint32_t applicationVersion;
 
   std::vector<const char *> instanceExtensions;
@@ -39,6 +41,16 @@ private:
 
     explicit operator bool() const;
   } queueIndices;
+
+  VKAPI_ATTR static VkBool32 VKAPI_CALL DebugCallback(VkDebugReportFlagsEXT flags,
+                                                      VkDebugReportObjectTypeEXT objType,
+                                                      uint64_t obj,
+                                                      size_t location,
+                                                      int32_t code,
+                                                      const char* layerPrefix,
+                                                      const char* msg,
+                                                      void* userData);
+
 
   bool CheckInstanceExtensions();
 
