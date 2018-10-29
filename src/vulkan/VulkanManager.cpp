@@ -35,7 +35,7 @@ void lpe::rendering::vulkan::VulkanManager::Initialize()
   assert(device.graphicsQueue);
   assert(device.presentQueue);
 
-  assert(CreateSwapchain(vk::PresentModeKHR::eImmediate,
+  assert(CreateSwapchain(vk::PresentModeKHR::eFifo,
                          vk::Format::eR8G8B8A8Unorm,
                          vk::ColorSpaceKHR::eSrgbNonlinear));
 
@@ -453,6 +453,7 @@ bool lpe::rendering::vulkan::VulkanManager::CreateSwapchain(vk::PresentModeKHR p
               .setPQueueFamilyIndices(queueFamilies.data());
   }
 
+  // segfaulting, no idea why
   auto result = device.device.createSwapchainKHR(&createInfo, nullptr, &swapchain.swapchain);
   if(result != vk::Result::eSuccess)
   {
