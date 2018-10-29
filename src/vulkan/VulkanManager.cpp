@@ -1,6 +1,7 @@
 #include <set>
 #include <sstream>
 #include "../ServiceLocator.h"
+#include "VulkanBase.hpp"
 #include "VulkanManager.hpp"
 
 void lpe::rendering::vulkan::VulkanManager::Initialize()
@@ -433,14 +434,6 @@ void lpe::rendering::vulkan::VulkanManager::Draw()
 
 }
 
-lpe::rendering::vulkan::VulkanQueue &lpe::rendering::vulkan::VulkanQueue::operator=(std::nullptr_t)
-{
-  queue = nullptr;
-  queueFamilyIndex = 0;
-
-  return *this;
-}
-
 lpe::rendering::vulkan::VulkanManager::QueueIndices::operator bool() const
 {
   // compute queue is not explicitly required by now
@@ -448,50 +441,3 @@ lpe::rendering::vulkan::VulkanManager::QueueIndices::operator bool() const
          presentQueueIndex.has_value();
 }
 
-lpe::rendering::vulkan::VulkanBase &lpe::rendering::vulkan::VulkanBase::operator=(std::nullptr_t)
-{
-  instance = nullptr;
-  physicalDevice = nullptr;
-  surface = nullptr;
-
-  return *this;
-}
-
-lpe::rendering::vulkan::VulkanDevice &lpe::rendering::vulkan::VulkanDevice::operator=(std::nullptr_t)
-{
-  device = nullptr;
-  graphicsQueue = nullptr;
-  presentQueue = nullptr;
-  computeQueue = nullptr;
-
-  return *this;
-}
-
-lpe::rendering::vulkan::VulkanQueue::operator vk::Queue() const
-{
-  return queue;
-}
-
-bool lpe::rendering::vulkan::VulkanQueue::operator!() const
-{
-  return !queue;
-}
-
-lpe::rendering::vulkan::VulkanQueue &lpe::rendering::vulkan::VulkanQueue::operator=(vk::Queue queue)
-{
-  this->queue = queue;
-  return *this;
-}
-
-lpe::rendering::vulkan::VulkanQueue::operator bool() const
-{
-  return queue;
-}
-
-lpe::rendering::vulkan::VulkanSwapchain& lpe::rendering::vulkan::VulkanSwapchain::operator=(std::nullptr_t)
-{
-  swapchain = nullptr;
-  images.clear();
-
-  return *this;
-}
