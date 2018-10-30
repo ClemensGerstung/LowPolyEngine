@@ -1,6 +1,7 @@
 #include <set>
 #include <sstream>
 #include <string>
+#include "../utils.h"
 #include "../ServiceLocator.h"
 #include "VulkanBase.hpp"
 #include "VulkanManager.hpp"
@@ -48,7 +49,10 @@ void lpe::rendering::vulkan::VulkanManager::Initialize()
   for(unsigned i = 0; i < swapchainImages.size(); ++i)
   {
     auto& image = swapchain.images[i];
-    image.Create(std::shared_ptr<VulkanManager>(this),
+    image.SetFormat(swapchain.format
+                             .format)
+         .SetViewType(vk::ImageViewType::e2D)
+         .Create(lpe::utils::SimplePointer<VulkanManager>(this),
                  swapchainImages[i]);
   }
 }
@@ -197,7 +201,7 @@ bool lpe::rendering::vulkan::VulkanManager::PickPhysicalDevice()
                               << VK_VERSION_MINOR(properties.apiVersion) << "."
                               << VK_VERSION_PATCH(properties.apiVersion) << std::endl
            << "DeviceName: " << properties.deviceName  << std::endl
-           << "Driver-Version" << VK_VERSION_MAJOR(properties.driverVersion) << "."
+           << "Driver-Version: " << VK_VERSION_MAJOR(properties.driverVersion) << "."
                                << VK_VERSION_MINOR(properties.driverVersion) << "."
                                << VK_VERSION_PATCH(properties.driverVersion) << std::endl;
 

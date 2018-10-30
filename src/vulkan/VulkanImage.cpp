@@ -54,19 +54,19 @@ bool lpe::rendering::vulkan::VulkanImage::Create(std::shared_ptr<lpe::rendering:
   // maybe use this->manager instead?
   this->device = manager->GetDevice();
 
-  if (lpe::rendering::vulkan::common::CreateImageView(device,
-                                                      image,
-                                                      this->imageView,
-                                                      this->viewType,
-                                                      this->format,
-                                                      this->aspectFlags,
-                                                      this->baseMipLevel,
-                                                      this->mipLevels,
-                                                      this->baseLayer,
-                                                      this->layers))
+  if (!lpe::rendering::vulkan::common::CreateImageView(device,
+                                                       image,
+                                                       this->imageView,
+                                                       this->viewType,
+                                                       this->format,
+                                                       this->aspectFlags,
+                                                       this->baseMipLevel,
+                                                       this->mipLevels,
+                                                       this->baseLayer,
+                                                       this->layers))
   {
     auto logPtr = logger.lock();
-    if(logPtr)
+    if (logPtr)
     {
       logPtr->Log("Could not create ImageView. Check validation layers!");
     }
