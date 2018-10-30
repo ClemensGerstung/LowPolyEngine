@@ -27,6 +27,8 @@ int main()
   }
 
   renderer.LinkGlfwWindow(window)
+          .AddInstanceLayer("VK_LAYER_LUNARG_core_validation")
+          .AddDeviceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
           .Initialize();
 //
 //  lpe::ServiceLocator::RenderManager.Provide(&renderer);

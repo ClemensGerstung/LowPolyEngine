@@ -106,13 +106,13 @@ bool lpe::rendering::vulkan::VulkanManager::CreateInstance()
   debugReportCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT;
   debugReportCreateInfo.pfnCallback = DebugCallback;
 
-  common::CreateCallbackEXT<VkDebugReportCallbackCreateInfoEXT,
-    VkDebugReportCallbackEXT,
-    PFN_vkCreateDebugReportCallbackEXT>(base.instance,
-                                        &debugReportCreateInfo,
-                                        nullptr,
-                                        &debugReportCallback,
-                                        "vkCreateDebugReportCallbackEXT");
+//  common::CreateCallbackEXT<VkDebugReportCallbackCreateInfoEXT,
+//    VkDebugReportCallbackEXT,
+//    PFN_vkCreateDebugReportCallbackEXT>(base.instance,
+//                                        &debugReportCreateInfo,
+//                                        nullptr,
+//                                        &debugReportCallback,
+//                                        "vkCreateDebugReportCallbackEXT");
 
 
   return true;
@@ -442,18 +442,18 @@ bool lpe::rendering::vulkan::VulkanManager::CreateSwapchain(vk::PresentModeKHR p
     old
   };
 
+  std::array<uint32_t, 2> queueFamilies = {
+    device.presentQueue.queueFamilyIndex,
+    device.graphicsQueue.queueFamilyIndex
+  };
+
   if(device.presentQueue.queueFamilyIndex != device.graphicsQueue.queueFamilyIndex)
   {
-    std::array<uint32_t, 2> queueFamilies = {
-      device.presentQueue.queueFamilyIndex,
-      device.graphicsQueue.queueFamilyIndex
-    };
     createInfo.setImageSharingMode(vk::SharingMode::eConcurrent)
               .setQueueFamilyIndexCount(static_cast<uint32_t >(queueFamilies.size()))
               .setPQueueFamilyIndices(queueFamilies.data());
   }
 
-  // segfaulting, no idea why
   auto result = device.device.createSwapchainKHR(&createInfo, nullptr, &swapchain.swapchain);
   if(result != vk::Result::eSuccess)
   {
