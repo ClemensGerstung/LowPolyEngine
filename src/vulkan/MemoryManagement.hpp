@@ -1,8 +1,6 @@
 #ifndef LOWPOLYENGINE_MEMORYMANAGEMENT_HPP
 #define LOWPOLYENGINE_MEMORYMANAGEMENT_HPP
 
-#include "VulkanManager.hpp"
-
 #include <vulkan/vulkan.hpp>
 
 namespace lpe
@@ -41,6 +39,8 @@ bool CreateBufferAllocateAndBindMemory(vk::Device device,
                                        const uint32_t *queueFamilies = nullptr,
                                        uint32_t queueFamilyCount = 0);
 }
+
+class VulkanManager;
 
 enum class MarkerPosition
 {
@@ -82,6 +82,8 @@ public:
 
   void SetMarker(vk::DeviceSize offset);
   void RemoveMarker();
+
+  bool Fits(vk::DeviceSize size) const;
 };
 
 

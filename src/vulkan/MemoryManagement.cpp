@@ -1,4 +1,5 @@
 #include "MemoryManagement.hpp"
+#include "VulkanManager.hpp"
 #include "../ServiceLocator.h"
 
 vk::Buffer lpe::rendering::vulkan::common::CreateBuffer(vk::Device device, vk::DeviceSize size, vk::BufferUsageFlags usage, const uint32_t *queueFamilies, uint32_t queueFamilyCount)
@@ -246,6 +247,11 @@ void lpe::rendering::vulkan::StackAllocator::SetMarker(vk::DeviceSize offset)
 void lpe::rendering::vulkan::StackAllocator::RemoveMarker()
 {
   this->marker = 0;
+}
+
+bool lpe::rendering::vulkan::StackAllocator::Fits(vk::DeviceSize size) const
+{
+  return offset + size <= this->size;
 }
 
 

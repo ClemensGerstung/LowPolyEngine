@@ -119,6 +119,8 @@ bool lpe::rendering::vulkan::VulkanManager::CreateInstance()
 //                                        "vkCreateDebugReportCallbackEXT");
 
 
+  localAllocator.Create(lpe::utils::SimplePointer<VulkanManager>(this), 128 * 1024 * 1024); // StackAllocator with 128 MiB
+
   return true;
 }
 
@@ -546,6 +548,11 @@ VkBool32 lpe::rendering::vulkan::VulkanManager::DebugCallback(VkDebugReportFlags
 vk::PhysicalDevice lpe::rendering::vulkan::VulkanManager::GetPhysicalDevice() const
 {
   return base.physicalDevice;
+}
+
+lpe::rendering::vulkan::StackAllocator& lpe::rendering::vulkan::VulkanManager::GetDeviceLocalMemory()
+{
+  return this->localAllocator;
 }
 
 lpe::rendering::vulkan::VulkanManager::QueueIndices::operator bool() const

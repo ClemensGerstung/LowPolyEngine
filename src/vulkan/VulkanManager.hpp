@@ -4,6 +4,7 @@
 #include "../RenderManager.h"
 #include "../LogManager.h"
 #include "VulkanBase.hpp"
+#include "MemoryManagement.hpp"
 
 #define LPE_API_VERSION VK_MAKE_VERSION(0, 1, 0)
 
@@ -20,6 +21,8 @@ private:
   VulkanBase base;
   VulkanDevice device;
   VulkanSwapchain swapchain;
+
+  StackAllocator localAllocator;
 
   VkDebugReportCallbackEXT debugReportCallback;
 
@@ -86,6 +89,7 @@ public:
   vk::Device GetDevice() const;
   vk::PhysicalDevice GetPhysicalDevice() const;
   vk::SwapchainKHR GetSwapchain() const;
+  StackAllocator& GetDeviceLocalMemory();
 };
 
 } // vulkan

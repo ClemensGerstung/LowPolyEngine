@@ -91,7 +91,7 @@ lpe::rendering::vulkan::VulkanImage::VulkanImage()
   this->type = vk::ImageType::e2D;
   this->viewType = vk::ImageViewType::e2D;
   this->aspectFlags = vk::ImageAspectFlagBits::eColor;
-  this->extent = {
+  this->extent = vk::Extent3D{
     1,
     1,
     1
@@ -165,14 +165,43 @@ bool lpe::rendering::vulkan::VulkanImage::Create(std::shared_ptr<VulkanManager>&
 
   assert(stbImage && width > 0 && height > 0 && channels > 0);
 
+  vk::DeviceSize imageSize = static_cast<vk::DeviceSize>(width * height * desiredChannels);
+
   extent.width = static_cast<uint32_t>(width);
   extent.height = static_cast<uint32_t>(height);
 
   this->Create(std::move(manager)); // TODO: still don't know if rvalue param is the best option. But nvm for now
 
+  auto vulkan = this->manager.lock();
 
+  auto allocator = vulkan->GetDeviceLocalMemory();
+
+  assert(allocator.Fits(imageSize));
+
+  auto offset = allocator.Push(stbImage, imageSize);
 
   stbi_image_free(stbImage);
+
+  if (!lpe::rendering::vulkan::common::CreateImageView(device,
+                                                       image,
+                                                       this->imageView,
+                                                       this->viewType,
+                                                       this->format,
+                                                       this->aspectFlags,
+                                                       this->baseMipLevel,
+                                                       this->mipLevels,
+                                                       this->baseLayer,
+                                                       this->layers))
+  {
+    auto logPtr = logger.lock();
+    if (logPtr)
+    {
+      logPtr->Log("Could not create ImageView. Check validation layers!");
+    }
+
+    return false;
+  }
+
 
   return true;
 }
