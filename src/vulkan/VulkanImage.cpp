@@ -2,6 +2,7 @@
 #include "VulkanManager.hpp"
 #include "../ServiceLocator.h"
 
+
 lpe::rendering::vulkan::VulkanImage& lpe::rendering::vulkan::VulkanImage::SetFormat(vk::Format format)
 {
   VulkanImage::format = format;
@@ -90,6 +91,11 @@ lpe::rendering::vulkan::VulkanImage::VulkanImage()
   this->type = vk::ImageType::e2D;
   this->viewType = vk::ImageViewType::e2D;
   this->aspectFlags = vk::ImageAspectFlagBits::eColor;
+  this->extent = {
+    1,
+    1,
+    1
+  };
 }
 
 lpe::rendering::vulkan::VulkanImage& lpe::rendering::vulkan::VulkanImage::SetMipLevels(uint32_t mipLevels)
@@ -126,13 +132,13 @@ void lpe::rendering::vulkan::VulkanImage::Destroy()
 {
   //auto renderer = manager.lock();
 
-  if(imageView)
+  if (imageView)
   {
     device.destroyImageView(imageView);
     imageView = nullptr;
   }
 
-  if(image)
+  if (image)
   {
     device.destroyImage(image);
     image = nullptr;
@@ -140,6 +146,93 @@ void lpe::rendering::vulkan::VulkanImage::Destroy()
 
   device = nullptr;
   manager.reset();
+}
+
+bool lpe::rendering::vulkan::VulkanImage::Create(std::shared_ptr<VulkanManager>&& manager,
+                                                 std::weak_ptr<lpe::utils::Resource> resource,
+                                                 int desiredChannels)
+{
+  const auto& ptr = resource.lock();
+  if (!ptr)
+  {
+    return false;
+  }
+
+  const uint8_t *data;
+  uint64_t size = ptr->GetData(&data);
+  int width, height, channels;
+  auto stbImage = stbi_load_from_memory(data, static_cast<int>(size), &width, &height, &channels, desiredChannels);
+
+  assert(stbImage && width > 0 && height > 0 && channels > 0);
+
+  extent.width = static_cast<uint32_t>(width);
+  extent.height = static_cast<uint32_t>(height);
+
+  this->Create(std::move(manager)); // TODO: still don't know if rvalue param is the best option. But nvm for now
+
+
+
+  stbi_image_free(stbImage);
+
+  return true;
+}
+
+lpe::rendering::vulkan::VulkanImage& lpe::rendering::vulkan::VulkanImage::SetWidth(uint32_t width)
+{
+  extent.width = width;
+
+  return *this;
+}
+
+lpe::rendering::vulkan::VulkanImage& lpe::rendering::vulkan::VulkanImage::SetHeight(uint32_t height)
+{
+  extent.height = height;
+  return *this;
+}
+
+lpe::rendering::vulkan::VulkanImage& lpe::rendering::vulkan::VulkanImage::SetDepth(uint32_t depth)
+{
+  extent.depth = depth;
+
+  return *this;
+}
+
+bool lpe::rendering::vulkan::VulkanImage::Create(std::shared_ptr<lpe::rendering::vulkan::VulkanManager>&& manager)
+{
+  this->logger = lpe::ServiceLocator::LogManager.Get();
+  this->manager = manager;
+  this->device = manager->GetDevice();
+
+  vk::ImageCreateInfo imageCreateInfo =
+    {
+      {},
+      this->type,
+      this->format,
+      this->extent,
+      this->baseLayer,
+      this->layers,
+      this->samples,
+      this->tiling,
+      this->usage,
+      vk::SharingMode::eExclusive
+    };
+
+  auto result = device.createImage(&imageCreateInfo, nullptr, &this->image);
+
+  if(result != vk::Result::eSuccess)
+  {
+    assert(false);
+
+    auto ptr = logger.lock();
+    if(ptr)
+    {
+      ptr->Log("Could not create Image");
+    }
+
+    return false;
+  }
+
+  return true;
 }
 
 bool lpe::rendering::vulkan::common::CreateImageView(vk::Device device,

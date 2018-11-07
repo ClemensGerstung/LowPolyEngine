@@ -1,4 +1,4 @@
-#include <lpe/lpe.h>
+#include <lpe/lpe.hpp>
 
 #include <stb_image.h>
 

@@ -543,6 +543,11 @@ VkBool32 lpe::rendering::vulkan::VulkanManager::DebugCallback(VkDebugReportFlags
   return VK_FALSE;
 }
 
+vk::PhysicalDevice lpe::rendering::vulkan::VulkanManager::GetPhysicalDevice() const
+{
+  return base.physicalDevice;
+}
+
 lpe::rendering::vulkan::VulkanManager::QueueIndices::operator bool() const
 {
   // compute queue is not explicitly required by now

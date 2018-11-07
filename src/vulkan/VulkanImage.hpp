@@ -1,6 +1,8 @@
 #ifndef LOWPOLYENGINE_VULKANIMAGE_H
 #define LOWPOLYENGINE_VULKANIMAGE_H
 
+// #define STB_IMAGE_IMPLEMENTATION in lpe.hpp
+#include <stb_image.h>
 #include <vulkan/vulkan.hpp>
 #include "../LogManager.h"
 #include "../Resource.h"
@@ -15,7 +17,7 @@ namespace common
 {
 bool CreateImageView(vk::Device device,
                      vk::Image image,
-                     vk::ImageView &view,
+                     vk::ImageView& view,
                      vk::ImageViewType viewType,
                      vk::Format format,
                      vk::ImageAspectFlags aspectFlags,
@@ -51,10 +53,13 @@ private:
   vk::ImageType type;
   vk::ImageViewType viewType;
   vk::ImageAspectFlags aspectFlags;
+  vk::Extent3D extent;
 public:
   VulkanImage();
 
   ~VulkanImage() = default;
+
+  bool Create(std::shared_ptr<VulkanManager>&& manager);
 
   /*!
    * Creates an imageview for an existing image.
@@ -67,10 +72,21 @@ public:
   bool Create(std::shared_ptr<VulkanManager>&& manager,
               vk::Image image);
 
+  /*!
+   * Creates a 2D vk::Image and vk::ImageView from a resource
+   *
+   * @param manager
+   * @param resource
+   * @param desiredChannels
+   * @return
+   */
   bool Create(std::shared_ptr<VulkanManager>&& manager,
-              std::weak_ptr<lpe::utils::Resource> resource);
+              std::weak_ptr<lpe::utils::Resource> resource,
+              int desiredChannels = STBI_rgb_alpha);
 
   void Destroy();
+
+
 
   VulkanImage& SetFormat(vk::Format format);
 
@@ -95,6 +111,12 @@ public:
   VulkanImage& SetViewType(vk::ImageViewType viewType);
 
   VulkanImage& SetAspectFlags(const vk::ImageAspectFlags& aspectFlags);
+
+  VulkanImage& SetWidth(uint32_t width);
+
+  VulkanImage& SetHeight(uint32_t height);
+
+  VulkanImage& SetDepth(uint32_t depth);
 };
 
 }

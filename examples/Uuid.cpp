@@ -1,4 +1,4 @@
-#include "../include/lpe/lpe.h"
+#include "lpe/lpe.hpp"
 #include <iostream>
 
 int main()

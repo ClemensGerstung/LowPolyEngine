@@ -7,7 +7,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-SET(CMAKE_BUILD_TYPE Debug)
+# unfortunate no sanitizers for windows :(
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -g -OX")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -50,7 +51,7 @@ add_subdirectory("external/glfw" glfw_local)
 file(GLOB_RECURSE lpe_sources src/*)
 file(GLOB lpe_example_sources examples/*)
 #Source Files Maybe use GLOB?
-set(SOURCE_FILES ${lpe_sources} include/lpe/lpe.h)
+set(SOURCE_FILES ${lpe_sources} include/lpe/lpe.hpp)
 
 include_directories(test)
 

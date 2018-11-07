@@ -84,6 +84,7 @@ public:
   vk::Instance GetInstance() const;
   VkSurfaceKHR GetSurfaceKHR() const;
   vk::Device GetDevice() const;
+  vk::PhysicalDevice GetPhysicalDevice() const;
   vk::SwapchainKHR GetSwapchain() const;
 };
 

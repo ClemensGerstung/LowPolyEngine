@@ -38,7 +38,7 @@ void lpe::rendering::utils::AllocateDeviceMemory(vk::Device device,
 
     vk::MemoryAllocateInfo allocateInfo =
       {
-        size + (size % requirements.alignment),
+        requirements.size,
         *type
       };
 
