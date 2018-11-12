@@ -1,7 +1,10 @@
 #ifndef LOWPOLYENGINE_MEMORYMANAGEMENT_HPP
 #define LOWPOLYENGINE_MEMORYMANAGEMENT_HPP
 
+#include "../LogManager.h"
+
 #include <vulkan/vulkan.hpp>
+#include <map>
 
 namespace lpe
 {
@@ -42,6 +45,49 @@ bool CreateBufferAllocateAndBindMemory(vk::Device device,
 
 class VulkanManager;
 
+class Chunk
+{
+private:
+  struct DataItem {
+    vk::DeviceSize offset;
+    vk::DeviceSize size;
+  };
+
+  vk::DeviceMemory memory;
+  vk::Device device;
+  vk::DeviceSize size;
+  vk::DeviceSize alignment;
+  vk::DeviceSize usage;
+
+  std::vector<DataItem> items;
+public:
+  Chunk() = default;
+  ~Chunk() = default;
+
+  const vk::DeviceMemory& Create(vk::Device device, vk::PhysicalDevice physicalDevice, vk::MemoryRequirements requirements, vk::MemoryPropertyFlags propertyFlags);
+  void Destroy();
+
+  bool Fits(vk::DeviceSize size) const;
+};
+
+class GeneralPurposeAllocator
+{
+private:
+  std::map<vk::Image, Chunk*> images;
+  std::map<vk::Buffer, Chunk*> buffers;
+  std::vector<Chunk> chunks;
+
+
+
+public:
+  GeneralPurposeAllocator() = default;
+  ~GeneralPurposeAllocator() = default;
+
+  vk::DeviceSize Bind(vk::Image image);
+  vk::DeviceSize Bind(vk::Buffer buffer);
+
+};
+
 enum class MarkerPosition
 {
   None,
@@ -49,6 +95,7 @@ enum class MarkerPosition
   After
 };
 
+// TODO: rule of three constructors
 class StackAllocator
 {
 private:
@@ -65,7 +112,7 @@ private:
   uint32_t memoryType;
 
 public:
-  StackAllocator() = default;
+  StackAllocator();
 
   ~StackAllocator() = default;
 

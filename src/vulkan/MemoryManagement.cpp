@@ -167,11 +167,13 @@ void lpe::rendering::vulkan::StackAllocator::Create(std::shared_ptr<lpe::renderi
 
   if (!result)
   {
-    auto ptr = logger.lock();
-
-    if(ptr)
     {
-      ptr->Log("Could not initialize StackAllocator");
+      auto ptr = logger.lock();
+
+      if (ptr)
+      {
+        ptr->Log("Could not initialize StackAllocator");
+      }
     }
 
     assert(buffer);
@@ -252,6 +254,18 @@ void lpe::rendering::vulkan::StackAllocator::RemoveMarker()
 bool lpe::rendering::vulkan::StackAllocator::Fits(vk::DeviceSize size) const
 {
   return offset + size <= this->size;
+}
+
+lpe::rendering::vulkan::StackAllocator::StackAllocator()
+{
+  this->device = nullptr;
+  this->buffer = nullptr;
+  this->memory = nullptr;
+  this->size = 0;
+  this->offset = 0;
+  this->marker = 0;
+  this->properties = {};
+  this->memoryType = 0;
 }
 
 
